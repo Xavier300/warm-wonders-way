@@ -154,6 +154,7 @@ async function hydrateAll() {
     reporter: currentEmail, // let existing myReports() filter match
     reporterId: r.reporter_id,
     reporterName: r.reporter_name || '',
+    photoPath: r.photo_url || '',
     points: 10,
     _dbId: r.id,
   }));
