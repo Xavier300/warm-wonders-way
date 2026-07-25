@@ -578,11 +578,12 @@
 
   <!-- ALERTS SCREEN -->
   <section class="screen" id="scr-alerts">
-    <div class="scr-head">
-      <button class="back" onclick="showHome()">← Back</button>
-      <div><h2>Alerts 🔔</h2><p>Latest announcements & updates</p></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;background:#fff;border-bottom:1px solid var(--line)">
+      <button onclick="showHome()" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;font-size:16px;padding:0;cursor:pointer">←</button>
+      <div style="font-weight:800;font-size:17px;color:var(--text)">Notifications</div>
+      <button onclick="markAllAlertsRead()" title="Mark all read" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;font-size:16px;padding:0;color:var(--text);cursor:pointer">✓</button>
     </div>
-    <div class="ann" id="alerts-list" style="padding:14px 16px 24px"></div>
+    <div id="alerts-list" style="padding:14px 16px 24px;background:#f6f8f7"></div>
   </section>
 
 
