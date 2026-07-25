@@ -1791,46 +1791,72 @@ body {
 
           <!-- ─── SCHEDULE MGMT ─── -->
           <div class="a-screen" id="a-schedule">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-              <div style="font-size:12px; color:var(--text-3);">Showing May 2026 · 3 collection zones</div>
-              <button class="a-btn green" style="padding:8px 16px; font-size:12px;">+ Add Schedule</button>
-            </div>
-            <div class="zone-cards">
-              <div class="zone-card" style="border-top-color:var(--g600);">
-                <div class="zone-name" style="color:var(--g700);">🟢 Zone A – Calatagan Proper</div>
-                <div class="zone-sched">Mon, Wed, Fri · 6:00–8:00 AM</div>
-                <div class="zone-chips"><span class="chip bio">🌿 Bio</span><span class="chip recyc">♻️ Recyc</span></div>
-                <div class="zone-coll">Collector: Carlos M.</div>
-                <div class="zone-actions"><button class="a-btn blue">Edit</button><button class="a-btn green">Notify</button></div>
-              </div>
-              <div class="zone-card" style="border-top-color:#3b82f6;">
-                <div class="zone-name" style="color:#1d4ed8;">🔵 Zone B – Upper Calatagan</div>
-                <div class="zone-sched">Tue, Thu · 7:00–9:00 AM</div>
-                <div class="zone-chips"><span class="chip resid">🗑️ Resid</span><span class="chip spec">☣️ Spec</span></div>
-                <div class="zone-coll">Collector: Ramon B.</div>
-                <div class="zone-actions"><button class="a-btn blue">Edit</button><button class="a-btn green">Notify</button></div>
-              </div>
-              <div class="zone-card" style="border-top-color:#8b5cf6;">
-                <div class="zone-name" style="color:#6d28d9;">🟣 Zone C – Barangay Hall</div>
-                <div class="zone-sched">Mon, Thu, Sat · 5:30–7:30 AM</div>
-                <div class="zone-chips"><span class="chip recyc">♻️ Recyc</span><span class="chip resid">🗑️ Resid</span></div>
-                <div class="zone-coll">Collector: Ben P.</div>
-                <div class="zone-actions"><button class="a-btn blue">Edit</button><button class="a-btn green">Notify</button></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+              <div style="font-size:12px; color:var(--text-3);" id="sch-summary">Loading…</div>
+              <div style="display:flex; gap:8px;">
+                <button class="a-btn" onclick="exportSchedCSV()" style="padding:8px 14px; font-size:12px;">⬇ Export CSV</button>
+                <button class="a-btn green" onclick="openZoneModal()" style="padding:8px 16px; font-size:12px;">+ Add Schedule</button>
               </div>
             </div>
+            <div class="zone-cards" id="sch-zones"></div>
             <div class="a-card">
-              <div class="a-card-title">This Week's Collections</div>
+              <div class="a-card-title">This Week's Collections
+                <span class="a-card-action" onclick="regenerateWeek()">↻ Regenerate</span>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                <input id="wf-search" class="a-search" style="flex:1; min-width:220px;" placeholder="🔍 Search zone or collector…" oninput="renderWeek()">
+                <select id="wf-zone" class="a-select" onchange="renderWeek()">
+                  <option value="">All Zones</option>
+                </select>
+                <select id="wf-status" class="a-select" onchange="renderWeek()">
+                  <option value="">All Status</option><option>Scheduled</option><option>Completed</option><option>Missed</option>
+                </select>
+              </div>
               <table class="a-table">
-                <thead><tr><th>Date</th><th>Zone</th><th>Time</th><th>Waste Types</th><th>Collector</th><th>Status</th></tr></thead>
-                <tbody>
-                  <tr><td>May 13</td><td>Zone A</td><td>6:00–8:00 AM</td><td><span class="chip bio" style="font-size:10px;">Bio</span></td><td>Carlos M.</td><td><span class="badge approved">Completed</span></td></tr>
-                  <tr><td>May 14</td><td>Zone B</td><td>7:00–9:00 AM</td><td><span class="chip resid" style="font-size:10px;">Resid</span></td><td>Ramon B.</td><td><span class="badge review">Scheduled</span></td></tr>
-                  <tr><td>May 15</td><td>Zone C</td><td>5:30–7:30 AM</td><td><span class="chip recyc" style="font-size:10px;">Recyc</span></td><td>Ben P.</td><td><span class="badge review">Scheduled</span></td></tr>
-                  <tr><td>May 16</td><td>Zone A</td><td>6:00–8:00 AM</td><td><span class="chip bio" style="font-size:10px;">Bio</span> <span class="chip recyc" style="font-size:10px;">Recyc</span></td><td>Carlos M.</td><td><span class="badge review">Scheduled</span></td></tr>
-                </tbody>
+                <thead><tr><th>Date</th><th>Zone</th><th>Time</th><th>Waste Types</th><th>Collector</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="sch-week-body"></tbody>
               </table>
             </div>
           </div>
+
+          <!-- SCHEDULE / ZONE MODAL -->
+          <div id="zoneModalBg" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,.55); z-index:9999; align-items:center; justify-content:center;">
+            <div style="background:#fff; width:min(520px,92%); max-height:90vh; overflow:auto; border-radius:14px; padding:22px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <div style="font-size:16px; font-weight:900;" id="zoneModalTitle">Add Schedule</div>
+                <button onclick="closeZoneModal()" style="background:none; border:none; font-size:20px; cursor:pointer;">✕</button>
+              </div>
+              <div style="display:grid; gap:10px;">
+                <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Zone Name</label>
+                  <input id="zm-name" class="a-search" style="width:100%;" placeholder="e.g. Zone D – Riverside"></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                  <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Color</label>
+                    <select id="zm-color" class="a-select" style="width:100%;">
+                      <option value="#22c55e">🟢 Green</option><option value="#3b82f6">🔵 Blue</option>
+                      <option value="#8b5cf6">🟣 Purple</option><option value="#f59e0b">🟠 Orange</option>
+                      <option value="#ef4444">🔴 Red</option>
+                    </select></div>
+                  <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Collector</label>
+                    <input id="zm-coll" class="a-search" style="width:100%;" placeholder="Collector name"></div>
+                </div>
+                <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Days</label>
+                  <div id="zm-days" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;"></div></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                  <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Start Time</label>
+                    <input id="zm-start" type="time" class="a-search" style="width:100%;" value="06:00"></div>
+                  <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">End Time</label>
+                    <input id="zm-end" type="time" class="a-search" style="width:100%;" value="08:00"></div>
+                </div>
+                <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Waste Types</label>
+                  <div id="zm-waste" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;"></div></div>
+              </div>
+              <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+                <button class="a-btn" onclick="closeZoneModal()">Cancel</button>
+                <button class="a-btn green" onclick="saveZone()">Save Schedule</button>
+              </div>
+            </div>
+          </div>
+
 
           <!-- ─── COMPLIANCE ─── -->
           <div class="a-screen" id="a-compliance">
@@ -2753,6 +2779,155 @@ function exportLogsCSV(){
   URL.revokeObjectURL(a.href);
 }
 document.addEventListener('DOMContentLoaded', renderLogs);
+
+/* ========== SCHEDULES ========== */
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const WASTE_TYPES = [
+  {k:'Bio', cls:'bio', ico:'🌿'},
+  {k:'Recyc', cls:'recyc', ico:'♻️'},
+  {k:'Resid', cls:'resid', ico:'🗑️'},
+  {k:'Spec', cls:'spec', ico:'☣️'}
+];
+let ZONES = [
+  {id:'Z-A', name:'Zone A – Calatagan Proper', color:'#22c55e', days:['Mon','Wed','Fri'], start:'06:00', end:'08:00', waste:['Bio','Recyc'], collector:'Carlos M.'},
+  {id:'Z-B', name:'Zone B – Upper Calatagan', color:'#3b82f6', days:['Tue','Thu'], start:'07:00', end:'09:00', waste:['Resid','Spec'], collector:'Ramon B.'},
+  {id:'Z-C', name:'Zone C – Barangay Hall', color:'#8b5cf6', days:['Mon','Thu','Sat'], start:'05:30', end:'07:30', waste:['Recyc','Resid'], collector:'Ben P.'}
+];
+let WEEK = [];
+let ZONE_EDIT_ID = null;
+
+function fmtTime(t){
+  const [h,m] = t.split(':').map(Number);
+  const p = h>=12 ? 'PM' : 'AM'; const hh = ((h+11)%12)+1;
+  return `${hh}:${String(m).padStart(2,'0')} ${p}`;
+}
+function wasteChips(list, small){
+  return list.map(w=>{const c=WASTE_TYPES.find(x=>x.k===w)||{cls:'',ico:''};return `<span class="chip ${c.cls}" ${small?'style="font-size:10px;"':''}>${c.ico} ${w}</span>`;}).join(small?' ':'');
+}
+function renderZones(){
+  const el = document.getElementById('sch-zones');
+  if(!el) return;
+  el.innerHTML = ZONES.map(z=>`
+    <div class="zone-card" style="border-top-color:${z.color};">
+      <div class="zone-name" style="color:${z.color};">● ${z.name}</div>
+      <div class="zone-sched">${z.days.join(', ')} · ${fmtTime(z.start)}–${fmtTime(z.end)}</div>
+      <div class="zone-chips">${wasteChips(z.waste)}</div>
+      <div class="zone-coll">Collector: ${z.collector||'—'}</div>
+      <div class="zone-actions">
+        <button class="a-btn blue" onclick="openZoneModal('${z.id}')">Edit</button>
+        <button class="a-btn green" onclick="notifyZone('${z.id}')">Notify</button>
+        <button class="a-btn" onclick="deleteZone('${z.id}')" style="color:#b91c1c;">Delete</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('sch-summary').textContent = `${ZONES.length} collection zone${ZONES.length!==1?'s':''} · ${WEEK.length} scheduled this week`;
+  const zsel = document.getElementById('wf-zone');
+  if(zsel){ const cur=zsel.value; zsel.innerHTML='<option value="">All Zones</option>'+ZONES.map(z=>`<option>${z.name.split(' – ')[0]}</option>`).join(''); zsel.value=cur; }
+}
+function generateWeek(){
+  WEEK = [];
+  const today = new Date();
+  const monday = new Date(today); monday.setDate(today.getDate() - ((today.getDay()+6)%7));
+  ZONES.forEach(z=>{
+    z.days.forEach(d=>{
+      const dow = DAYS.indexOf(d);
+      const date = new Date(monday); date.setDate(monday.getDate()+dow);
+      const isPast = date < new Date(today.toDateString());
+      WEEK.push({
+        id:`${z.id}-${d}`, date, zoneId:z.id, zoneName:z.name.split(' – ')[0],
+        time:`${fmtTime(z.start)}–${fmtTime(z.end)}`, waste:z.waste, collector:z.collector,
+        status: isPast ? (Math.random()<.85?'Completed':'Missed') : 'Scheduled'
+      });
+    });
+  });
+  WEEK.sort((a,b)=>a.date-b.date);
+}
+function renderWeek(){
+  const body = document.getElementById('sch-week-body');
+  if(!body) return;
+  const q = (document.getElementById('wf-search')?.value||'').toLowerCase();
+  const fz = document.getElementById('wf-zone')?.value||'';
+  const fs = document.getElementById('wf-status')?.value||'';
+  const rows = WEEK.filter(w=>{
+    if(fz && w.zoneName!==fz) return false;
+    if(fs && w.status!==fs) return false;
+    if(q && !(w.zoneName.toLowerCase().includes(q)||(w.collector||'').toLowerCase().includes(q))) return false;
+    return true;
+  });
+  if(!rows.length){ body.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-4);">No collections match your filters.</td></tr>'; return; }
+  body.innerHTML = rows.map(w=>{
+    const badge = w.status==='Completed'?'approved':w.status==='Missed'?'rejected':'review';
+    const dateStr = w.date.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const action = w.status==='Scheduled'
+      ? `<button class="a-btn green" onclick="markCollection('${w.id}','Completed')">Mark Done</button>
+         <button class="a-btn" onclick="markCollection('${w.id}','Missed')" style="color:#b91c1c;">Miss</button>`
+      : `<button class="a-btn" onclick="markCollection('${w.id}','Scheduled')">Reset</button>`;
+    return `<tr><td>${dateStr}</td><td>${w.zoneName}</td><td>${w.time}</td><td>${wasteChips(w.waste,true)}</td><td>${w.collector||'—'}</td><td><span class="badge ${badge}">${w.status}</span></td><td>${action}</td></tr>`;
+  }).join('');
+}
+function markCollection(id, status){
+  const w = WEEK.find(x=>x.id===id); if(!w) return;
+  w.status = status; renderWeek();
+}
+function regenerateWeek(){ generateWeek(); renderZones(); renderWeek(); }
+function notifyZone(id){
+  const z = ZONES.find(x=>x.id===id); if(!z) return;
+  alert(`✅ Notification sent to residents of ${z.name}.\n\nNext collection: ${z.days.join(', ')} at ${fmtTime(z.start)}`);
+}
+function deleteZone(id){
+  const z = ZONES.find(x=>x.id===id); if(!z) return;
+  if(!confirm(`Delete ${z.name}? This will remove all its scheduled collections.`)) return;
+  ZONES = ZONES.filter(x=>x.id!==id); generateWeek(); renderZones(); renderWeek();
+}
+function openZoneModal(id){
+  ZONE_EDIT_ID = id||null;
+  const z = id ? ZONES.find(x=>x.id===id) : null;
+  document.getElementById('zoneModalTitle').textContent = z ? 'Edit Schedule' : 'Add Schedule';
+  document.getElementById('zm-name').value = z?.name || '';
+  document.getElementById('zm-color').value = z?.color || '#22c55e';
+  document.getElementById('zm-coll').value = z?.collector || '';
+  document.getElementById('zm-start').value = z?.start || '06:00';
+  document.getElementById('zm-end').value = z?.end || '08:00';
+  const daysEl = document.getElementById('zm-days');
+  daysEl.innerHTML = DAYS.map(d=>{
+    const on = z?.days.includes(d);
+    return `<label style="display:inline-flex; align-items:center; gap:4px; padding:6px 10px; border:1px solid ${on?'#22c55e':'#e5e7eb'}; border-radius:8px; background:${on?'#dcfce7':'#fff'}; cursor:pointer; font-size:11px; font-weight:800;"><input type="checkbox" value="${d}" ${on?'checked':''} style="margin:0;"> ${d}</label>`;
+  }).join('');
+  const wasteEl = document.getElementById('zm-waste');
+  wasteEl.innerHTML = WASTE_TYPES.map(w=>{
+    const on = z?.waste.includes(w.k);
+    return `<label style="display:inline-flex; align-items:center; gap:4px; padding:6px 10px; border:1px solid ${on?'#22c55e':'#e5e7eb'}; border-radius:8px; background:${on?'#dcfce7':'#fff'}; cursor:pointer; font-size:11px; font-weight:800;"><input type="checkbox" value="${w.k}" ${on?'checked':''} style="margin:0;"> ${w.ico} ${w.k}</label>`;
+  }).join('');
+  document.getElementById('zoneModalBg').style.display = 'flex';
+}
+function closeZoneModal(){ document.getElementById('zoneModalBg').style.display = 'none'; ZONE_EDIT_ID = null; }
+function saveZone(){
+  const name = document.getElementById('zm-name').value.trim();
+  if(!name){ alert('Zone name is required.'); return; }
+  const days = [...document.querySelectorAll('#zm-days input:checked')].map(i=>i.value);
+  if(!days.length){ alert('Pick at least one collection day.'); return; }
+  const waste = [...document.querySelectorAll('#zm-waste input:checked')].map(i=>i.value);
+  if(!waste.length){ alert('Pick at least one waste type.'); return; }
+  const data = {
+    name, days, waste,
+    color: document.getElementById('zm-color').value,
+    collector: document.getElementById('zm-coll').value.trim(),
+    start: document.getElementById('zm-start').value,
+    end: document.getElementById('zm-end').value
+  };
+  if(ZONE_EDIT_ID){ Object.assign(ZONES.find(z=>z.id===ZONE_EDIT_ID), data); }
+  else { ZONES.push({id:'Z-'+Date.now(), ...data}); }
+  closeZoneModal(); generateWeek(); renderZones(); renderWeek();
+}
+function exportSchedCSV(){
+  const rows = [['Date','Zone','Time','Waste Types','Collector','Status']];
+  WEEK.forEach(w=>rows.push([w.date.toISOString().slice(0,10), w.zoneName, w.time, w.waste.join('|'), w.collector||'', w.status]));
+  const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'schedule-week.csv'; a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.addEventListener('DOMContentLoaded', ()=>{ generateWeek(); renderZones(); renderWeek(); });
+
 </script>
 </body>
 </html>
