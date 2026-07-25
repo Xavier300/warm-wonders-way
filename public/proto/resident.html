@@ -294,15 +294,122 @@
     <div class="day-list" id="day-list"></div>
   </section>
 
+  <!-- REPORT SCREEN -->
+  <section class="screen" id="scr-report">
+    <div class="scr-head">
+      <button class="back" onclick="showHome()">← Back</button>
+      <div>
+        <h2>Report Illegal Dumping</h2>
+        <p id="rep-count-label">Help keep the barangay clean</p>
+      </div>
+    </div>
+    <div class="form">
+      <div class="field">
+        <label>Waste type</label>
+        <div class="chip-row" id="rep-waste-picker"></div>
+      </div>
+      <div class="field">
+        <label>Severity</label>
+        <div class="chip-row" id="rep-sev-picker"></div>
+      </div>
+      <div class="field">
+        <label for="rep-loc">Location</label>
+        <input id="rep-loc" placeholder="e.g. Corner of Rizal St. & Zone 1" />
+      </div>
+      <div class="field">
+        <label for="rep-desc">Description</label>
+        <textarea id="rep-desc" placeholder="What did you see? When?"></textarea>
+      </div>
+      <div class="field">
+        <label for="rep-photo">Photo (optional)</label>
+        <input id="rep-photo" type="file" accept="image/*" />
+      </div>
+      <button class="btn-primary" onclick="submitReport()">🚨 Submit Report</button>
+
+      <div class="section" style="padding:8px 0 4px"><h3>My reports</h3></div>
+      <div id="rep-list"></div>
+    </div>
+  </section>
+
+  <!-- REWARDS SCREEN -->
+  <section class="screen" id="scr-rewards">
+    <div class="scr-head">
+      <button class="back" onclick="showHome()">← Back</button>
+      <div>
+        <h2>Rewards</h2>
+        <p>Earn points for eco-friendly actions</p>
+      </div>
+    </div>
+    <div class="rw-hero">
+      <div class="rw-label">Available points</div>
+      <div class="rw-points" id="rw-points">0</div>
+      <div class="rw-tier" id="rw-tier">🌱 Seedling · 0 pts to next tier</div>
+      <div class="rw-bar"><span id="rw-bar-fill" style="width:0%"></span></div>
+    </div>
+    <div class="section"><h3>Redeem rewards</h3></div>
+    <div class="catalog" id="rw-catalog"></div>
+    <div class="section"><h3>Recent activity</h3></div>
+    <div class="history" id="rw-history"></div>
+  </section>
+
+  <!-- PROFILE SCREEN -->
+  <section class="screen" id="scr-profile">
+    <div class="scr-head">
+      <button class="back" onclick="showHome()">← Back</button>
+      <div>
+        <h2>My Profile</h2>
+        <p>Manage your account details</p>
+      </div>
+    </div>
+    <div class="prof">
+      <div class="avatar" id="prof-avatar">R</div>
+      <div class="prof-name" id="prof-name">Resident</div>
+      <div class="prof-email" id="prof-email">resident@ecobarangay.app</div>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="stat-n" id="stat-reports">0</div><div class="stat-l">Reports</div></div>
+      <div class="stat"><div class="stat-n" id="stat-points">0</div><div class="stat-l">Points</div></div>
+      <div class="stat"><div class="stat-n" id="stat-zone">Z1</div><div class="stat-l">Zone</div></div>
+    </div>
+    <div class="form">
+      <div class="field">
+        <label for="pf-name">Full name</label>
+        <input id="pf-name" />
+      </div>
+      <div class="field">
+        <label for="pf-email">Email</label>
+        <input id="pf-email" type="email" disabled />
+      </div>
+      <div class="field">
+        <label for="pf-phone">Phone</label>
+        <input id="pf-phone" placeholder="09xx xxx xxxx" />
+      </div>
+      <div class="field">
+        <label for="pf-zone">Zone</label>
+        <select id="pf-zone">
+          <option value="Z1">Zone 1</option>
+          <option value="Z2">Zone 2</option>
+          <option value="Z3">Zone 3</option>
+          <option value="Z4">Zone 4</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="saveProfile()">💾 Save changes</button>
+      <button class="btn-ghost" onclick="signOut()">Sign out</button>
+    </div>
+  </section>
+
   <!-- Tab bar -->
   <nav class="tabbar">
     <button class="tab on" id="tab-home" onclick="showHome()"><span class="ic">🏠</span>Home</button>
     <button class="tab" id="tab-sched" onclick="showSchedule()"><span class="ic">📅</span>Schedule</button>
-    <button class="tab" onclick="notImpl('Report')"><span class="ic">🚨</span>Report</button>
-    <button class="tab" onclick="notImpl('Rewards')"><span class="ic">🎁</span>Rewards</button>
-    <button class="tab" onclick="notImpl('Profile')"><span class="ic">👤</span>Profile</button>
+    <button class="tab" id="tab-report" onclick="showReport()"><span class="ic">🚨</span>Report</button>
+    <button class="tab" id="tab-rewards" onclick="showRewards()"><span class="ic">🎁</span>Rewards</button>
+    <button class="tab" id="tab-profile" onclick="showProfile()"><span class="ic">👤</span>Profile</button>
   </nav>
 </div>
+
+<div class="toast" id="toast"></div>
+
 
 <script>
   // ---- Schedule data (mirrors the admin prototype's zones) ----
