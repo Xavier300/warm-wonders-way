@@ -613,6 +613,56 @@
   function showRewards(){ renderRewards(); showScreen('scr-rewards'); }
   function showEco(){ renderEco(); showScreen('scr-eco'); }
   function showProfile(){ renderProfile(); showScreen('scr-profile'); }
+  function showCompliance(){ renderCompliance(); showScreen('scr-comp'); }
+
+  // ---------- SELF-COMPLIANCE FORM ----------
+  const CF_WASTE = [
+    { key:'Bio',   ic:'🌿', name:'Biodegradable Waste', desc:'Food scraps, leaves, garden waste' },
+    { key:'Recyc', ic:'♻️', name:'Recyclable Waste',    desc:'Paper, plastic, glass, metals' },
+    { key:'Resid', ic:'🗑️', name:'Residual Waste',      desc:'Non-recyclable, contaminated items' },
+    { key:'Spec',  ic:'☣️', name:'Special Waste',       desc:'Batteries, chemicals, e-waste, meds' },
+  ];
+  let cfSelected = new Set();
+  function renderCompliance(){
+    cfSelected = new Set();
+    const box = document.getElementById('cf-waste');
+    box.innerHTML = CF_WASTE.map(w => `
+      <button type="button" class="cf-opt" data-k="${w.key}" onclick="toggleCfWaste('${w.key}')"
+        style="display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid var(--line);border-radius:14px;background:#fff;text-align:left;width:100%">
+        <div style="width:42px;height:42px;border-radius:12px;background:#f1f5f9;display:grid;place-items:center;font-size:22px;flex-shrink:0">${w.ic}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:800;font-size:13px;color:var(--text)">${w.name}</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px">${w.desc}</div>
+        </div>
+        <div class="cf-check" style="width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:#fff;font-size:13px;font-weight:900;flex-shrink:0"></div>
+      </button>
+    `).join('');
+    document.getElementById('cf-addr').value = '';
+    document.getElementById('cf-notes').value = '';
+    document.getElementById('cf-date').value = new Date().toISOString().slice(0,10);
+  }
+  function toggleCfWaste(k){
+    if(cfSelected.has(k)) cfSelected.delete(k); else cfSelected.add(k);
+    document.querySelectorAll('#cf-waste .cf-opt').forEach(btn => {
+      const on = cfSelected.has(btn.dataset.k);
+      btn.style.borderColor = on ? 'var(--g700)' : 'var(--line)';
+      btn.style.background = on ? '#f2fbf5' : '#fff';
+      const chk = btn.querySelector('.cf-check');
+      chk.style.background = on ? 'var(--g700)' : 'transparent';
+      chk.style.borderColor = on ? 'var(--g700)' : 'var(--line)';
+      chk.textContent = on ? '✓' : '';
+    });
+  }
+  function submitCompliance(){
+    const addr = document.getElementById('cf-addr').value.trim();
+    const date = document.getElementById('cf-date').value;
+    if(!addr){ toast('Please enter your address'); return; }
+    if(!date){ toast('Please select the collection date'); return; }
+    if(cfSelected.size === 0){ toast('Select at least one waste type'); return; }
+    toast('Compliance form submitted ✓');
+    setTimeout(showHome, 700);
+  }
+
 
   // ---------- ECO AWARENESS ----------
   const ECO_TIPS = [
