@@ -14,16 +14,294 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      announcements: {
+        Row: {
+          audience: string
+          body: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          published_at: string | null
+          scheduled_at: string | null
+          status: string
+          title: string
+          updated_at: string
+          waste_types: string[]
+        }
+        Insert: {
+          audience?: string
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          waste_types?: string[]
+        }
+        Update: {
+          audience?: string
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          waste_types?: string[]
+        }
+        Relationships: []
+      }
+      compliance_forms: {
+        Row: {
+          created_at: string
+          household_address: string | null
+          id: string
+          missed_date: string | null
+          remarks: string | null
+          resident_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          waste_types: string[]
+        }
+        Insert: {
+          created_at?: string
+          household_address?: string | null
+          id?: string
+          missed_date?: string | null
+          remarks?: string | null
+          resident_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          waste_types?: string[]
+        }
+        Update: {
+          created_at?: string
+          household_address?: string | null
+          id?: string
+          missed_date?: string | null
+          remarks?: string | null
+          resident_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          waste_types?: string[]
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          points: number
+          position: string | null
+          status: string
+          tier: string
+          updated_at: string
+          zone: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          points?: number
+          position?: string | null
+          status?: string
+          tier?: string
+          updated_at?: string
+          zone?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          points?: number
+          position?: string | null
+          status?: string
+          tier?: string
+          updated_at?: string
+          zone?: string | null
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          photo_url: string | null
+          reporter_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          severity: string
+          status: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          photo_url?: string | null
+          reporter_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          severity?: string
+          status?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          photo_url?: string | null
+          reporter_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          severity?: string
+          status?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      schedules: {
+        Row: {
+          collector_id: string | null
+          created_at: string
+          day_of_week: string
+          id: string
+          notes: string | null
+          status: string
+          time_end: string | null
+          time_start: string | null
+          updated_at: string
+          waste_type: string
+          zone: string
+        }
+        Insert: {
+          collector_id?: string | null
+          created_at?: string
+          day_of_week: string
+          id?: string
+          notes?: string | null
+          status?: string
+          time_end?: string | null
+          time_start?: string | null
+          updated_at?: string
+          waste_type: string
+          zone: string
+        }
+        Update: {
+          collector_id?: string | null
+          created_at?: string
+          day_of_week?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          time_end?: string | null
+          time_start?: string | null
+          updated_at?: string
+          waste_type?: string
+          zone?: string
+        }
+        Relationships: []
+      }
+      system_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          category: string
+          created_at: string
+          details: Json | null
+          id: string
+          level: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          category?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          level?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          category?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          level?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "staff" | "collector" | "resident"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +428,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "staff", "collector", "resident"],
+    },
   },
 } as const
