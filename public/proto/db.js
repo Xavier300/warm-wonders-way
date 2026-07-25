@@ -3,7 +3,7 @@
 // Mirrors DB rows into the localStorage keys the existing prototype code
 // already reads, and pushes local mutations back through window.EB.*.
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+const { createClient } = window.supabase;
 
 const SUPABASE_URL = 'https://woqlyjvotgzifrdpidfh.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_lnxcSpkHyDTxgpnZ1BReKA_cExyb4Dq';
