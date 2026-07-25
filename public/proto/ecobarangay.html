@@ -2699,6 +2699,40 @@ function updateNavBadges(){
     const n = COMP.filter(c=>c.status==='Pending').length;
     cb.textContent = n; cb.style.display = n?'':'none';
   }
+  renderOverview();
+}
+function renderOverview(){
+  const repTotal = REPORTS.length;
+  const repPending = REPORTS.filter(r=>r.status==='Pending'||r.status==='Under Review').length;
+  const compTotal = (typeof COMP!=='undefined') ? COMP.length : 0;
+  const colDone = (typeof WEEK!=='undefined') ? WEEK.filter(w=>w.status==='Done').length : 0;
+  const colTotal = (typeof WEEK!=='undefined') ? WEEK.length : 0;
+  const set = (id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
+  set('ov-rep-total', repTotal);
+  set('ov-rep-pending', repPending);
+  set('ov-comp-total', compTotal);
+  set('ov-col-total', colDone + (colTotal?`/${colTotal}`:''));
+  const approved = REPORTS.filter(r=>r.status==='Approved').length;
+  const rate = repTotal ? Math.round((approved/repTotal)*100) : 0;
+  set('ov-rep-change', `${rate}% resolved`);
+  const verified = (typeof COMP!=='undefined') ? COMP.filter(c=>c.status==='Verified').length : 0;
+  const vRate = compTotal ? Math.round((verified/compTotal)*100) : 0;
+  set('ov-comp-change', `${vRate}% verified`);
+  const colRate = colTotal ? Math.round((colDone/colTotal)*100) : 0;
+  set('ov-col-change', `${colRate}% this week`);
+  const tbody = document.getElementById('ov-recent-tbody');
+  if (tbody){
+    const recent = [...REPORTS].slice(-5).reverse();
+    tbody.innerHTML = recent.length ? recent.map(r=>`
+      <tr>
+        <td><div class="td-user"><div class="td-av">👤</div>${r.reporter}</div></td>
+        <td>${r.location}</td>
+        <td>${r.date||''}</td>
+        <td>${typeof repSevCell==='function'?repSevCell(r.sev):r.sev}</td>
+        <td>${typeof repStatusBadge==='function'?repStatusBadge(r.status):r.status}</td>
+        <td><button class="a-btn blue" onclick="gotoAdmin('a-reports')">View</button></td>
+      </tr>`).join('') : `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--muted);">No reports yet.</td></tr>`;
+  }
 }
 function setReportStatus(id, status){
   const r = REPORTS.find(x=>x.id===id); if (!r) return;
