@@ -1762,25 +1762,31 @@ body {
 
           <!-- ─── REPORTS ─── -->
           <div class="a-screen" id="a-reports">
-            <div style="display:flex; gap:7px; margin-bottom:14px; flex-wrap:wrap;">
-              <button class="a-btn blue" style="padding:7px 14px; font-size:11px;">All (47)</button>
-              <button class="a-btn" style="padding:7px 14px; font-size:11px; background:#fef9c3; color:#a16207;">Pending (5)</button>
-              <button class="a-btn" style="padding:7px 14px; font-size:11px; background:#dbeafe; color:#1d4ed8;">Review (8)</button>
-              <button class="a-btn green" style="padding:7px 14px; font-size:11px;">Approved (29)</button>
-              <button class="a-btn red" style="padding:7px 14px; font-size:11px;">Rejected (5)</button>
+            <div id="rep-tabs" style="display:flex; gap:7px; margin-bottom:14px; flex-wrap:wrap;"></div>
+            <div class="a-card" style="margin-bottom:14px;">
+              <div class="a-card-title">Filters
+                <span class="a-card-action" onclick="openReportModal()">+ New Report</span>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <input id="rf-search" class="a-search" style="flex:1; min-width:220px;" placeholder="🔍 Search by ID, reporter, or location…" oninput="renderReports()">
+                <select id="rf-sev" class="a-select" onchange="renderReports()">
+                  <option value="">All Severity</option><option>High</option><option>Med</option><option>Low</option>
+                </select>
+              </div>
             </div>
             <div class="a-card">
+              <div class="a-card-title">Reports <span class="a-card-action" onclick="exportReportsCSV()">Export CSV</span></div>
               <table class="a-table">
                 <thead><tr><th>ID</th><th>Reporter</th><th>Location</th><th>Evidence</th><th>Severity</th><th>Status</th><th>Actions</th></tr></thead>
-                <tbody>
-                  <tr><td style="font-weight:800;color:var(--text-3);">#1027</td><td><div class="td-user"><div class="td-av">👤</div>Juan dela Cruz</div></td><td>Rizal St.</td><td>📷 2 photos</td><td style="color:#f97316;font-weight:800;font-size:11px;">🟠 Med</td><td><span class="badge review">Review</span></td><td><div class="a-btn-row"><button class="a-btn green">✓</button><button class="a-btn red">✗</button></div></td></tr>
-                  <tr><td style="font-weight:800;color:var(--text-3);">#1026</td><td><div class="td-user"><div class="td-av">👤</div>Maria Reyes</div></td><td>Canal Area</td><td>📷 3 photos, 📹 CCTV</td><td style="color:#ef4444;font-weight:800;font-size:11px;">🔴 High</td><td><span class="badge pending">Pending</span></td><td><div class="a-btn-row"><button class="a-btn green">✓</button><button class="a-btn red">✗</button></div></td></tr>
-                  <tr><td style="font-weight:800;color:var(--text-3);">#1025</td><td><div class="td-user"><div class="td-av">👤</div>Pedro Santos</div></td><td>Public Market</td><td>📷 1 photo</td><td style="color:#f97316;font-weight:800;font-size:11px;">🟠 Med</td><td><span class="badge approved">Approved</span></td><td><button class="a-btn blue">View</button></td></tr>
-                  <tr><td style="font-weight:800;color:var(--text-3);">#1024</td><td><div class="td-user"><div class="td-av">👤</div>Ana Gomez</div></td><td>Brgy. Road</td><td>📷 1 photo</td><td style="color:#16a34a;font-weight:800;font-size:11px;">🟢 Low</td><td><span class="badge rejected">Rejected</span></td><td><button class="a-btn blue">View</button></td></tr>
-                  <tr><td style="font-weight:800;color:var(--text-3);">#1023</td><td><div class="td-user"><div class="td-av">👤</div>Roy Lim</div></td><td>Mabini St.</td><td>📷 4 photos, 📹 CCTV</td><td style="color:#ef4444;font-weight:800;font-size:11px;">🔴 High</td><td><span class="badge approved">Approved</span></td><td><button class="a-btn blue">View</button></td></tr>
-                </tbody>
+                <tbody id="rep-tbody"></tbody>
               </table>
+              <div id="rep-count" style="margin-top:12px; font-size:12px; color:var(--muted);">—</div>
             </div>
+          </div>
+
+          <!-- REPORT VIEW MODAL -->
+          <div id="rep-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:9999; align-items:center; justify-content:center;" onclick="if(event.target===this)closeReportModal()">
+            <div style="background:#0f172a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:22px; width:460px; max-width:92vw; color:#e5e7eb;" id="rep-modal-body"></div>
           </div>
 
           <!-- ─── SCHEDULE MGMT ─── -->
@@ -1920,52 +1926,44 @@ body {
 
           <!-- ─── ANALYTICS ─── -->
           <div class="a-screen" id="a-analytics">
+            <div class="a-card" style="margin-bottom:12px;">
+              <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                <div style="font-weight:700; margin-right:auto;">📊 Analytics Controls</div>
+                <select id="an-year" class="a-select" onchange="renderAnalytics()">
+                  <option>2026</option><option>2025</option><option>2024</option>
+                </select>
+                <select id="an-zone" class="a-select" onchange="renderAnalytics()">
+                  <option value="">All Zones</option><option>Zone A</option><option>Zone B</option><option>Zone C</option>
+                </select>
+                <button class="a-btn" onclick="renderAnalytics()">🔄 Refresh</button>
+                <button class="a-btn green" onclick="exportAnalyticsCSV()">⬇ Export Report</button>
+              </div>
+            </div>
             <div class="a-grid2" style="grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:14px;">
-              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:var(--g100);">📊</div><span class="a-stat-change up">▲ 18%</span></div><div class="a-stat-val">412</div><div class="a-stat-lbl">Total Reports (2026)</div></div>
-              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:#dbeafe;">🏘️</div><span class="a-stat-change up">▲ 6%</span></div><div class="a-stat-val">342</div><div class="a-stat-lbl">Active Households</div></div>
-              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:#fef9c3;">⚡</div><span class="a-stat-change up">▲ 22%</span></div><div class="a-stat-val">2.4h</div><div class="a-stat-lbl">Avg. Response Time</div></div>
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:var(--g100);">📊</div><span class="a-stat-change up" id="an-k1-chg">▲ 18%</span></div><div class="a-stat-val" id="an-k1">0</div><div class="a-stat-lbl">Total Reports (<span id="an-yr-lbl">2026</span>)</div></div>
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:#dbeafe;">🏘️</div><span class="a-stat-change up">▲ 6%</span></div><div class="a-stat-val" id="an-k2">0</div><div class="a-stat-lbl">Active Households</div></div>
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:#fef9c3;">⚡</div><span class="a-stat-change up">▲ 22%</span></div><div class="a-stat-val" id="an-k3">2.4h</div><div class="a-stat-lbl">Avg. Response Time</div></div>
             </div>
             <div class="a-card" style="margin-bottom:12px;">
-              <div class="a-card-title">Illegal Dumping Reports by Month</div>
-              <div class="bar-chart-wrap" style="height:120px;">
-                <div class="bar-chart-bar" style="height:28%; background:var(--g300);"></div>
-                <div class="bar-chart-bar" style="height:42%; background:var(--g300);"></div>
-                <div class="bar-chart-bar" style="height:35%; background:var(--g300);"></div>
-                <div class="bar-chart-bar" style="height:58%; background:var(--g400);"></div>
-                <div class="bar-chart-bar" style="height:72%; background:var(--g400);"></div>
-                <div class="bar-chart-bar" style="height:88%; background:var(--g500);"></div>
-                <div class="bar-chart-bar hi" style="height:95%; background:var(--g700);"></div>
-                <div class="bar-chart-bar" style="height:80%; background:var(--g400);"></div>
-                <div class="bar-chart-bar" style="height:65%; background:var(--g300);"></div>
-                <div class="bar-chart-bar" style="height:52%; background:var(--g300);"></div>
-                <div class="bar-chart-bar" style="height:44%; background:var(--g300);"></div>
-                <div class="bar-chart-bar" style="height:38%; background:var(--g300);"></div>
-              </div>
-              <div class="chart-xlabels"><span class="chart-xl">Jan</span><span class="chart-xl">Feb</span><span class="chart-xl">Mar</span><span class="chart-xl">Apr</span><span class="chart-xl">May</span><span class="chart-xl">Jun</span><span class="chart-xl" style="color:var(--g700);font-weight:800;">Jul</span><span class="chart-xl">Aug</span><span class="chart-xl">Sep</span><span class="chart-xl">Oct</span><span class="chart-xl">Nov</span><span class="chart-xl">Dec</span></div>
+              <div class="a-card-title">Illegal Dumping Reports by Month <span class="a-card-action" id="an-peak">—</span></div>
+              <div class="bar-chart-wrap" id="an-bars" style="height:120px;"></div>
+              <div class="chart-xlabels" id="an-xlabels"></div>
             </div>
             <div class="a-grid2">
               <div class="a-card">
                 <div class="a-card-title">Compliance Rate by Zone</div>
-                <div style="display:flex; flex-direction:column; gap:10px;">
-                  <div><div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;"><span style="font-weight:700;">Zone A</span><span style="font-weight:800; color:var(--g700);">94%</span></div><div class="prog-bar" style="height:8px;"><div class="prog-fill" style="width:94%;"></div></div></div>
-                  <div><div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;"><span style="font-weight:700;">Zone B</span><span style="font-weight:800; color:#a16207;">71%</span></div><div class="prog-bar" style="height:8px;"><div class="prog-fill warn" style="width:71%;"></div></div></div>
-                  <div><div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;"><span style="font-weight:700;">Zone C</span><span style="font-weight:800; color:var(--g700);">88%</span></div><div class="prog-bar" style="height:8px;"><div class="prog-fill" style="width:88%;"></div></div></div>
-                </div>
+                <div id="an-zones" style="display:flex; flex-direction:column; gap:10px;"></div>
               </div>
               <div class="a-card">
                 <div class="a-card-title">Report Outcomes</div>
                 <div class="donut-wrap">
                   <svg width="80" height="80" viewBox="0 0 80 80" style="flex-shrink:0;">
                     <circle cx="40" cy="40" r="28" fill="none" stroke="#e5e7eb" stroke-width="12"/>
-                    <circle cx="40" cy="40" r="28" fill="none" stroke="#52b788" stroke-width="12" stroke-dasharray="89 87" stroke-dashoffset="18" transform="rotate(-90 40 40)"/>
-                    <circle cx="40" cy="40" r="28" fill="none" stroke="#3b82f6" stroke-width="12" stroke-dasharray="28 148" stroke-dashoffset="-71" transform="rotate(-90 40 40)"/>
-                    <circle cx="40" cy="40" r="28" fill="none" stroke="#ef4444" stroke-width="12" stroke-dasharray="17 159" stroke-dashoffset="-99" transform="rotate(-90 40 40)"/>
+                    <circle id="an-arc-app" cx="40" cy="40" r="28" fill="none" stroke="#52b788" stroke-width="12" transform="rotate(-90 40 40)"/>
+                    <circle id="an-arc-rev" cx="40" cy="40" r="28" fill="none" stroke="#3b82f6" stroke-width="12" transform="rotate(-90 40 40)"/>
+                    <circle id="an-arc-rej" cx="40" cy="40" r="28" fill="none" stroke="#ef4444" stroke-width="12" transform="rotate(-90 40 40)"/>
                   </svg>
-                  <div class="donut-legend">
-                    <div class="dl-item"><div class="dl-dot" style="background:#52b788;"></div>Approved 62%</div>
-                    <div class="dl-item"><div class="dl-dot" style="background:#3b82f6;"></div>Review 19%</div>
-                    <div class="dl-item"><div class="dl-dot" style="background:#ef4444;"></div>Rejected 11%</div>
-                  </div>
+                  <div class="donut-legend" id="an-legend"></div>
                 </div>
               </div>
             </div>
@@ -2400,6 +2398,199 @@ function exportUsersCSV() {
   URL.revokeObjectURL(a.href);
 }
 document.addEventListener('DOMContentLoaded', renderUsers);
+
+// ================= REPORTS =================
+let REPORTS = [
+  {id:1027, reporter:'Juan dela Cruz', location:'Rizal St.', evidence:'📷 2 photos', sev:'Med', status:'Review', date:'May 12, 2026', notes:'Piles of household trash near sidewalk.'},
+  {id:1026, reporter:'Maria Reyes', location:'Canal Area', evidence:'📷 3 photos, 📹 CCTV', sev:'High', status:'Pending', date:'May 12, 2026', notes:'Dumping into waterway, ongoing.'},
+  {id:1025, reporter:'Pedro Santos', location:'Public Market', evidence:'📷 1 photo', sev:'Med', status:'Approved', date:'May 11, 2026', notes:'Overflowing bin at market entrance.'},
+  {id:1024, reporter:'Ana Gomez', location:'Brgy. Road', evidence:'📷 1 photo', sev:'Low', status:'Rejected', date:'May 11, 2026', notes:'Duplicate of #1019.'},
+  {id:1023, reporter:'Roy Lim', location:'Mabini St.', evidence:'📷 4 photos, 📹 CCTV', sev:'High', status:'Approved', date:'May 10, 2026', notes:'Repeat offender - construction debris.'},
+  {id:1022, reporter:'Liza Cruz', location:'Zone A Corner', evidence:'📷 2 photos', sev:'Med', status:'Approved', date:'May 09, 2026', notes:'Bagged waste left outside pickup hours.'},
+  {id:1021, reporter:'Ben Torres', location:'Rizal St.', evidence:'📷 1 photo', sev:'Low', status:'Approved', date:'May 08, 2026', notes:'Small litter, cleaned by resident.'},
+  {id:1020, reporter:'Sofia Ramos', location:'Canal Area', evidence:'📷 5 photos', sev:'High', status:'Review', date:'May 08, 2026', notes:'Chemical drums found by canal.'},
+];
+let REP_FILTER = 'All';
+function repSevCell(s){
+  const m = {High:['🔴','#ef4444'], Med:['🟠','#f97316'], Low:['🟢','#16a34a']}[s]||['⚪','#999'];
+  return `<span style="color:${m[1]};font-weight:800;font-size:11px;">${m[0]} ${s}</span>`;
+}
+function repStatusBadge(s){
+  const cls = {Pending:'pending', Review:'review', Approved:'approved', Rejected:'rejected'}[s]||'pending';
+  return `<span class="badge ${cls}">${s}</span>`;
+}
+function repActions(r){
+  const view = `<button class="a-btn blue" onclick="viewReport(${r.id})">View</button>`;
+  if (r.status==='Pending' || r.status==='Review')
+    return `<button class="a-btn green" onclick="setReportStatus(${r.id},'Approved')">✓</button> <button class="a-btn red" onclick="setReportStatus(${r.id},'Rejected')">✗</button> ${view}`;
+  return `${view} <button class="a-btn red" onclick="deleteReport(${r.id})">Delete</button>`;
+}
+function renderReportTabs(){
+  const counts = {All: REPORTS.length};
+  ['Pending','Review','Approved','Rejected'].forEach(s => counts[s] = REPORTS.filter(r=>r.status===s).length);
+  const styles = {
+    All:'blue', Pending:'', Review:'', Approved:'green', Rejected:'red'
+  };
+  const bg = {Pending:'background:#fef9c3; color:#a16207;', Review:'background:#dbeafe; color:#1d4ed8;'};
+  const tabs = document.getElementById('rep-tabs'); if (!tabs) return;
+  tabs.innerHTML = Object.keys(counts).map(k => {
+    const active = REP_FILTER===k ? 'outline:2px solid #22c55e; outline-offset:1px;' : '';
+    return `<button class="a-btn ${styles[k]||''}" style="padding:7px 14px; font-size:11px; ${bg[k]||''} ${active}" onclick="setReportFilter('${k}')">${k} (${counts[k]})</button>`;
+  }).join('');
+}
+function setReportFilter(f){ REP_FILTER = f; renderReports(); }
+function filteredReports(){
+  const q = (document.getElementById('rf-search')?.value||'').toLowerCase();
+  const sev = document.getElementById('rf-sev')?.value||'';
+  return REPORTS.filter(r =>
+    (REP_FILTER==='All' || r.status===REP_FILTER) &&
+    (!sev || r.sev===sev) &&
+    (!q || String(r.id).includes(q) || r.reporter.toLowerCase().includes(q) || r.location.toLowerCase().includes(q))
+  );
+}
+function renderReports(){
+  renderReportTabs();
+  const list = filteredReports();
+  const tbody = document.getElementById('rep-tbody'); if (!tbody) return;
+  tbody.innerHTML = list.length ? list.map(r => `
+    <tr>
+      <td style="font-weight:800;color:var(--text-3);">#${r.id}</td>
+      <td><div class="td-user"><div class="td-av">👤</div>${r.reporter}</div></td>
+      <td>${r.location}</td><td>${r.evidence}</td>
+      <td>${repSevCell(r.sev)}</td>
+      <td>${repStatusBadge(r.status)}</td>
+      <td>${repActions(r)}</td>
+    </tr>`).join('') : `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--muted);">No reports match your filters.</td></tr>`;
+  document.getElementById('rep-count').textContent = `Showing ${list.length} of ${REPORTS.length} reports`;
+  if (typeof renderAnalytics === 'function') renderAnalytics();
+}
+function setReportStatus(id, status){
+  const r = REPORTS.find(x=>x.id===id); if (!r) return;
+  r.status = status; renderReports();
+}
+function deleteReport(id){
+  const r = REPORTS.find(x=>x.id===id); if (!r) return;
+  if (!confirm(`Delete report #${id}?`)) return;
+  REPORTS = REPORTS.filter(x=>x.id!==id); renderReports();
+}
+function viewReport(id){
+  const r = REPORTS.find(x=>x.id===id); if (!r) return;
+  const body = document.getElementById('rep-modal-body');
+  body.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <div style="font-weight:700; font-size:16px;">Report #${r.id}</div>
+      ${repStatusBadge(r.status)}
+    </div>
+    <div style="display:grid; grid-template-columns:110px 1fr; gap:8px 12px; font-size:13px;">
+      <div style="color:var(--muted);">Reporter</div><div>${r.reporter}</div>
+      <div style="color:var(--muted);">Location</div><div>${r.location}</div>
+      <div style="color:var(--muted);">Evidence</div><div>${r.evidence}</div>
+      <div style="color:var(--muted);">Severity</div><div>${repSevCell(r.sev)}</div>
+      <div style="color:var(--muted);">Date</div><div>${r.date}</div>
+      <div style="color:var(--muted);">Notes</div><div>${r.notes}</div>
+    </div>
+    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+      <button class="a-btn green" onclick="setReportStatus(${r.id},'Approved'); closeReportModal();">Approve</button>
+      <button class="a-btn red" onclick="setReportStatus(${r.id},'Rejected'); closeReportModal();">Reject</button>
+      <button class="a-btn" onclick="closeReportModal()">Close</button>
+    </div>`;
+  document.getElementById('rep-modal').style.display = 'flex';
+}
+function closeReportModal(){ document.getElementById('rep-modal').style.display = 'none'; }
+function openReportModal(){
+  const id = Math.max(...REPORTS.map(r=>r.id)) + 1;
+  const reporter = prompt('Reporter name?'); if (!reporter) return;
+  const location = prompt('Location?') || 'Unknown';
+  const sev = (prompt('Severity (High/Med/Low)?','Med')||'Med');
+  REPORTS.unshift({id, reporter, location, evidence:'📷 1 photo', sev, status:'Pending',
+    date:new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'}), notes:'Newly submitted report.'});
+  renderReports();
+}
+function exportReportsCSV(){
+  const rows = [['ID','Reporter','Location','Evidence','Severity','Status','Date','Notes']];
+  filteredReports().forEach(r => rows.push([r.id,r.reporter,r.location,r.evidence,r.sev,r.status,r.date,r.notes]));
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'reports.csv'; a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.addEventListener('DOMContentLoaded', renderReports);
+
+// ================= ANALYTICS =================
+const AN_DATA = {
+  '2024': {monthly:[18,22,25,30,35,40,48,44,38,32,28,24], households:280, zones:{'Zone A':88,'Zone B':64,'Zone C':82}, response:'3.1h', chg:'▲ 9%'},
+  '2025': {monthly:[24,30,28,42,55,68,74,66,52,44,36,30], households:312, zones:{'Zone A':91,'Zone B':68,'Zone C':85}, response:'2.7h', chg:'▲ 14%'},
+  '2026': {monthly:[28,42,35,58,72,88,95,80,65,52,44,38], households:342, zones:{'Zone A':94,'Zone B':71,'Zone C':88}, response:'2.4h', chg:'▲ 18%'},
+};
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function renderAnalytics(){
+  const year = document.getElementById('an-year')?.value || '2026';
+  const zoneF = document.getElementById('an-zone')?.value || '';
+  const d = AN_DATA[year];
+  document.getElementById('an-yr-lbl').textContent = year;
+  const totalMonthly = d.monthly.reduce((a,b)=>a+b,0);
+  document.getElementById('an-k1').textContent = totalMonthly;
+  document.getElementById('an-k1-chg').textContent = d.chg;
+  document.getElementById('an-k2').textContent = d.households;
+  document.getElementById('an-k3').textContent = d.response;
+
+  // Bars
+  const max = Math.max(...d.monthly);
+  const peakIdx = d.monthly.indexOf(max);
+  const bars = document.getElementById('an-bars');
+  bars.innerHTML = d.monthly.map((v,i) => {
+    const h = Math.max(6, Math.round(v/max*100));
+    const color = i===peakIdx ? 'var(--g700)' : (h>70?'var(--g500)':(h>45?'var(--g400)':'var(--g300)'));
+    return `<div class="bar-chart-bar${i===peakIdx?' hi':''}" title="${MONTHS[i]}: ${v} reports" style="height:${h}%; background:${color}; cursor:pointer;" onclick="alert('${MONTHS[i]} ${year}: ${v} reports')"></div>`;
+  }).join('');
+  document.getElementById('an-xlabels').innerHTML = MONTHS.map((m,i) =>
+    `<span class="chart-xl"${i===peakIdx?' style="color:var(--g700);font-weight:800;"':''}>${m}</span>`).join('');
+  document.getElementById('an-peak').textContent = `Peak: ${MONTHS[peakIdx]} (${max})`;
+
+  // Zones
+  const zones = Object.entries(d.zones).filter(([z]) => !zoneF || z===zoneF);
+  document.getElementById('an-zones').innerHTML = zones.map(([z,pct]) => {
+    const cls = pct>=85?'':(pct>=70?'warn':'low');
+    const col = pct>=85?'var(--g700)':(pct>=70?'#a16207':'#b91c1c');
+    return `<div><div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;"><span style="font-weight:700;">${z}</span><span style="font-weight:800; color:${col};">${pct}%</span></div><div class="prog-bar" style="height:8px;"><div class="prog-fill ${cls}" style="width:${pct}%;"></div></div></div>`;
+  }).join('') || '<div style="font-size:12px; color:var(--muted);">No zone data.</div>';
+
+  // Donut from live REPORTS
+  const total = REPORTS.length || 1;
+  const app = REPORTS.filter(r=>r.status==='Approved').length;
+  const rev = REPORTS.filter(r=>r.status==='Review'||r.status==='Pending').length;
+  const rej = REPORTS.filter(r=>r.status==='Rejected').length;
+  const C = 2*Math.PI*28;
+  const setArc = (id, val, offsetPct) => {
+    const el = document.getElementById(id); if (!el) return;
+    const len = (val/total)*C;
+    el.setAttribute('stroke-dasharray', `${len} ${C-len}`);
+    el.setAttribute('stroke-dashoffset', `${-offsetPct*C}`);
+  };
+  setArc('an-arc-app', app, 0);
+  setArc('an-arc-rev', rev, app/total);
+  setArc('an-arc-rej', rej, (app+rev)/total);
+  const pct = v => Math.round(v/total*100);
+  document.getElementById('an-legend').innerHTML = `
+    <div class="dl-item"><div class="dl-dot" style="background:#52b788;"></div>Approved ${pct(app)}%</div>
+    <div class="dl-item"><div class="dl-dot" style="background:#3b82f6;"></div>Review/Pending ${pct(rev)}%</div>
+    <div class="dl-item"><div class="dl-dot" style="background:#ef4444;"></div>Rejected ${pct(rej)}%</div>`;
+}
+function exportAnalyticsCSV(){
+  const year = document.getElementById('an-year')?.value || '2026';
+  const d = AN_DATA[year];
+  const rows = [['Analytics Report',year],[],['Month','Reports']];
+  d.monthly.forEach((v,i)=>rows.push([MONTHS[i],v]));
+  rows.push([],['Zone','Compliance %']);
+  Object.entries(d.zones).forEach(([z,p])=>rows.push([z,p]));
+  rows.push([],['Metric','Value'],['Active Households',d.households],['Avg. Response',d.response]);
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `analytics-${year}.csv`; a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.addEventListener('DOMContentLoaded', renderAnalytics);
 </script>
 </body>
 </html>
