@@ -1791,46 +1791,72 @@ body {
 
           <!-- ─── SCHEDULE MGMT ─── -->
           <div class="a-screen" id="a-schedule">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-              <div style="font-size:12px; color:var(--text-3);">Showing May 2026 · 3 collection zones</div>
-              <button class="a-btn green" style="padding:8px 16px; font-size:12px;">+ Add Schedule</button>
-            </div>
-            <div class="zone-cards">
-              <div class="zone-card" style="border-top-color:var(--g600);">
-                <div class="zone-name" style="color:var(--g700);">🟢 Zone A – Calatagan Proper</div>
-                <div class="zone-sched">Mon, Wed, Fri · 6:00–8:00 AM</div>
-                <div class="zone-chips"><span class="chip bio">🌿 Bio</span><span class="chip recyc">♻️ Recyc</span></div>
-                <div class="zone-coll">Collector: Carlos M.</div>
-                <div class="zone-actions"><button class="a-btn blue">Edit</button><button class="a-btn green">Notify</button></div>
-              </div>
-              <div class="zone-card" style="border-top-color:#3b82f6;">
-                <div class="zone-name" style="color:#1d4ed8;">🔵 Zone B – Upper Calatagan</div>
-                <div class="zone-sched">Tue, Thu · 7:00–9:00 AM</div>
-                <div class="zone-chips"><span class="chip resid">🗑️ Resid</span><span class="chip spec">☣️ Spec</span></div>
-                <div class="zone-coll">Collector: Ramon B.</div>
-                <div class="zone-actions"><button class="a-btn blue">Edit</button><button class="a-btn green">Notify</button></div>
-              </div>
-              <div class="zone-card" style="border-top-color:#8b5cf6;">
-                <div class="zone-name" style="color:#6d28d9;">🟣 Zone C – Barangay Hall</div>
-                <div class="zone-sched">Mon, Thu, Sat · 5:30–7:30 AM</div>
-                <div class="zone-chips"><span class="chip recyc">♻️ Recyc</span><span class="chip resid">🗑️ Resid</span></div>
-                <div class="zone-coll">Collector: Ben P.</div>
-                <div class="zone-actions"><button class="a-btn blue">Edit</button><button class="a-btn green">Notify</button></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+              <div style="font-size:12px; color:var(--text-3);" id="sch-summary">Loading…</div>
+              <div style="display:flex; gap:8px;">
+                <button class="a-btn" onclick="exportSchedCSV()" style="padding:8px 14px; font-size:12px;">⬇ Export CSV</button>
+                <button class="a-btn green" onclick="openZoneModal()" style="padding:8px 16px; font-size:12px;">+ Add Schedule</button>
               </div>
             </div>
+            <div class="zone-cards" id="sch-zones"></div>
             <div class="a-card">
-              <div class="a-card-title">This Week's Collections</div>
+              <div class="a-card-title">This Week's Collections
+                <span class="a-card-action" onclick="regenerateWeek()">↻ Regenerate</span>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                <input id="wf-search" class="a-search" style="flex:1; min-width:220px;" placeholder="🔍 Search zone or collector…" oninput="renderWeek()">
+                <select id="wf-zone" class="a-select" onchange="renderWeek()">
+                  <option value="">All Zones</option>
+                </select>
+                <select id="wf-status" class="a-select" onchange="renderWeek()">
+                  <option value="">All Status</option><option>Scheduled</option><option>Completed</option><option>Missed</option>
+                </select>
+              </div>
               <table class="a-table">
-                <thead><tr><th>Date</th><th>Zone</th><th>Time</th><th>Waste Types</th><th>Collector</th><th>Status</th></tr></thead>
-                <tbody>
-                  <tr><td>May 13</td><td>Zone A</td><td>6:00–8:00 AM</td><td><span class="chip bio" style="font-size:10px;">Bio</span></td><td>Carlos M.</td><td><span class="badge approved">Completed</span></td></tr>
-                  <tr><td>May 14</td><td>Zone B</td><td>7:00–9:00 AM</td><td><span class="chip resid" style="font-size:10px;">Resid</span></td><td>Ramon B.</td><td><span class="badge review">Scheduled</span></td></tr>
-                  <tr><td>May 15</td><td>Zone C</td><td>5:30–7:30 AM</td><td><span class="chip recyc" style="font-size:10px;">Recyc</span></td><td>Ben P.</td><td><span class="badge review">Scheduled</span></td></tr>
-                  <tr><td>May 16</td><td>Zone A</td><td>6:00–8:00 AM</td><td><span class="chip bio" style="font-size:10px;">Bio</span> <span class="chip recyc" style="font-size:10px;">Recyc</span></td><td>Carlos M.</td><td><span class="badge review">Scheduled</span></td></tr>
-                </tbody>
+                <thead><tr><th>Date</th><th>Zone</th><th>Time</th><th>Waste Types</th><th>Collector</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="sch-week-body"></tbody>
               </table>
             </div>
           </div>
+
+          <!-- SCHEDULE / ZONE MODAL -->
+          <div id="zoneModalBg" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,.55); z-index:9999; align-items:center; justify-content:center;">
+            <div style="background:#fff; width:min(520px,92%); max-height:90vh; overflow:auto; border-radius:14px; padding:22px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <div style="font-size:16px; font-weight:900;" id="zoneModalTitle">Add Schedule</div>
+                <button onclick="closeZoneModal()" style="background:none; border:none; font-size:20px; cursor:pointer;">✕</button>
+              </div>
+              <div style="display:grid; gap:10px;">
+                <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Zone Name</label>
+                  <input id="zm-name" class="a-search" style="width:100%;" placeholder="e.g. Zone D – Riverside"></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                  <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Color</label>
+                    <select id="zm-color" class="a-select" style="width:100%;">
+                      <option value="#22c55e">🟢 Green</option><option value="#3b82f6">🔵 Blue</option>
+                      <option value="#8b5cf6">🟣 Purple</option><option value="#f59e0b">🟠 Orange</option>
+                      <option value="#ef4444">🔴 Red</option>
+                    </select></div>
+                  <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Collector</label>
+                    <input id="zm-coll" class="a-search" style="width:100%;" placeholder="Collector name"></div>
+                </div>
+                <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Days</label>
+                  <div id="zm-days" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;"></div></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                  <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Start Time</label>
+                    <input id="zm-start" type="time" class="a-search" style="width:100%;" value="06:00"></div>
+                  <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">End Time</label>
+                    <input id="zm-end" type="time" class="a-search" style="width:100%;" value="08:00"></div>
+                </div>
+                <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Waste Types</label>
+                  <div id="zm-waste" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;"></div></div>
+              </div>
+              <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+                <button class="a-btn" onclick="closeZoneModal()">Cancel</button>
+                <button class="a-btn green" onclick="saveZone()">Save Schedule</button>
+              </div>
+            </div>
+          </div>
+
 
           <!-- ─── COMPLIANCE ─── -->
           <div class="a-screen" id="a-compliance">
