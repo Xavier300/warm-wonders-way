@@ -243,81 +243,51 @@
   <section class="screen on" id="scr-home">
     <section class="hero">
       <div class="hero-top">
-        <div class="brand">
-          <div class="brand-logo">♻️</div>
-          <div>EcoBarangay</div>
+        <div>
+          <div class="hi-small" id="greet-word">Good morning</div>
+          <div class="hi-name" id="uname">Resident</div>
         </div>
-        <button class="signout" onclick="signOut()">Sign out</button>
+        <button class="bell" onclick="showAlerts()" aria-label="Alerts">
+          🔔<span class="bell-badge" id="bell-badge">3</span>
+        </button>
       </div>
-      <div class="greeting">
-        Hello, <span id="uname">Resident</span> 👋
-        <small id="uemail">Welcome back to your EcoBarangay portal</small>
+
+      <div class="next2">
+        <div class="next2-label">🗓 Next Collection</div>
+        <div class="next2-date" id="next2-date">Wednesday, May 14, 2026</div>
+        <div class="next2-time">⏰ <span id="next2-time">6:00 AM – 8:00 AM · Zone 1</span></div>
+        <div class="next2-pills" id="next2-pills">
+          <span class="np np-bio">🌿 Biodegradable</span>
+        </div>
       </div>
-      <div class="role-pill">🏠 Resident account</div>
     </section>
 
-    <div class="next">
-      <div class="next-ic">🗓️</div>
-      <div style="flex:1;min-width:0">
-        <div class="next-title">Next Collection</div>
-        <div class="next-body" id="next-body">Tomorrow · 6:00 AM – 9:00 AM</div>
-        <div class="next-sub" id="next-sub">Zone 1 · Biodegradable</div>
-      </div>
-      <div class="next-tag" id="next-tag">Bio</div>
-    </div>
-
-    <div class="section"><h3>Quick actions</h3></div>
-    <div class="tiles">
-      <button class="tile" onclick="showReport()">
-        <div class="tile-ic">🚨</div>
-        <div class="tile-title">Report Dumping</div>
-        <div class="tile-sub">Photo + location</div>
+    <div class="tiles2">
+      <button class="tile2" onclick="showReport()">
+        <div class="tile2-ic ic-red">🚨</div>
+        <div class="tile2-title">Report Illegal Dumping</div>
+        <div class="tile2-sub">Submit a new report</div>
       </button>
-      <button class="tile" onclick="showSchedule()">
-        <div class="tile-ic">📅</div>
-        <div class="tile-title">My Schedule</div>
-        <div class="tile-sub">This week's pickups</div>
+      <button class="tile2" onclick="showSchedule()">
+        <div class="tile2-ic ic-blue">📅</div>
+        <div class="tile2-title">View Schedule</div>
+        <div class="tile2-sub" id="tile-month">This week's pickups</div>
       </button>
-      <button class="tile" onclick="showCompliance()">
-        <div class="tile-ic">📋</div>
-        <div class="tile-title">Self-Compliance Form</div>
-        <div class="tile-sub">Declare waste type</div>
+      <button class="tile2" onclick="showCompliance()">
+        <div class="tile2-ic ic-blue">📋</div>
+        <div class="tile2-title">Self-Compliance Form</div>
+        <div class="tile2-sub">Declare waste type</div>
       </button>
-      <button class="tile" onclick="showEco()">
-        <div class="tile-ic">🌱</div>
-        <div class="tile-title">Eco Awareness</div>
-        <div class="tile-sub">Guides & tips</div>
+      <button class="tile2" onclick="showEco()">
+        <div class="tile2-ic ic-yellow">🌱</div>
+        <div class="tile2-title">Eco Awareness</div>
+        <div class="tile2-sub">Guides & tips</div>
       </button>
     </div>
 
-    <div class="section"><h3>Segregation guide</h3></div>
-    <div class="guide">
-      <div class="guide-title">Segregate before pickup</div>
-      <div class="guide-sub">Please separate by waste type. Improper segregation may be refused.</div>
-      <div class="waste">
-        <span class="w w-bio">🌿 Biodegradable</span>
-        <span class="w w-rec">♻️ Recyclable</span>
-        <span class="w w-res">🗑️ Residual</span>
-        <span class="w w-spec">☣️ Special</span>
-      </div>
-    </div>
-
-    <div class="section"><h3>Announcements</h3></div>
-    <div class="ann">
-      <div class="ann-item">
-        <div class="ann-head">
-          <div class="ann-title">📢 Zone 1 collection moved</div>
-          <div class="ann-when">2h ago</div>
-        </div>
-        <div class="ann-body">Due to road works, Wednesday pickup will be moved to Thursday, 6:00 AM. Please segregate bio waste for pickup.</div>
-      </div>
-      <div class="ann-item">
-        <div class="ann-head">
-          <div class="ann-title">🌿 Composting workshop</div>
-          <div class="ann-when">Yesterday</div>
-        </div>
-        <div class="ann-body">Free composting workshop at the barangay hall this Saturday, 9 AM. Bring your own container.</div>
-      </div>
+    <div class="section"><h3>My Recent Reports</h3></div>
+    <div class="recent" id="recent-list">
+      <div class="empty" style="padding:12px 0">No reports yet — tap Report to submit one.</div>
     </div>
   </section>
 
