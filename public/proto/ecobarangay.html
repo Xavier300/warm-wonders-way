@@ -1746,7 +1746,7 @@ body {
           <div class="a-topbar-right">
             <input class="a-search" placeholder="🔍  Search reports, users...">
             <div class="a-icon-btn">🔔</div>
-            <div class="a-icon-btn">⚙️</div>
+            <div class="a-icon-btn" onclick="openSettings()" title="Settings" style="cursor:pointer;">⚙️</div>
           </div>
         </div>
         <div class="a-body">
@@ -3452,6 +3452,144 @@ document.addEventListener('DOMContentLoaded', renderComp);
   window.addEventListener('storage', (e) => {
     if(!e.key || e.key.startsWith('eb_')) rebuildAll();
   });
+})();
+</script>
+
+<!-- ─── SETTINGS MODAL ─── -->
+<div id="settings-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:9999; align-items:center; justify-content:center;" onclick="if(event.target===this)closeSettings()">
+  <div style="background:#0f172a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:22px; width:480px; max-width:94vw; max-height:90vh; overflow:auto; color:#e5e7eb;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+      <div style="font-weight:700; font-size:17px;">⚙️ Settings</div>
+      <button class="a-btn" onclick="closeSettings()" style="padding:4px 10px;">✕</button>
+    </div>
+
+    <div style="font-size:12px; color:#94a3b8; text-transform:uppercase; letter-spacing:.5px; margin:6px 0 8px;">Profile</div>
+    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+      <input id="set-name" class="a-search" placeholder="Full name">
+      <input id="set-phone" class="a-search" placeholder="Phone">
+      <input id="set-position" class="a-search" placeholder="Position">
+    </div>
+
+    <div style="font-size:12px; color:#94a3b8; text-transform:uppercase; letter-spacing:.5px; margin:6px 0 8px;">Preferences</div>
+    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+      <label style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <span>🔔 Desktop notifications</span>
+        <input type="checkbox" id="set-notif" style="width:18px; height:18px;">
+      </label>
+      <label style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <span>🔊 Sound alerts on new reports</span>
+        <input type="checkbox" id="set-sound" style="width:18px; height:18px;">
+      </label>
+      <label style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <span>🔄 Auto-refresh interval</span>
+        <select id="set-refresh" class="a-select" style="width:auto;">
+          <option value="0">Off</option>
+          <option value="15">15 sec</option>
+          <option value="30">30 sec</option>
+          <option value="60">1 min</option>
+          <option value="300">5 min</option>
+        </select>
+      </label>
+      <label style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <span>📄 Table rows per page</span>
+        <select id="set-rows" class="a-select" style="width:auto;">
+          <option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option>
+        </select>
+      </label>
+    </div>
+
+    <div style="font-size:12px; color:#94a3b8; text-transform:uppercase; letter-spacing:.5px; margin:6px 0 8px;">Account</div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <button class="a-btn" onclick="clearLocalData()">🧹 Clear local cache</button>
+      <button class="a-btn" style="background:#ef4444; color:#fff; border-color:#ef4444;" onclick="signOut()">🚪 Sign out</button>
+    </div>
+
+    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:18px;">
+      <button class="a-btn" onclick="closeSettings()">Cancel</button>
+      <button class="a-btn green" onclick="saveSettings()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const SKEY = 'eb_settings';
+  let refreshTimer = null;
+
+  function loadSettings(){
+    try { return JSON.parse(localStorage.getItem(SKEY) || '{}'); } catch(_) { return {}; }
+  }
+  function applySettings(s){
+    // Auto-refresh
+    if(refreshTimer){ clearInterval(refreshTimer); refreshTimer = null; }
+    const secs = parseInt(s.refresh || '0', 10);
+    if(secs > 0){
+      refreshTimer = setInterval(() => {
+        document.dispatchEvent(new CustomEvent('eb:data'));
+      }, secs * 1000);
+    }
+    // Rows per page — expose for renderers to read
+    window.EB_ROWS_PER_PAGE = parseInt(s.rows || '10', 10);
+  }
+
+  window.openSettings = function(){
+    const s = loadSettings();
+    const p = (window.EB && window.EB.state && window.EB.state.profile) || {};
+    document.getElementById('set-name').value = s.name || p.full_name || '';
+    document.getElementById('set-phone').value = s.phone || p.phone || '';
+    document.getElementById('set-position').value = s.position || p.position || '';
+    document.getElementById('set-notif').checked = !!s.notif;
+    document.getElementById('set-sound').checked = !!s.sound;
+    document.getElementById('set-refresh').value = String(s.refresh || '0');
+    document.getElementById('set-rows').value = String(s.rows || '10');
+    document.getElementById('settings-modal').style.display = 'flex';
+  };
+  window.closeSettings = function(){
+    document.getElementById('settings-modal').style.display = 'none';
+  };
+  window.saveSettings = async function(){
+    const s = {
+      name: document.getElementById('set-name').value.trim(),
+      phone: document.getElementById('set-phone').value.trim(),
+      position: document.getElementById('set-position').value.trim(),
+      notif: document.getElementById('set-notif').checked,
+      sound: document.getElementById('set-sound').checked,
+      refresh: document.getElementById('set-refresh').value,
+      rows: document.getElementById('set-rows').value,
+    };
+    localStorage.setItem(SKEY, JSON.stringify(s));
+    applySettings(s);
+
+    // Request browser notification permission if enabled
+    if(s.notif && 'Notification' in window && Notification.permission === 'default'){
+      try { await Notification.requestPermission(); } catch(_){}
+    }
+
+    // Persist profile fields to Supabase (if signed in)
+    try{
+      if(window.EB && window.EB.state.session && window.supabase){
+        await window.supabase.from('profiles').update({
+          full_name: s.name, phone: s.phone, position: s.position
+        }).eq('id', window.EB.state.session.user.id);
+      }
+      // Update sidebar name label
+      const nm = document.querySelector('.a-user-name');
+      const rl = document.querySelector('.a-user-role');
+      if(nm && s.name) nm.textContent = s.name;
+      if(rl && s.position) rl.textContent = s.position;
+    }catch(err){ console.warn('profile update failed', err); }
+
+    alert('✅ Settings saved');
+    closeSettings();
+  };
+  window.clearLocalData = function(){
+    if(!confirm('Clear local cached data? You will stay signed in.')) return;
+    Object.keys(localStorage).filter(k => k.startsWith('eb_') && k !== 'eb_settings').forEach(k => localStorage.removeItem(k));
+    location.reload();
+  };
+
+  // Apply on load
+  applySettings(loadSettings());
 })();
 </script>
 </body>
