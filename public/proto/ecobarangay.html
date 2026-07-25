@@ -2385,11 +2385,12 @@ function toggleWT(el) {
 
 // ================= ANNOUNCEMENTS =================
 let ANNOUNCEMENTS = [
-  {id:1, title:'Barangay Clean-Up Drive', type:'✅ Notice', msg:'Join us this Saturday for community cleanup.', date:'May 11', reach:342, status:'Published'},
-  {id:2, title:'Proper Segregation Week', type:'⚠️ Warning', msg:'Enforcement of proper segregation starts this week.', date:'May 11', reach:342, status:'Published'},
-  {id:3, title:'New Routes – Zone B & C', type:'📌 Info', msg:'Updated collection routes take effect May 20.', date:'May 10', reach:156, status:'Scheduled'},
+  {id:1, title:'Barangay Clean-Up Drive', type:'✅ Notice', msg:'Join us this Saturday for community cleanup.', date:'May 11', reach:342, status:'Published', waste:['Bio','Resid']},
+  {id:2, title:'Proper Segregation Week', type:'⚠️ Warning', msg:'Enforcement of proper segregation starts this week.', date:'May 11', reach:342, status:'Published', waste:['Bio','Recyc','Resid','Spec']},
+  {id:3, title:'New Routes – Zone B & C', type:'📌 Info', msg:'Updated collection routes take effect May 20.', date:'May 10', reach:156, status:'Scheduled', waste:['Recyc']},
 ];
 let ANN_EDIT_ID = null;
+let ANN_WASTE = new Set();
 
 function typeTag(t) {
   if (t.startsWith('⚠️')) return `<span class="ann-tag warn" style="font-size:10px;">${t}</span>`;
@@ -2401,6 +2402,21 @@ function annStatusBadge(s) {
   if (s==='Draft') return '<span class="badge pending">Draft</span>';
   return '<span class="badge approved">Published</span>';
 }
+function annWasteChips(list){
+  if(!list || !list.length) return '<span style="color:var(--muted); font-size:11px;">—</span>';
+  return list.map(w=>{const c=WASTE_TYPES.find(x=>x.k===w)||{cls:'',ico:''};return `<span class="chip ${c.cls}" style="font-size:10px; margin-right:3px;">${c.ico} ${w}</span>`;}).join('');
+}
+function renderAnnWastePicker(){
+  const el = document.getElementById('ann-waste'); if(!el) return;
+  el.innerHTML = WASTE_TYPES.map(w=>{
+    const on = ANN_WASTE.has(w.k);
+    return `<button type="button" onclick="toggleAnnWaste('${w.k}')" class="chip ${w.cls}" style="cursor:pointer; border:1.5px solid ${on?'var(--text)':'transparent'}; opacity:${on?1:.5}; font-size:11px;">${w.ico} ${w.k}</button>`;
+  }).join('');
+}
+function toggleAnnWaste(k){
+  if(ANN_WASTE.has(k)) ANN_WASTE.delete(k); else ANN_WASTE.add(k);
+  renderAnnWastePicker();
+}
 function renderAnn() {
   const tbody = document.getElementById('ann-tbody');
   if (!tbody) return;
@@ -2408,6 +2424,7 @@ function renderAnn() {
     <tr>
       <td style="font-weight:700;">${a.title}</td>
       <td>${typeTag(a.type)}</td>
+      <td>${annWasteChips(a.waste)}</td>
       <td>${a.date}</td>
       <td>${a.reach} residents</td>
       <td>${annStatusBadge(a.status)}</td>
@@ -2416,7 +2433,7 @@ function renderAnn() {
         ${a.status==='Scheduled' ? `<button class="a-btn green" onclick="publishAnn(${a.id})">Publish</button>` : ''}
         <button class="a-btn red" onclick="deleteAnn(${a.id})">Delete</button>
       </td>
-    </tr>`).join('') : `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--muted);">No announcements yet.</td></tr>`;
+    </tr>`).join('') : `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--muted);">No announcements yet.</td></tr>`;
 }
 function submitAnn() {
   const title = document.getElementById('ann-title').value.trim();
@@ -2424,19 +2441,21 @@ function submitAnn() {
   const msg = document.getElementById('ann-msg').value.trim();
   const sched = document.getElementById('ann-sched').value.trim();
   if (!title || !msg) { alert('Title and message are required.'); return; }
+  const waste = Array.from(ANN_WASTE);
   const date = new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit'});
   const status = sched ? 'Scheduled' : 'Published';
   if (ANN_EDIT_ID) {
     const a = ANNOUNCEMENTS.find(x=>x.id===ANN_EDIT_ID);
-    Object.assign(a, {title, type, msg, status, date: sched || a.date});
+    Object.assign(a, {title, type, msg, status, waste, date: sched || a.date});
   } else {
-    ANNOUNCEMENTS.unshift({id: Date.now(), title, type, msg, date: sched || date, reach: 342, status});
+    ANNOUNCEMENTS.unshift({id: Date.now(), title, type, msg, waste, date: sched || date, reach: 342, status});
   }
   cancelAnn(); renderAnn();
 }
 function editAnn(id) {
   const a = ANNOUNCEMENTS.find(x=>x.id===id); if (!a) return;
   ANN_EDIT_ID = id;
+  ANN_WASTE = new Set(a.waste||[]);
   document.getElementById('ann-form-title').textContent = 'Edit Announcement';
   document.getElementById('ann-title').value = a.title;
   document.getElementById('ann-type').value = a.type;
@@ -2444,16 +2463,19 @@ function editAnn(id) {
   document.getElementById('ann-sched').value = a.status==='Scheduled' ? a.date : '';
   document.getElementById('ann-submit').textContent = 'Update';
   document.getElementById('ann-cancel').style.display = 'inline-block';
+  renderAnnWastePicker();
   document.getElementById('ann-title').scrollIntoView({behavior:'smooth', block:'center'});
 }
 function cancelAnn() {
   ANN_EDIT_ID = null;
+  ANN_WASTE = new Set();
   document.getElementById('ann-form-title').textContent = 'Post New Announcement';
   document.getElementById('ann-title').value = '';
   document.getElementById('ann-msg').value = '';
   document.getElementById('ann-sched').value = '';
   document.getElementById('ann-submit').textContent = 'Publish';
   document.getElementById('ann-cancel').style.display = 'none';
+  renderAnnWastePicker();
 }
 function publishAnn(id) {
   const a = ANNOUNCEMENTS.find(x=>x.id===id); if (!a) return;
@@ -2465,7 +2487,8 @@ function deleteAnn(id) {
   ANNOUNCEMENTS = ANNOUNCEMENTS.filter(x=>x.id!==id); renderAnn();
 }
 function clearAnnFilter() { renderAnn(); }
-document.addEventListener('DOMContentLoaded', renderAnn);
+document.addEventListener('DOMContentLoaded', ()=>{ renderAnn(); renderAnnWastePicker(); });
+
 
 // ================= USER MANAGEMENT =================
 let USERS = [
