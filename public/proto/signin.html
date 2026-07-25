@@ -216,23 +216,96 @@
       Continue with Google
     </button>
 
-    <div class="foot">No account? <a href="#" onclick="event.preventDefault(); alert('Registration flow (prototype).')">Register</a></div>
+    <div class="foot">No account? <a href="#" onclick="event.preventDefault(); showRegister()">Register</a></div>
+  </div>
+</section>
+
+<!-- ============ REGISTER ============ -->
+<section id="register" style="display:none;">
+  <div class="login-wrap">
+    <div class="top-bar">
+      <button class="icon-btn" onclick="showLogin()" aria-label="Back">←</button>
+    </div>
+
+    <h1 class="hi">Create account <span style="font-weight:400;">🌱</span></h1>
+    <div class="sub">Join EcoBarangay to start segregating smarter</div>
+
+    <div class="label">Register As</div>
+    <div class="role-toggle" role="tablist">
+      <button class="role-opt on" data-rrole="Resident" onclick="setRegRole('Resident')">🏠 Resident</button>
+      <button class="role-opt" data-rrole="Official" onclick="setRegRole('Official')">🏢 Official</button>
+    </div>
+
+    <form id="registerForm" onsubmit="handleRegister(event)" novalidate>
+      <div class="field">
+        <div class="label" style="margin-top:0;">Full Name</div>
+        <input class="input" id="r_name" type="text" placeholder="Juan Dela Cruz" autocomplete="name" required>
+      </div>
+
+      <div class="field">
+        <div class="label" style="margin-top:0;">Email Address</div>
+        <input class="input" id="r_email" type="email" placeholder="juan@calatagan.com" autocomplete="email" required>
+      </div>
+
+      <div class="field">
+        <div class="label" style="margin-top:0;">Phone Number</div>
+        <input class="input" id="r_phone" type="tel" placeholder="0917 000 0000" autocomplete="tel" required>
+      </div>
+
+      <div class="field" id="r_zone_wrap">
+        <div class="label" style="margin-top:0;">Zone / Purok</div>
+        <input class="input" id="r_zone" type="text" placeholder="Zone 1" required>
+      </div>
+
+      <div class="field">
+        <div class="label" style="margin-top:0;">Password</div>
+        <input class="input" id="r_password" type="password" placeholder="At least 6 characters" autocomplete="new-password" required>
+      </div>
+
+      <div class="field">
+        <div class="label" style="margin-top:0;">Confirm Password</div>
+        <input class="input" id="r_password2" type="password" placeholder="Re-enter password" autocomplete="new-password" required>
+      </div>
+
+      <div class="err" id="r_err">Please complete all fields correctly.</div>
+
+      <button class="signin" type="submit">Create Account</button>
+    </form>
+
+    <div class="foot">Already have an account? <a href="#" onclick="event.preventDefault(); showLogin()">Sign In</a></div>
   </div>
 </section>
 
 <script>
-  function showLogin(){ document.getElementById('splash').style.display='none'; document.getElementById('login').style.display='block'; window.scrollTo(0,0); }
-  function showSplash(){ document.getElementById('login').style.display='none'; document.getElementById('splash').style.display='flex'; }
+  function showLogin(){
+    document.getElementById('splash').style.display='none';
+    document.getElementById('register').style.display='none';
+    document.getElementById('login').style.display='block';
+    window.scrollTo(0,0);
+  }
+  function showSplash(){
+    document.getElementById('login').style.display='none';
+    document.getElementById('register').style.display='none';
+    document.getElementById('splash').style.display='flex';
+  }
+  function showRegister(){
+    document.getElementById('splash').style.display='none';
+    document.getElementById('login').style.display='none';
+    document.getElementById('register').style.display='block';
+    window.scrollTo(0,0);
+  }
   function setRole(r){
-    document.querySelectorAll('.role-opt').forEach(b=>{
+    document.querySelectorAll('#login .role-opt').forEach(b=>{
       b.classList.toggle('on', b.dataset.role===r);
     });
   }
-  function goApp(){ window.location.href = '/proto/ecobarangay.html'; }
-  function handleGoogle(){
-    // Prototype only
-    goApp();
+  function setRegRole(r){
+    document.querySelectorAll('#register .role-opt').forEach(b=>{
+      b.classList.toggle('on', b.dataset.rrole===r);
+    });
   }
+  function goApp(){ window.location.href = '/proto/ecobarangay.html'; }
+  function handleGoogle(){ goApp(); }
   function handleSignIn(e){
     e.preventDefault();
     const email = document.getElementById('email').value.trim();
@@ -243,6 +316,28 @@
     err.classList.remove('show');
     goApp();
   }
+  function handleRegister(e){
+    e.preventDefault();
+    const name  = document.getElementById('r_name').value.trim();
+    const email = document.getElementById('r_email').value.trim();
+    const phone = document.getElementById('r_phone').value.trim();
+    const zone  = document.getElementById('r_zone').value.trim();
+    const p1    = document.getElementById('r_password').value;
+    const p2    = document.getElementById('r_password2').value;
+    const err   = document.getElementById('r_err');
+    const okEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if(!name || !okEmail || phone.length < 7 || !zone || p1.length < 6 || p1 !== p2){
+      err.textContent = p1 !== p2
+        ? 'Passwords do not match.'
+        : 'Please complete all fields correctly (password ≥ 6 chars).';
+      err.classList.add('show');
+      return;
+    }
+    err.classList.remove('show');
+    alert('Account created (prototype). Signing you in…');
+    goApp();
+  }
 </script>
 </body>
 </html>
+
