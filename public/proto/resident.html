@@ -436,48 +436,42 @@
   </section>
 
   <!-- PROFILE SCREEN -->
-  <section class="screen" id="scr-profile">
-    <div class="scr-head">
-      <button class="back" onclick="showHome()">← Back</button>
-      <div>
-        <h2>My Profile</h2>
-        <p>Manage your account details</p>
-      </div>
+  <section class="screen" id="scr-profile" style="background:#f6f8f7">
+    <div style="padding:18px 16px 12px;text-align:center;background:#f6f8f7">
+      <div id="prof-avatar" style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#0d1f14,#1e5233);color:#c7f24a;display:grid;place-items:center;font-weight:900;font-size:28px;margin:0 auto 10px;border:3px solid #fff;box-shadow:0 4px 12px rgba(15,23,42,.08)">R</div>
+      <div id="prof-name" style="font-weight:900;font-size:20px;color:var(--text);letter-spacing:-.3px">Resident</div>
+      <div id="prof-sub" style="font-size:13px;color:var(--text-2);margin-top:3px"><span style="color:#e11d48">📍</span> <span id="prof-zone-line">Zone A · Calatagan Proper</span></div>
     </div>
-    <div class="prof">
-      <div class="avatar" id="prof-avatar">R</div>
-      <div class="prof-name" id="prof-name">Resident</div>
-      <div class="prof-email" id="prof-email">resident@ecobarangay.app</div>
+
+    <div style="margin:8px 16px 12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;grid-template-columns:1fr 1fr 1fr;text-align:center;box-shadow:0 1px 2px rgba(15,23,42,.04)">
+      <div><div id="stat-reports" style="font-size:22px;font-weight:900;color:var(--text)">0</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">Reports</div></div>
+      <div style="border-left:1px solid var(--line);border-right:1px solid var(--line)"><div id="stat-forms" style="font-size:22px;font-weight:900;color:var(--text)">0</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">Forms</div></div>
+      <div><div id="stat-comp" style="font-size:22px;font-weight:900;color:var(--text)">0%</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">Compliance</div></div>
     </div>
-    <div class="stat-row">
-      <div class="stat"><div class="stat-n" id="stat-reports">0</div><div class="stat-l">Reports</div></div>
-      <div class="stat"><div class="stat-n" id="stat-points">0</div><div class="stat-l">Points</div></div>
-      <div class="stat"><div class="stat-n" id="stat-zone">Z1</div><div class="stat-l">Zone</div></div>
+
+    <div id="prof-menu" style="padding:4px 16px 24px;display:flex;flex-direction:column;gap:10px"></div>
+  </section>
+
+  <!-- PROFILE EDIT SUB-SCREEN -->
+  <section class="screen" id="scr-profile-edit">
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border-bottom:1px solid var(--line)">
+      <button onclick="showProfile()" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;font-size:16px;padding:0;cursor:pointer">←</button>
+      <div style="font-weight:800;font-size:17px;color:var(--text)">Personal Information</div>
     </div>
-    <div class="form">
-      <div class="field">
-        <label for="pf-name">Full name</label>
-        <input id="pf-name" />
-      </div>
-      <div class="field">
-        <label for="pf-email">Email</label>
-        <input id="pf-email" type="email" disabled />
-      </div>
-      <div class="field">
-        <label for="pf-phone">Phone</label>
-        <input id="pf-phone" placeholder="09xx xxx xxxx" />
-      </div>
-      <div class="field">
-        <label for="pf-zone">Zone</label>
+    <div class="form" style="padding:16px">
+      <div class="field"><label for="pf-name">Full name</label><input id="pf-name" /></div>
+      <div class="field"><label for="pf-email">Email</label><input id="pf-email" type="email" disabled /></div>
+      <div class="field"><label for="pf-phone">Phone</label><input id="pf-phone" placeholder="09xx xxx xxxx" /></div>
+      <div class="field"><label for="pf-zone">Zone</label>
         <select id="pf-zone">
-          <option value="Z1">Zone 1</option>
-          <option value="Z2">Zone 2</option>
-          <option value="Z3">Zone 3</option>
-          <option value="Z4">Zone 4</option>
+          <option value="Z1">Zone A · Calatagan Proper</option>
+          <option value="Z2">Zone B · Upper Calatagan</option>
+          <option value="Z3">Zone C · Barangay Hall Area</option>
+          <option value="Z4">Zone D · Coastal Road</option>
         </select>
       </div>
       <button class="btn-primary" onclick="saveProfile()">💾 Save changes</button>
-      <button class="btn-ghost" onclick="signOut()">Sign out</button>
+      <button class="btn-ghost" onclick="showProfile()">Cancel</button>
     </div>
   </section>
 
@@ -1094,20 +1088,45 @@
   }
 
   // ---------- PROFILE ----------
+  const PROF_MENU = [
+    { key:'info',    ic:'👤', tint:'#ede9fe', label:'Personal Information', action:"editProfile()" },
+    { key:'notif',   ic:'🔔', tint:'#fef3c7', label:'Notification Settings', action:"showAlerts()" },
+    { key:'tasks',   ic:'🚛', tint:'#d1fae5', label:'Collection Tasks',      action:"showSchedule()" },
+    { key:'reports', ic:'📋', tint:'#dbeafe', label:'My Reports & Forms',    action:"showReport()" },
+    { key:'priv',    ic:'🔒', tint:'#fef3c7', label:'Privacy & Security',    action:"toast('Privacy settings coming soon')" },
+    { key:'contact', ic:'📞', tint:'#fee2e2', label:'Contact Barangay',      action:"toast('Barangay Hall: (043) 000-0000')" },
+    { key:'signout', ic:'🚪', tint:'#fee2e2', label:'Sign Out', danger:true, action:"signOut()" },
+  ];
+  function editProfile(){ showScreen('scr-profile-edit'); }
+  function zoneLine(z){
+    const map = { Z1:'Zone A · Calatagan Proper', Z2:'Zone B · Upper Calatagan', Z3:'Zone C · Barangay Hall Area', Z4:'Zone D · Coastal Road' };
+    return map[z] || 'Zone A · Calatagan Proper';
+  }
   function renderProfile(){
     const s = JSON.parse(localStorage.getItem('eb_auth')||'{}');
     const email = s.email || 'resident@ecobarangay.app';
     const name  = s.name || (email.split('@')[0]||'Resident').replace(/[._-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    const zone  = s.zone || 'Z1';
     document.getElementById('prof-avatar').textContent = (name[0]||'R').toUpperCase();
     document.getElementById('prof-name').textContent = name;
-    document.getElementById('prof-email').textContent = email;
+    document.getElementById('prof-zone-line').textContent = zoneLine(zone);
     document.getElementById('pf-name').value = name;
     document.getElementById('pf-email').value = email;
     document.getElementById('pf-phone').value = s.phone || '';
-    document.getElementById('pf-zone').value = s.zone || 'Z1';
-    document.getElementById('stat-reports').textContent = myReports().length;
-    document.getElementById('stat-points').textContent = loadRW().points || 0;
-    document.getElementById('stat-zone').textContent = s.zone || 'Z1';
+    document.getElementById('pf-zone').value = zone;
+    const reports = myReports().length;
+    const forms = JSON.parse(localStorage.getItem('eb_forms')||'[]').length;
+    const comp = forms>0 ? Math.min(100, 70 + forms*4) : 94;
+    document.getElementById('stat-reports').textContent = reports;
+    document.getElementById('stat-forms').textContent = forms || 23;
+    document.getElementById('stat-comp').textContent = comp + '%';
+    const menu = document.getElementById('prof-menu');
+    menu.innerHTML = PROF_MENU.map(m => `
+      <button onclick="${m.action}" style="display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;text-align:left;cursor:pointer;box-shadow:0 1px 2px rgba(15,23,42,.04)">
+        <div style="width:40px;height:40px;border-radius:12px;background:${m.tint};display:grid;place-items:center;font-size:20px;flex-shrink:0">${m.ic}</div>
+        <div style="flex:1;font-weight:700;font-size:14.5px;color:${m.danger?'#dc2626':'var(--text)'}">${m.label}</div>
+        <div style="color:var(--text-3);font-size:16px">›</div>
+      </button>`).join('');
   }
   function saveProfile(){
     const s = JSON.parse(localStorage.getItem('eb_auth')||'{}');
