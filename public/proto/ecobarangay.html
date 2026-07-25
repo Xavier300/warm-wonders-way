@@ -1860,24 +1860,64 @@ body {
 
           <!-- ─── COMPLIANCE ─── -->
           <div class="a-screen" id="a-compliance">
-            <div class="a-stats" style="grid-template-columns:repeat(3,1fr); margin-bottom:14px;">
-              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:var(--g100);">📋</div><span class="a-stat-change up">▲ 4%</span></div><div class="a-stat-val">138</div><div class="a-stat-lbl">Forms Submitted</div></div>
-              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:#fef9c3;">⏳</div><span class="a-stat-change" style="background:#fef9c3;color:#a16207;">Pending</span></div><div class="a-stat-val">3</div><div class="a-stat-lbl">Awaiting Review</div></div>
-              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:var(--g100);">✅</div></div><div class="a-stat-val">94%</div><div class="a-stat-lbl">Avg. Compliance</div></div>
+            <div class="a-stats" style="grid-template-columns:repeat(4,1fr); margin-bottom:14px;">
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:var(--g100);">📋</div><span class="a-stat-change up">Total</span></div><div class="a-stat-val" id="ck-total">0</div><div class="a-stat-lbl">Forms Submitted</div></div>
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:#fef9c3;">⏳</div><span class="a-stat-change" style="background:#fef9c3;color:#a16207;">Pending</span></div><div class="a-stat-val" id="ck-pending">0</div><div class="a-stat-lbl">Awaiting Review</div></div>
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:var(--g100);">✅</div><span class="a-stat-change up">Verified</span></div><div class="a-stat-val" id="ck-verified">0</div><div class="a-stat-lbl">Verified</div></div>
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:#dbeafe;">📊</div><span class="a-stat-change up">Avg</span></div><div class="a-stat-val" id="ck-avg">0%</div><div class="a-stat-lbl">Avg. Compliance</div></div>
+            </div>
+            <div class="a-card" style="margin-bottom:14px;">
+              <div class="a-card-title">Filters
+                <span class="a-card-action" onclick="exportCompCSV()">⬇ Export CSV</span>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <input id="cf-search" class="a-search" style="flex:1; min-width:220px;" placeholder="🔍 Search household…" oninput="renderComp()">
+                <select id="cf-status" class="a-select" onchange="renderComp()">
+                  <option value="">All Status</option><option>Verified</option><option>Pending</option><option>Rejected</option>
+                </select>
+                <select id="cf-comp" class="a-select" onchange="renderComp()">
+                  <option value="">All Levels</option><option value="high">High (≥80%)</option><option value="mid">Mid (50-79%)</option><option value="low">Low (&lt;50%)</option>
+                </select>
+                <button class="a-btn green" onclick="openCompModal()" style="padding:8px 14px; font-size:12px;">+ Add Form</button>
+              </div>
             </div>
             <div class="a-card">
-              <div class="a-card-title">Household Compliance Overview</div>
+              <div class="a-card-title">Household Compliance Overview <span id="ck-count" style="color:var(--text-4); font-weight:600; font-size:11px;"></span></div>
               <table class="a-table">
                 <thead><tr><th>Household</th><th>Waste Declared</th><th>Compliance</th><th>Last Submit</th><th>Status</th><th>Action</th></tr></thead>
-                <tbody>
-                  <tr><td><div class="td-user"><div class="td-av">🏠</div>dela Cruz Fam.</div></td><td><span class="chip bio" style="font-size:10px;">Bio</span><span class="chip recyc" style="font-size:10px;">Recyc</span></td><td><div class="comp-progress"><div class="prog-bar"><div class="prog-fill" style="width:94%"></div></div><span style="font-size:10px;font-weight:800;color:var(--g700);">94%</span></div></td><td>May 12</td><td><span class="badge approved">Verified</span></td><td><button class="a-btn blue">View</button></td></tr>
-                  <tr><td><div class="td-user"><div class="td-av">🏠</div>Reyes Family</div></td><td><span class="chip resid" style="font-size:10px;">Resid</span></td><td><div class="comp-progress"><div class="prog-bar"><div class="prog-fill warn" style="width:67%"></div></div><span style="font-size:10px;font-weight:800;color:#a16207;">67%</span></div></td><td>May 11</td><td><span class="badge pending">Pending</span></td><td><button class="a-btn green">Verify</button></td></tr>
-                  <tr><td><div class="td-user"><div class="td-av">🏠</div>Santos Household</div></td><td><span class="chip bio" style="font-size:10px;">Bio</span></td><td><div class="comp-progress"><div class="prog-bar"><div class="prog-fill" style="width:88%"></div></div><span style="font-size:10px;font-weight:800;color:var(--g700);">88%</span></div></td><td>May 10</td><td><span class="badge approved">Verified</span></td><td><button class="a-btn blue">View</button></td></tr>
-                  <tr><td><div class="td-user"><div class="td-av">🏠</div>Gomez Residence</div></td><td><span class="chip spec" style="font-size:10px;">Special</span></td><td><div class="comp-progress"><div class="prog-bar"><div class="prog-fill low" style="width:42%"></div></div><span style="font-size:10px;font-weight:800;color:#b91c1c;">42%</span></div></td><td>May 8</td><td><span class="badge pending">Pending</span></td><td><button class="a-btn green">Verify</button></td></tr>
-                </tbody>
+                <tbody id="comp-body"></tbody>
               </table>
             </div>
           </div>
+
+          <!-- COMPLIANCE MODAL -->
+          <div id="compModalBg" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,.55); z-index:9999; align-items:center; justify-content:center;">
+            <div style="background:#fff; width:min(520px,92%); max-height:90vh; overflow:auto; border-radius:14px; padding:22px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <div style="font-size:16px; font-weight:900;" id="compModalTitle">Add Compliance Form</div>
+                <button onclick="closeCompModal()" style="background:none; border:none; font-size:20px; cursor:pointer;">✕</button>
+              </div>
+              <div style="display:grid; gap:10px;">
+                <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Household</label>
+                  <input id="cm-name" class="a-search" style="width:100%;" placeholder="e.g. dela Cruz Fam."></div>
+                <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Waste Declared</label>
+                  <div id="cm-waste" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;"></div></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                  <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Compliance %</label>
+                    <input id="cm-pct" type="number" min="0" max="100" class="a-search" style="width:100%;" value="80"></div>
+                  <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Status</label>
+                    <select id="cm-status" class="a-select" style="width:100%;"><option>Pending</option><option>Verified</option><option>Rejected</option></select></div>
+                </div>
+                <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Notes</label>
+                  <textarea id="cm-notes" class="a-search" style="width:100%; min-height:70px;" placeholder="Optional review notes…"></textarea></div>
+              </div>
+              <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+                <button class="a-btn" onclick="closeCompModal()">Cancel</button>
+                <button class="a-btn green" onclick="saveComp()">Save</button>
+              </div>
+            </div>
+          </div>
+
 
           <!-- ─── CCTV ─── -->
           <div class="a-screen" id="a-cctv">
@@ -2927,6 +2967,105 @@ function exportSchedCSV(){
   URL.revokeObjectURL(a.href);
 }
 document.addEventListener('DOMContentLoaded', ()=>{ generateWeek(); renderZones(); renderWeek(); });
+
+/* ========== COMPLIANCE ========== */
+let COMP = [
+  {id:'C-001', name:'dela Cruz Fam.', waste:['Bio','Recyc'], pct:94, last:'2026-05-12', status:'Verified', notes:'Consistent segregation.'},
+  {id:'C-002', name:'Reyes Family', waste:['Resid'], pct:67, last:'2026-05-11', status:'Pending', notes:''},
+  {id:'C-003', name:'Santos Household', waste:['Bio'], pct:88, last:'2026-05-10', status:'Verified', notes:''},
+  {id:'C-004', name:'Gomez Residence', waste:['Spec'], pct:42, last:'2026-05-08', status:'Pending', notes:'Missing recyclables log.'},
+  {id:'C-005', name:'Mendoza Household', waste:['Bio','Recyc','Resid'], pct:76, last:'2026-05-09', status:'Verified', notes:''},
+  {id:'C-006', name:'Torres Fam.', waste:['Bio'], pct:35, last:'2026-05-06', status:'Rejected', notes:'Mixed waste detected.'}
+];
+let COMP_EDIT_ID = null;
+function compLevel(p){ return p>=80?'high':p>=50?'mid':'low'; }
+function filteredComp(){
+  const q=(document.getElementById('cf-search')?.value||'').toLowerCase();
+  const st=document.getElementById('cf-status')?.value||'';
+  const lv=document.getElementById('cf-comp')?.value||'';
+  return COMP.filter(c=>{
+    if(st && c.status!==st) return false;
+    if(lv && compLevel(c.pct)!==lv) return false;
+    if(q && !c.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+function renderComp(){
+  const body=document.getElementById('comp-body'); if(!body) return;
+  const list=filteredComp();
+  document.getElementById('ck-total').textContent = COMP.length;
+  document.getElementById('ck-pending').textContent = COMP.filter(c=>c.status==='Pending').length;
+  document.getElementById('ck-verified').textContent = COMP.filter(c=>c.status==='Verified').length;
+  const avg = COMP.length ? Math.round(COMP.reduce((s,c)=>s+c.pct,0)/COMP.length) : 0;
+  document.getElementById('ck-avg').textContent = avg+'%';
+  document.getElementById('ck-count').textContent = `· ${list.length} of ${COMP.length}`;
+  if(!list.length){ body.innerHTML='<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-4);">No households match your filters.</td></tr>'; return; }
+  body.innerHTML=list.map(c=>{
+    const lvl=compLevel(c.pct);
+    const fillCls=lvl==='high'?'':lvl==='mid'?'warn':'low';
+    const pctColor=lvl==='high'?'var(--g700)':lvl==='mid'?'#a16207':'#b91c1c';
+    const badge=c.status==='Verified'?'approved':c.status==='Rejected'?'rejected':'pending';
+    const dateStr=new Date(c.last).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const act = c.status==='Pending'
+      ? `<button class="a-btn green" onclick="setCompStatus('${c.id}','Verified')">Verify</button>
+         <button class="a-btn" onclick="setCompStatus('${c.id}','Rejected')" style="color:#b91c1c;">Reject</button>`
+      : `<button class="a-btn blue" onclick="openCompModal('${c.id}')">View</button>
+         <button class="a-btn" onclick="setCompStatus('${c.id}','Pending')">Reset</button>`;
+    return `<tr>
+      <td><div class="td-user"><div class="td-av">🏠</div>${c.name}</div></td>
+      <td>${wasteChips(c.waste,true)}</td>
+      <td><div class="comp-progress"><div class="prog-bar"><div class="prog-fill ${fillCls}" style="width:${c.pct}%"></div></div><span style="font-size:10px;font-weight:800;color:${pctColor};">${c.pct}%</span></div></td>
+      <td>${dateStr}</td><td><span class="badge ${badge}">${c.status}</span></td>
+      <td style="display:flex; gap:5px; flex-wrap:wrap;">${act}<button class="a-btn" onclick="deleteComp('${c.id}')" style="color:#b91c1c;">Delete</button></td>
+    </tr>`;
+  }).join('');
+}
+function setCompStatus(id,status){
+  const c=COMP.find(x=>x.id===id); if(!c) return;
+  c.status=status; c.last=new Date().toISOString().slice(0,10); renderComp();
+}
+function deleteComp(id){
+  const c=COMP.find(x=>x.id===id); if(!c) return;
+  if(!confirm(`Delete compliance record for ${c.name}?`)) return;
+  COMP=COMP.filter(x=>x.id!==id); renderComp();
+}
+function openCompModal(id){
+  COMP_EDIT_ID = id||null;
+  const c = id ? COMP.find(x=>x.id===id) : null;
+  document.getElementById('compModalTitle').textContent = c ? 'Edit Compliance Form' : 'Add Compliance Form';
+  document.getElementById('cm-name').value = c?.name || '';
+  document.getElementById('cm-pct').value = c?.pct ?? 80;
+  document.getElementById('cm-status').value = c?.status || 'Pending';
+  document.getElementById('cm-notes').value = c?.notes || '';
+  const wasteEl=document.getElementById('cm-waste');
+  wasteEl.innerHTML = WASTE_TYPES.map(w=>{
+    const on = c?.waste.includes(w.k);
+    return `<label style="display:inline-flex; align-items:center; gap:4px; padding:6px 10px; border:1px solid ${on?'#22c55e':'#e5e7eb'}; border-radius:8px; background:${on?'#dcfce7':'#fff'}; cursor:pointer; font-size:11px; font-weight:800;"><input type="checkbox" value="${w.k}" ${on?'checked':''} style="margin:0;"> ${w.ico} ${w.k}</label>`;
+  }).join('');
+  document.getElementById('compModalBg').style.display='flex';
+}
+function closeCompModal(){ document.getElementById('compModalBg').style.display='none'; COMP_EDIT_ID=null; }
+function saveComp(){
+  const name=document.getElementById('cm-name').value.trim();
+  if(!name){ alert('Household name is required.'); return; }
+  const waste=[...document.querySelectorAll('#cm-waste input:checked')].map(i=>i.value);
+  if(!waste.length){ alert('Pick at least one waste type.'); return; }
+  const pct=Math.max(0,Math.min(100,parseInt(document.getElementById('cm-pct').value)||0));
+  const data={name, waste, pct, status:document.getElementById('cm-status').value, notes:document.getElementById('cm-notes').value.trim(), last:new Date().toISOString().slice(0,10)};
+  if(COMP_EDIT_ID){ Object.assign(COMP.find(c=>c.id===COMP_EDIT_ID), data); }
+  else { COMP.push({id:'C-'+Date.now(), ...data}); }
+  closeCompModal(); renderComp();
+}
+function exportCompCSV(){
+  const rows=[['ID','Household','Waste','Compliance %','Status','Last Submit','Notes']];
+  filteredComp().forEach(c=>rows.push([c.id,c.name,c.waste.join('|'),c.pct,c.status,c.last,c.notes]));
+  const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='compliance.csv'; a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.addEventListener('DOMContentLoaded', renderComp);
+
 
 </script>
 </body>
