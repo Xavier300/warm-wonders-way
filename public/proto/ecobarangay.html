@@ -2189,6 +2189,135 @@ function toggleWT(el) {
   if (!isOn) { check.textContent = '✓'; }
   else        { check.textContent = ''; }
 }
+
+// ================= USER MANAGEMENT =================
+let USERS = [
+  {id:1, name:'Maria Santos', email:'maria.santos@email.com', role:'Resident', zone:'Zone 2', joined:'Jan 12, 2026', last:'2h ago', status:'Active'},
+  {id:2, name:'Juan Dela Cruz', email:'juan.dc@email.com', role:'Collector', zone:'Zone 1', joined:'Nov 03, 2025', last:'5m ago', status:'Active'},
+  {id:3, name:'Ana Reyes', email:'ana.reyes@email.com', role:'Resident', zone:'Zone 3', joined:'Feb 20, 2026', last:'1d ago', status:'Pending'},
+  {id:4, name:'Pedro Mendoza', email:'pedro.m@email.com', role:'Collector', zone:'Zone 2', joined:'Aug 14, 2025', last:'15m ago', status:'Active'},
+  {id:5, name:'Liza Gomez', email:'liza.g@email.com', role:'Admin', zone:'Office', joined:'Jun 01, 2025', last:'Just now', status:'Active'},
+  {id:6, name:'Carlo Bautista', email:'carlo.b@email.com', role:'Resident', zone:'Zone 1', joined:'Mar 09, 2026', last:'3d ago', status:'Suspended'},
+  {id:7, name:'Rosa Villanueva', email:'rosa.v@email.com', role:'Resident', zone:'Zone 3', joined:'Apr 02, 2026', last:'6h ago', status:'Active'},
+  {id:8, name:'Miguel Torres', email:'miguel.t@email.com', role:'Resident', zone:'Zone 2', joined:'May 01, 2026', last:'1h ago', status:'Active'},
+  {id:9, name:'Sofia Ramos', email:'sofia.r@email.com', role:'Resident', zone:'Zone 1', joined:'May 05, 2026', last:'2d ago', status:'Pending'},
+  {id:10, name:'Diego Cruz', email:'diego.c@email.com', role:'Collector', zone:'Zone 3', joined:'Jul 12, 2025', last:'30m ago', status:'Active'},
+];
+let USER_PAGE = 1;
+const USER_PAGE_SIZE = 7;
+let EDIT_USER_ID = null;
+
+function roleTag(r) {
+  if (r==='Collector') return '<span class="ann-tag warn" style="font-size:10px;">Collector</span>';
+  if (r==='Admin') return '<span class="ann-tag" style="font-size:10px; background:rgba(59,130,246,.15); color:#93c5fd;">Admin</span>';
+  return '<span class="ann-tag success" style="font-size:10px;">Resident</span>';
+}
+function statusBadge(s) {
+  if (s==='Pending') return '<span class="badge pending">Pending</span>';
+  if (s==='Suspended') return '<span class="badge rejected">Suspended</span>';
+  return '<span class="badge approved">Active</span>';
+}
+function actionBtns(u) {
+  const edit = `<button class="a-btn blue" onclick="openUserModal(${u.id})">Edit</button>`;
+  const del  = `<button class="a-btn red" onclick="deleteUser(${u.id})">Delete</button>`;
+  if (u.status==='Pending') return `<button class="a-btn green" onclick="setUserStatus(${u.id},'Active')">Approve</button> <button class="a-btn red" onclick="setUserStatus(${u.id},'Suspended')">Reject</button> ${edit}`;
+  if (u.status==='Suspended') return `<button class="a-btn green" onclick="setUserStatus(${u.id},'Active')">Reactivate</button> ${edit} ${del}`;
+  return `${edit} <button class="a-btn red" onclick="setUserStatus(${u.id},'Suspended')">Suspend</button>`;
+}
+function filteredUsers() {
+  const q = (document.getElementById('uf-search')?.value || '').toLowerCase();
+  const role = document.getElementById('uf-role')?.value || '';
+  const status = document.getElementById('uf-status')?.value || '';
+  const zone = document.getElementById('uf-zone')?.value || '';
+  return USERS.filter(u =>
+    (!q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) &&
+    (!role || u.role===role) && (!status || u.status===status) && (!zone || u.zone===zone)
+  );
+}
+function renderUsers() {
+  document.getElementById('uk-total').textContent = USERS.length.toLocaleString();
+  document.getElementById('uk-res').textContent = USERS.filter(u=>u.role==='Resident').length;
+  document.getElementById('uk-col').textContent = USERS.filter(u=>u.role==='Collector').length;
+  document.getElementById('uk-adm').textContent = USERS.filter(u=>u.role==='Admin').length;
+
+  const list = filteredUsers();
+  const pages = Math.max(1, Math.ceil(list.length / USER_PAGE_SIZE));
+  if (USER_PAGE > pages) USER_PAGE = pages;
+  const start = (USER_PAGE-1)*USER_PAGE_SIZE;
+  const page = list.slice(start, start+USER_PAGE_SIZE);
+
+  const tbody = document.getElementById('users-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = page.length ? page.map(u => `
+    <tr>
+      <td><div style="font-weight:700;">${u.name}</div><div style="font-size:11px; color:var(--muted);">${u.email}</div></td>
+      <td>${roleTag(u.role)}</td>
+      <td>${u.zone}</td><td>${u.joined}</td><td>${u.last}</td>
+      <td>${statusBadge(u.status)}</td>
+      <td>${actionBtns(u)}</td>
+    </tr>`).join('') : `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--muted);">No users match your filters.</td></tr>`;
+
+  document.getElementById('users-count').textContent =
+    list.length ? `Showing ${start+1}–${start+page.length} of ${list.length} users` : 'No users';
+
+  const pager = document.getElementById('users-pager');
+  let html = `<button class="a-btn" onclick="pageUsers(${USER_PAGE-1})" ${USER_PAGE<=1?'disabled':''}>‹ Prev</button>`;
+  for (let i=1;i<=pages;i++) html += `<button class="a-btn ${i===USER_PAGE?'blue':''}" onclick="pageUsers(${i})">${i}</button>`;
+  html += `<button class="a-btn" onclick="pageUsers(${USER_PAGE+1})" ${USER_PAGE>=pages?'disabled':''}>Next ›</button>`;
+  pager.innerHTML = html;
+}
+function pageUsers(p) { USER_PAGE = p; renderUsers(); }
+function setUserStatus(id, status) {
+  const u = USERS.find(x=>x.id===id); if (!u) return;
+  u.status = status; renderUsers();
+}
+function deleteUser(id) {
+  const u = USERS.find(x=>x.id===id); if (!u) return;
+  if (!confirm(`Delete ${u.name}? This cannot be undone.`)) return;
+  USERS = USERS.filter(x=>x.id!==id); renderUsers();
+}
+function openUserModal(id) {
+  EDIT_USER_ID = id || null;
+  const modal = document.getElementById('user-modal');
+  document.getElementById('um-title').textContent = id ? 'Edit User' : 'Add New User';
+  const u = id ? USERS.find(x=>x.id===id) : {name:'',email:'',role:'Resident',zone:'Zone 1',status:'Active'};
+  document.getElementById('um-name').value = u.name;
+  document.getElementById('um-email').value = u.email;
+  document.getElementById('um-role').value = u.role;
+  document.getElementById('um-zone').value = u.zone;
+  document.getElementById('um-status').value = u.status;
+  modal.style.display = 'flex';
+}
+function closeUserModal() { document.getElementById('user-modal').style.display = 'none'; }
+function saveUser() {
+  const name = document.getElementById('um-name').value.trim();
+  const email = document.getElementById('um-email').value.trim();
+  if (!name || !email) { alert('Name and email are required.'); return; }
+  const data = {
+    name, email,
+    role: document.getElementById('um-role').value,
+    zone: document.getElementById('um-zone').value,
+    status: document.getElementById('um-status').value,
+  };
+  if (EDIT_USER_ID) {
+    const u = USERS.find(x=>x.id===EDIT_USER_ID);
+    Object.assign(u, data);
+  } else {
+    const now = new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'});
+    USERS.unshift({id: Date.now(), joined: now, last: 'Just now', ...data});
+  }
+  closeUserModal(); renderUsers();
+}
+function exportUsersCSV() {
+  const rows = [['Name','Email','Role','Zone','Joined','Last Active','Status']];
+  filteredUsers().forEach(u => rows.push([u.name,u.email,u.role,u.zone,u.joined,u.last,u.status]));
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'users.csv'; a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.addEventListener('DOMContentLoaded', renderUsers);
 </script>
 </body>
 </html>
