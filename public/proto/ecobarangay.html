@@ -2925,7 +2925,7 @@ function openZoneModal(id){
   document.getElementById('zoneModalTitle').textContent = z ? 'Edit Schedule' : 'Add Schedule';
   document.getElementById('zm-name').value = z?.name || '';
   document.getElementById('zm-color').value = z?.color || '#22c55e';
-  document.getElementById('zm-coll').value = z?.collector || '';
+  populateCollectorSelect(z?.collector);
   document.getElementById('zm-start').value = z?.start || '06:00';
   document.getElementById('zm-end').value = z?.end || '08:00';
   const daysEl = document.getElementById('zm-days');
