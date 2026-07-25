@@ -25,7 +25,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <iframe
-      src="/proto/ecobarangay.html"
+      src="/proto/signin.html"
       title="EcoBarangay Prototype"
       style={{
         border: "none",
