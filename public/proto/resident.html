@@ -285,6 +285,7 @@
     display:inline-flex;align-items:center;gap:8px;
   }
 </style>
+<script type="module" src="./db.js"></script>
 </head>
 
 <body>
@@ -881,7 +882,7 @@
       chk.textContent = on ? '✓' : '';
     });
   }
-  function submitCompliance(){
+  async function submitCompliance(){
     const addr = document.getElementById('cf-addr').value.trim();
     const date = document.getElementById('cf-date').value;
     const remarks = (document.getElementById('cf-notes')?.value||'').trim();
@@ -890,18 +891,15 @@
     if(cfSelected.size === 0){ toast('Select at least one waste type'); return; }
     try {
       const auth = JSON.parse(localStorage.getItem('eb_auth')||'{}');
-      const list = JSON.parse(localStorage.getItem('eb_forms')||'[]');
-      const id = 'CF-' + Date.now().toString().slice(-6);
-      list.unshift({
-        id, name: auth.name || auth.email || 'Household',
-        reporter: auth.email || 'resident',
+      await window.EB.addComplianceForm({
         address: addr, date, waste: Array.from(cfSelected),
-        remarks, status: 'Pending', createdAt: Date.now()
+        remarks, name: auth.name || auth.email || 'Household'
       });
-      localStorage.setItem('eb_forms', JSON.stringify(list));
-    } catch(_){}
-    toast('Compliance form submitted ✓');
-    setTimeout(showHome, 700);
+      toast('Compliance form submitted ✓');
+      setTimeout(showHome, 700);
+    } catch(err){
+      toast(err.message || 'Submit failed');
+    }
   }
 
 
@@ -1018,26 +1016,22 @@
     }
   }
 
-  function submitReport(){
+  async function submitReport(){
     const loc = document.getElementById('rep-loc').value.trim();
     const desc = document.getElementById('rep-desc').value.trim();
     if(!loc){ toast('Please enter a location'); return; }
     if(!desc){ toast('Please describe what you saw'); return; }
-    const list = loadReports();
-    const id = 'R-' + String(1000 + list.length + 1);
-    list.unshift({
-      id, waste:repWaste, severity:repSev, location:loc, description:desc,
-      status:'Pending', createdAt: Date.now(),
-      reporter: (JSON.parse(localStorage.getItem('eb_auth')||'{}').email)||'resident',
-      points: 10
-    });
-    saveReports(list);
-    addHistory('report', `Report ${id} submitted`, +10);
-    document.getElementById('rep-desc').value = '';
-    document.getElementById('rep-photo').value = '';
-    const pn = document.getElementById('rep-photo-name'); if(pn) pn.textContent = '';
-    renderMyReports();
-    toast('Report submitted · +10 pts');
+    try {
+      await window.EB.addReport({ waste:repWaste, severity:repSev, location:loc, description:desc });
+      addHistory('report', `Report submitted`, +10);
+      document.getElementById('rep-desc').value = '';
+      document.getElementById('rep-photo').value = '';
+      const pn = document.getElementById('rep-photo-name'); if(pn) pn.textContent = '';
+      renderMyReports();
+      toast('Report submitted · +10 pts');
+    } catch(err){
+      toast(err.message || 'Submit failed');
+    }
   }
 
   function myReports(){
@@ -1189,45 +1183,41 @@
         <div style="color:var(--text-3);font-size:16px">›</div>
       </button>`).join('');
   }
-  function saveProfile(){
-    const s = JSON.parse(localStorage.getItem('eb_auth')||'{}');
+  async function saveProfile(){
     const name = document.getElementById('pf-name').value.trim();
     const phone = document.getElementById('pf-phone').value.trim();
     const zone = document.getElementById('pf-zone').value;
     if(!name){ toast('Name is required'); return; }
     if(phone && !/^\d[\d\s-]{6,}$/.test(phone)){ toast('Enter a valid phone'); return; }
-    s.name = name; s.phone = phone; s.zone = zone;
-    localStorage.setItem('eb_auth', JSON.stringify(s));
-    activeZone = zone;
-    document.getElementById('uname').textContent = name;
-    updateNextCard();
-    renderProfile();
-    toast('Profile updated');
+    try {
+      await window.EB.updateSelfProfile({ name, phone, zone });
+      activeZone = zone;
+      document.getElementById('uname').textContent = name;
+      updateNextCard();
+      renderProfile();
+      toast('Profile updated');
+    } catch(err){ toast(err.message || 'Update failed'); }
   }
 
-  (function initSession(){
+  function bootResidentUI(){
     try {
-      const raw = localStorage.getItem('eb_auth');
-      if(!raw){ window.location.replace('/proto/signin.html'); return; }
-      const s = JSON.parse(raw);
-      if(s.role !== 'Resident'){ window.location.replace('/proto/ecobarangay.html'); return; }
-      const email = s.email || 'resident@ecobarangay.app';
-      const name  = s.name || (email.split('@')[0] || 'Resident').replace(/[._-]+/g,' ')
+      const s = JSON.parse(localStorage.getItem('eb_auth')||'{}');
+      if(!s.email){ window.location.replace('/proto/signin.html'); return; }
+      const name  = s.name || (s.email.split('@')[0] || 'Resident').replace(/[._-]+/g,' ')
                      .replace(/\b\w/g, c => c.toUpperCase());
       document.getElementById('uname').textContent  = name;
       activeZone = getResidentZone();
       updateGreeting();
       updateNextCard();
       renderRecent();
-    } catch(_){
-      window.location.replace('/proto/signin.html');
-    }
-  })();
-
-  function signOut(){
-    try { localStorage.removeItem('eb_auth'); } catch(_){}
-    window.location.href = '/proto/signin.html';
+      if(typeof renderMyReports==='function') renderMyReports();
+    } catch(_){}
   }
+  if(window.EB && window.EB.state.ready) bootResidentUI();
+  document.addEventListener('eb:ready', bootResidentUI);
+  document.addEventListener('eb:data', bootResidentUI);
+
+  function signOut(){ window.EB.signOut(); }
   function notImpl(label){
     alert(label + ' — coming soon in the resident app (prototype).');
   }
