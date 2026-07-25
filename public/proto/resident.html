@@ -884,7 +884,7 @@
   function submitCompliance(){
     const addr = document.getElementById('cf-addr').value.trim();
     const date = document.getElementById('cf-date').value;
-    const remarks = (document.getElementById('cf-remarks')?.value||'').trim();
+    const remarks = (document.getElementById('cf-notes')?.value||'').trim();
     if(!addr){ toast('Please enter your address'); return; }
     if(!date){ toast('Please select the collection date'); return; }
     if(cfSelected.size === 0){ toast('Select at least one waste type'); return; }
