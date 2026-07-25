@@ -960,9 +960,9 @@
     });
     saveReports(list);
     addHistory('report', `Report ${id} submitted`, +10);
-    document.getElementById('rep-loc').value = '';
     document.getElementById('rep-desc').value = '';
     document.getElementById('rep-photo').value = '';
+    const pn = document.getElementById('rep-photo-name'); if(pn) pn.textContent = '';
     renderMyReports();
     toast('Report submitted · +10 pts');
   }
