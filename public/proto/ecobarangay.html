@@ -2689,7 +2689,20 @@ function renderReports(){
       <td>${repActions(r)}</td>
     </tr>`).join('') : `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--muted);">No reports match your filters.</td></tr>`;
   document.getElementById('rep-count').textContent = `Showing ${list.length} of ${REPORTS.length} reports`;
+  updateNavBadges();
   if (typeof renderAnalytics === 'function') renderAnalytics();
+}
+function updateNavBadges(){
+  const rb = document.getElementById('nav-badge-reports');
+  if (rb){
+    const n = REPORTS.filter(r=>r.status==='Pending'||r.status==='Under Review').length;
+    rb.textContent = n; rb.style.display = n?'':'none';
+  }
+  const cb = document.getElementById('nav-badge-comp');
+  if (cb && typeof COMP !== 'undefined'){
+    const n = COMP.filter(c=>c.status==='Pending').length;
+    cb.textContent = n; cb.style.display = n?'':'none';
+  }
 }
 function setReportStatus(id, status){
   const r = REPORTS.find(x=>x.id===id); if (!r) return;
