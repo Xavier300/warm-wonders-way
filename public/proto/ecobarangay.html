@@ -2062,11 +2062,11 @@ body {
 
           <!-- ─── SYSTEM LOGS ─── -->
           <div class="a-screen" id="a-logs">
-            <div class="a-kpi-grid" style="margin-bottom:14px;">
-              <div class="a-kpi"><div class="a-kpi-label">Total Events</div><div class="a-kpi-value" id="lk-total">0</div><div class="a-kpi-sub">All-time</div></div>
-              <div class="a-kpi"><div class="a-kpi-label">Today</div><div class="a-kpi-value" id="lk-today">0</div><div class="a-kpi-sub up">Live</div></div>
-              <div class="a-kpi"><div class="a-kpi-label">Warnings</div><div class="a-kpi-value" id="lk-warn" style="color:#f59e0b;">0</div><div class="a-kpi-sub">Needs review</div></div>
-              <div class="a-kpi"><div class="a-kpi-label">Errors</div><div class="a-kpi-value" id="lk-err" style="color:#ef4444;">0</div><div class="a-kpi-sub">Critical</div></div>
+            <div class="a-stats" style="grid-template-columns:repeat(4,1fr); margin-bottom:14px;">
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:var(--g100);">📜</div></div><div class="a-stat-val" id="lk-total">0</div><div class="a-stat-lbl">Total Events</div></div>
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:#dbeafe;">📅</div><span class="a-stat-change up">Live</span></div><div class="a-stat-val" id="lk-today">0</div><div class="a-stat-lbl">Today</div></div>
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:#fef9c3;">⚠️</div></div><div class="a-stat-val" id="lk-warn" style="color:#f59e0b;">0</div><div class="a-stat-lbl">Warnings</div></div>
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:#fee2e2;">⛔</div></div><div class="a-stat-val" id="lk-err" style="color:#ef4444;">0</div><div class="a-stat-lbl">Errors</div></div>
             </div>
 
             <div class="a-card" style="margin-bottom:14px;">
