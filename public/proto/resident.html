@@ -552,20 +552,21 @@
 <script>
   // ---- Schedule data (mirrors the admin prototype's zones) ----
   const ZONES = [
-    { id:'Z1', name:'Zone 1', collector:'Juan Dela Cruz',
+    { id:'Z1', name:'Zone A', area:'Calatagan Proper', collector:'Juan Dela Cruz',
       days:{ Mon:'Bio', Tue:'Recyc', Wed:'Bio', Thu:'Resid', Fri:'Bio', Sat:'Spec', Sun:null },
-      time:'6:00 AM – 9:00 AM' },
-    { id:'Z2', name:'Zone 2', collector:'Maria Santos',
+      time:'6:00 AM – 8:00 AM', color:'c1' },
+    { id:'Z2', name:'Zone B', area:'Upper Calatagan', collector:'Maria Santos',
       days:{ Mon:'Recyc', Tue:'Bio', Wed:'Resid', Thu:'Bio', Fri:'Recyc', Sat:null, Sun:'Bio' },
-      time:'7:00 AM – 10:00 AM' },
-    { id:'Z3', name:'Zone 3', collector:'Pedro Reyes',
+      time:'7:00 AM – 9:00 AM', color:'c2' },
+    { id:'Z3', name:'Zone C', area:'Barangay Hall Area', collector:'Pedro Reyes',
       days:{ Mon:'Bio', Tue:'Resid', Wed:'Recyc', Thu:'Bio', Fri:'Spec', Sat:'Bio', Sun:null },
-      time:'6:30 AM – 9:30 AM' },
-    { id:'Z4', name:'Zone 4', collector:'Ana Lopez',
+      time:'5:30 AM – 7:30 AM', color:'c3' },
+    { id:'Z4', name:'Zone D', area:'Coastal Road', collector:'Ana Lopez',
       days:{ Mon:'Resid', Tue:'Bio', Wed:'Recyc', Thu:'Spec', Fri:'Bio', Sat:'Recyc', Sun:null },
-      time:'6:00 AM – 9:00 AM' },
+      time:'6:00 AM – 8:00 AM', color:'c4' },
   ];
   const WASTE_LABEL = { Bio:'Biodegradable', Recyc:'Recyclable', Resid:'Residual', Spec:'Special' };
+  const WASTE_SHORT = { Bio:'Bio', Recyc:'Recyc', Resid:'Resid', Spec:'Special' };
   const WASTE_ICON  = { Bio:'🌿', Recyc:'♻️', Resid:'🗑️', Spec:'☣️' };
   const WASTE_CLASS = { Bio:'w-bio', Recyc:'w-rec', Resid:'w-res', Spec:'w-spec' };
   const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
