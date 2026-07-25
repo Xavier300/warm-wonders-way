@@ -2466,12 +2466,12 @@ function renderUsers() {
 function pageUsers(p) { USER_PAGE = p; renderUsers(); }
 function setUserStatus(id, status) {
   const u = USERS.find(x=>x.id===id); if (!u) return;
-  u.status = status; renderUsers();
+  u.status = status; renderUsers(); if (typeof renderZones==='function') renderZones();
 }
 function deleteUser(id) {
   const u = USERS.find(x=>x.id===id); if (!u) return;
   if (!confirm(`Delete ${u.name}? This cannot be undone.`)) return;
-  USERS = USERS.filter(x=>x.id!==id); renderUsers();
+  USERS = USERS.filter(x=>x.id!==id); renderUsers(); if (typeof renderZones==='function') renderZones();
 }
 function openUserModal(id) {
   EDIT_USER_ID = id || null;
