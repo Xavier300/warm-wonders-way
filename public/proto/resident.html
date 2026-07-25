@@ -328,40 +328,57 @@
 
   <!-- REPORT SCREEN -->
   <section class="screen" id="scr-report">
-    <div class="scr-head">
-      <button class="back" onclick="showHome()">← Back</button>
-      <div>
-        <h2>Report Illegal Dumping</h2>
-        <p id="rep-count-label">Help keep the barangay clean</p>
-      </div>
+    <div class="sched-top">
+      <button class="ic-btn" onclick="showHome()" aria-label="Back">←</button>
+      <h2>Report Illegal Dumping</h2>
+      <button class="ic-btn" style="background:#fff4ec;border-color:#fed7aa;color:#c2410c" aria-label="Alert">!</button>
     </div>
-    <div class="form">
-      <div class="field">
-        <label>Waste type</label>
-        <div class="chip-row" id="rep-waste-picker"></div>
+
+    <div class="rep-form">
+      <div class="rep-lbl">🖼️ PHOTO EVIDENCE</div>
+      <label class="rep-upload" for="rep-photo">
+        <div class="rep-upload-ic">📷</div>
+        <div class="rep-upload-t">Upload Photo Evidence</div>
+        <div class="rep-upload-s">Tap to take photo or choose from gallery.<br/>CCTV footage also accepted as evidence.</div>
+        <div class="rep-upload-name" id="rep-photo-name"></div>
+      </label>
+      <input id="rep-photo" type="file" accept="image/*" style="display:none" onchange="onPhotoChange(this)"/>
+
+      <div class="rep-lbl">📍 LOCATION (GPS TAGGED)</div>
+      <div class="rep-loc-card">
+        <div class="rep-map" aria-hidden="true"><div class="rep-pin">📍</div></div>
+        <div class="rep-loc-body">
+          <div class="rep-loc-info">
+            <div class="rep-loc-name" id="rep-loc-name">Rizal Street, Brgy. Calatagan</div>
+            <div class="rep-loc-coords">📌 <span id="rep-loc-coords">13.5789°N, 124.2419°E</span></div>
+          </div>
+          <button type="button" class="rep-edit" onclick="editLocation()">Edit</button>
+        </div>
       </div>
-      <div class="field">
-        <label>Severity</label>
-        <div class="chip-row" id="rep-sev-picker"></div>
+      <input id="rep-loc" type="hidden" value="Rizal Street, Brgy. Calatagan" />
+
+      <div class="rep-lbl">⚠️ SEVERITY LEVEL</div>
+      <div class="sev-row" id="rep-sev-picker"></div>
+
+      <div class="rep-lbl">📝 DESCRIPTION</div>
+      <textarea id="rep-desc" class="rep-desc" placeholder="Describe the incident… e.g. 'Large pile of mixed garbage near canal. Has been here for days.'"></textarea>
+
+      <div class="rep-lbl" style="margin-top:4px">🌿 WASTE TYPE</div>
+      <div class="chip-row" id="rep-waste-picker"></div>
+
+      <div class="rep-note">
+        <div class="rep-note-ic">ℹ️</div>
+        <div>Reports are accepted for <b>public areas only</b> — streets, open lots, waterways. Private property reports are not permitted.</div>
       </div>
-      <div class="field">
-        <label for="rep-loc">Location</label>
-        <input id="rep-loc" placeholder="e.g. Corner of Rizal St. & Zone 1" />
-      </div>
-      <div class="field">
-        <label for="rep-desc">Description</label>
-        <textarea id="rep-desc" placeholder="What did you see? When?"></textarea>
-      </div>
-      <div class="field">
-        <label for="rep-photo">Photo (optional)</label>
-        <input id="rep-photo" type="file" accept="image/*" />
-      </div>
+
       <button class="btn-primary" onclick="submitReport()">🚨 Submit Report</button>
 
       <div class="section" style="padding:8px 0 4px"><h3>My reports</h3></div>
       <div id="rep-list"></div>
+      <div id="rep-count-label" style="display:none"></div>
     </div>
   </section>
+
 
   <!-- REWARDS SCREEN -->
   <section class="screen" id="scr-rewards">
