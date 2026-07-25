@@ -2007,111 +2007,65 @@ body {
           <!-- USER MANAGEMENT -->
           <div class="a-screen" id="a-users">
             <div class="a-kpi-grid" style="margin-bottom:14px;">
-              <div class="a-kpi"><div class="a-kpi-label">Total Users</div><div class="a-kpi-value">1,284</div><div class="a-kpi-sub up">▲ 42 this month</div></div>
-              <div class="a-kpi"><div class="a-kpi-label">Residents</div><div class="a-kpi-value">1,196</div><div class="a-kpi-sub">Active accounts</div></div>
-              <div class="a-kpi"><div class="a-kpi-label">Collectors</div><div class="a-kpi-value">24</div><div class="a-kpi-sub">On field</div></div>
-              <div class="a-kpi"><div class="a-kpi-label">Admins / Staff</div><div class="a-kpi-value">8</div><div class="a-kpi-sub">Barangay office</div></div>
+              <div class="a-kpi"><div class="a-kpi-label">Total Users</div><div class="a-kpi-value" id="uk-total">0</div><div class="a-kpi-sub up">▲ Live count</div></div>
+              <div class="a-kpi"><div class="a-kpi-label">Residents</div><div class="a-kpi-value" id="uk-res">0</div><div class="a-kpi-sub">Active accounts</div></div>
+              <div class="a-kpi"><div class="a-kpi-label">Collectors</div><div class="a-kpi-value" id="uk-col">0</div><div class="a-kpi-sub">On field</div></div>
+              <div class="a-kpi"><div class="a-kpi-label">Admins / Staff</div><div class="a-kpi-value" id="uk-adm">0</div><div class="a-kpi-sub">Barangay office</div></div>
             </div>
 
             <div class="a-card" style="margin-bottom:14px;">
               <div class="a-card-title">Filters
-                <span class="a-card-action">+ Add New User</span>
+                <span class="a-card-action" onclick="openUserModal()">+ Add New User</span>
               </div>
               <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <input class="a-search" style="flex:1; min-width:220px;" placeholder="🔍 Search by name, email, or ID…">
-                <select class="a-select">
-                  <option>All Roles</option>
-                  <option>Resident</option>
-                  <option>Collector</option>
-                  <option>Admin</option>
+                <input id="uf-search" class="a-search" style="flex:1; min-width:220px;" placeholder="🔍 Search by name or email…" oninput="renderUsers()">
+                <select id="uf-role" class="a-select" onchange="renderUsers()">
+                  <option value="">All Roles</option><option>Resident</option><option>Collector</option><option>Admin</option>
                 </select>
-                <select class="a-select">
-                  <option>All Status</option>
-                  <option>Active</option>
-                  <option>Suspended</option>
-                  <option>Pending</option>
+                <select id="uf-status" class="a-select" onchange="renderUsers()">
+                  <option value="">All Status</option><option>Active</option><option>Suspended</option><option>Pending</option>
                 </select>
-                <select class="a-select">
-                  <option>All Zones</option>
-                  <option>Zone 1</option>
-                  <option>Zone 2</option>
-                  <option>Zone 3</option>
+                <select id="uf-zone" class="a-select" onchange="renderUsers()">
+                  <option value="">All Zones</option><option>Zone 1</option><option>Zone 2</option><option>Zone 3</option><option>Office</option>
                 </select>
               </div>
             </div>
 
             <div class="a-card">
-              <div class="a-card-title">Registered Users <span class="a-card-action">Export CSV</span></div>
+              <div class="a-card-title">Registered Users <span class="a-card-action" onclick="exportUsersCSV()">Export CSV</span></div>
               <table class="a-table">
                 <thead>
                   <tr><th>User</th><th>Role</th><th>Zone</th><th>Joined</th><th>Last Active</th><th>Status</th><th>Action</th></tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td><div style="font-weight:700;">Maria Santos</div><div style="font-size:11px; color:var(--muted);">maria.santos@email.com</div></td>
-                    <td><span class="ann-tag success" style="font-size:10px;">Resident</span></td>
-                    <td>Zone 2</td><td>Jan 12, 2026</td><td>2h ago</td>
-                    <td><span class="badge approved">Active</span></td>
-                    <td><button class="a-btn blue">Edit</button> <button class="a-btn red">Suspend</button></td>
-                  </tr>
-                  <tr>
-                    <td><div style="font-weight:700;">Juan Dela Cruz</div><div style="font-size:11px; color:var(--muted);">juan.dc@email.com</div></td>
-                    <td><span class="ann-tag warn" style="font-size:10px;">Collector</span></td>
-                    <td>Zone 1</td><td>Nov 03, 2025</td><td>5m ago</td>
-                    <td><span class="badge approved">Active</span></td>
-                    <td><button class="a-btn blue">Edit</button> <button class="a-btn red">Suspend</button></td>
-                  </tr>
-                  <tr>
-                    <td><div style="font-weight:700;">Ana Reyes</div><div style="font-size:11px; color:var(--muted);">ana.reyes@email.com</div></td>
-                    <td><span class="ann-tag success" style="font-size:10px;">Resident</span></td>
-                    <td>Zone 3</td><td>Feb 20, 2026</td><td>1d ago</td>
-                    <td><span class="badge pending">Pending</span></td>
-                    <td><button class="a-btn green">Approve</button> <button class="a-btn red">Reject</button></td>
-                  </tr>
-                  <tr>
-                    <td><div style="font-weight:700;">Pedro Mendoza</div><div style="font-size:11px; color:var(--muted);">pedro.m@email.com</div></td>
-                    <td><span class="ann-tag warn" style="font-size:10px;">Collector</span></td>
-                    <td>Zone 2</td><td>Aug 14, 2025</td><td>15m ago</td>
-                    <td><span class="badge approved">Active</span></td>
-                    <td><button class="a-btn blue">Edit</button> <button class="a-btn red">Suspend</button></td>
-                  </tr>
-                  <tr>
-                    <td><div style="font-weight:700;">Liza Gomez</div><div style="font-size:11px; color:var(--muted);">liza.g@email.com</div></td>
-                    <td><span class="ann-tag" style="font-size:10px; background:rgba(59,130,246,.15); color:#93c5fd;">Admin</span></td>
-                    <td>Office</td><td>Jun 01, 2025</td><td>Just now</td>
-                    <td><span class="badge approved">Active</span></td>
-                    <td><button class="a-btn blue">Edit</button></td>
-                  </tr>
-                  <tr>
-                    <td><div style="font-weight:700;">Carlo Bautista</div><div style="font-size:11px; color:var(--muted);">carlo.b@email.com</div></td>
-                    <td><span class="ann-tag success" style="font-size:10px;">Resident</span></td>
-                    <td>Zone 1</td><td>Mar 09, 2026</td><td>3d ago</td>
-                    <td><span class="badge rejected">Suspended</span></td>
-                    <td><button class="a-btn green">Reactivate</button></td>
-                  </tr>
-                  <tr>
-                    <td><div style="font-weight:700;">Rosa Villanueva</div><div style="font-size:11px; color:var(--muted);">rosa.v@email.com</div></td>
-                    <td><span class="ann-tag success" style="font-size:10px;">Resident</span></td>
-                    <td>Zone 3</td><td>Apr 02, 2026</td><td>6h ago</td>
-                    <td><span class="badge approved">Active</span></td>
-                    <td><button class="a-btn blue">Edit</button> <button class="a-btn red">Suspend</button></td>
-                  </tr>
-                </tbody>
+                <tbody id="users-tbody"></tbody>
               </table>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:12px; color:var(--muted);">
-                <span>Showing 1–7 of 1,284 users</span>
-                <div style="display:flex; gap:6px;">
-                  <button class="a-btn">‹ Prev</button>
-                  <button class="a-btn blue">1</button>
-                  <button class="a-btn">2</button>
-                  <button class="a-btn">3</button>
-                  <button class="a-btn">Next ›</button>
-                </div>
+                <span id="users-count">—</span>
+                <div id="users-pager" style="display:flex; gap:6px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- USER MODAL -->
+          <div id="user-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:9999; align-items:center; justify-content:center;" onclick="if(event.target===this)closeUserModal()">
+            <div style="background:#0f172a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:22px; width:420px; max-width:92vw; color:#e5e7eb;">
+              <div style="font-weight:700; font-size:16px; margin-bottom:14px;" id="um-title">Add New User</div>
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <input id="um-name" class="a-search" placeholder="Full name">
+                <input id="um-email" class="a-search" placeholder="Email">
+                <select id="um-role" class="a-select"><option>Resident</option><option>Collector</option><option>Admin</option></select>
+                <select id="um-zone" class="a-select"><option>Zone 1</option><option>Zone 2</option><option>Zone 3</option><option>Office</option></select>
+                <select id="um-status" class="a-select"><option>Active</option><option>Pending</option><option>Suspended</option></select>
+              </div>
+              <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+                <button class="a-btn" onclick="closeUserModal()">Cancel</button>
+                <button class="a-btn green" onclick="saveUser()">Save</button>
               </div>
             </div>
           </div>
 
         </div><!-- /a-body -->
+
 
       </div><!-- /a-content -->
     </div><!-- /admin-wrap -->
@@ -2235,6 +2189,135 @@ function toggleWT(el) {
   if (!isOn) { check.textContent = '✓'; }
   else        { check.textContent = ''; }
 }
+
+// ================= USER MANAGEMENT =================
+let USERS = [
+  {id:1, name:'Maria Santos', email:'maria.santos@email.com', role:'Resident', zone:'Zone 2', joined:'Jan 12, 2026', last:'2h ago', status:'Active'},
+  {id:2, name:'Juan Dela Cruz', email:'juan.dc@email.com', role:'Collector', zone:'Zone 1', joined:'Nov 03, 2025', last:'5m ago', status:'Active'},
+  {id:3, name:'Ana Reyes', email:'ana.reyes@email.com', role:'Resident', zone:'Zone 3', joined:'Feb 20, 2026', last:'1d ago', status:'Pending'},
+  {id:4, name:'Pedro Mendoza', email:'pedro.m@email.com', role:'Collector', zone:'Zone 2', joined:'Aug 14, 2025', last:'15m ago', status:'Active'},
+  {id:5, name:'Liza Gomez', email:'liza.g@email.com', role:'Admin', zone:'Office', joined:'Jun 01, 2025', last:'Just now', status:'Active'},
+  {id:6, name:'Carlo Bautista', email:'carlo.b@email.com', role:'Resident', zone:'Zone 1', joined:'Mar 09, 2026', last:'3d ago', status:'Suspended'},
+  {id:7, name:'Rosa Villanueva', email:'rosa.v@email.com', role:'Resident', zone:'Zone 3', joined:'Apr 02, 2026', last:'6h ago', status:'Active'},
+  {id:8, name:'Miguel Torres', email:'miguel.t@email.com', role:'Resident', zone:'Zone 2', joined:'May 01, 2026', last:'1h ago', status:'Active'},
+  {id:9, name:'Sofia Ramos', email:'sofia.r@email.com', role:'Resident', zone:'Zone 1', joined:'May 05, 2026', last:'2d ago', status:'Pending'},
+  {id:10, name:'Diego Cruz', email:'diego.c@email.com', role:'Collector', zone:'Zone 3', joined:'Jul 12, 2025', last:'30m ago', status:'Active'},
+];
+let USER_PAGE = 1;
+const USER_PAGE_SIZE = 7;
+let EDIT_USER_ID = null;
+
+function roleTag(r) {
+  if (r==='Collector') return '<span class="ann-tag warn" style="font-size:10px;">Collector</span>';
+  if (r==='Admin') return '<span class="ann-tag" style="font-size:10px; background:rgba(59,130,246,.15); color:#93c5fd;">Admin</span>';
+  return '<span class="ann-tag success" style="font-size:10px;">Resident</span>';
+}
+function statusBadge(s) {
+  if (s==='Pending') return '<span class="badge pending">Pending</span>';
+  if (s==='Suspended') return '<span class="badge rejected">Suspended</span>';
+  return '<span class="badge approved">Active</span>';
+}
+function actionBtns(u) {
+  const edit = `<button class="a-btn blue" onclick="openUserModal(${u.id})">Edit</button>`;
+  const del  = `<button class="a-btn red" onclick="deleteUser(${u.id})">Delete</button>`;
+  if (u.status==='Pending') return `<button class="a-btn green" onclick="setUserStatus(${u.id},'Active')">Approve</button> <button class="a-btn red" onclick="setUserStatus(${u.id},'Suspended')">Reject</button> ${edit}`;
+  if (u.status==='Suspended') return `<button class="a-btn green" onclick="setUserStatus(${u.id},'Active')">Reactivate</button> ${edit} ${del}`;
+  return `${edit} <button class="a-btn red" onclick="setUserStatus(${u.id},'Suspended')">Suspend</button>`;
+}
+function filteredUsers() {
+  const q = (document.getElementById('uf-search')?.value || '').toLowerCase();
+  const role = document.getElementById('uf-role')?.value || '';
+  const status = document.getElementById('uf-status')?.value || '';
+  const zone = document.getElementById('uf-zone')?.value || '';
+  return USERS.filter(u =>
+    (!q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) &&
+    (!role || u.role===role) && (!status || u.status===status) && (!zone || u.zone===zone)
+  );
+}
+function renderUsers() {
+  document.getElementById('uk-total').textContent = USERS.length.toLocaleString();
+  document.getElementById('uk-res').textContent = USERS.filter(u=>u.role==='Resident').length;
+  document.getElementById('uk-col').textContent = USERS.filter(u=>u.role==='Collector').length;
+  document.getElementById('uk-adm').textContent = USERS.filter(u=>u.role==='Admin').length;
+
+  const list = filteredUsers();
+  const pages = Math.max(1, Math.ceil(list.length / USER_PAGE_SIZE));
+  if (USER_PAGE > pages) USER_PAGE = pages;
+  const start = (USER_PAGE-1)*USER_PAGE_SIZE;
+  const page = list.slice(start, start+USER_PAGE_SIZE);
+
+  const tbody = document.getElementById('users-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = page.length ? page.map(u => `
+    <tr>
+      <td><div style="font-weight:700;">${u.name}</div><div style="font-size:11px; color:var(--muted);">${u.email}</div></td>
+      <td>${roleTag(u.role)}</td>
+      <td>${u.zone}</td><td>${u.joined}</td><td>${u.last}</td>
+      <td>${statusBadge(u.status)}</td>
+      <td>${actionBtns(u)}</td>
+    </tr>`).join('') : `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--muted);">No users match your filters.</td></tr>`;
+
+  document.getElementById('users-count').textContent =
+    list.length ? `Showing ${start+1}–${start+page.length} of ${list.length} users` : 'No users';
+
+  const pager = document.getElementById('users-pager');
+  let html = `<button class="a-btn" onclick="pageUsers(${USER_PAGE-1})" ${USER_PAGE<=1?'disabled':''}>‹ Prev</button>`;
+  for (let i=1;i<=pages;i++) html += `<button class="a-btn ${i===USER_PAGE?'blue':''}" onclick="pageUsers(${i})">${i}</button>`;
+  html += `<button class="a-btn" onclick="pageUsers(${USER_PAGE+1})" ${USER_PAGE>=pages?'disabled':''}>Next ›</button>`;
+  pager.innerHTML = html;
+}
+function pageUsers(p) { USER_PAGE = p; renderUsers(); }
+function setUserStatus(id, status) {
+  const u = USERS.find(x=>x.id===id); if (!u) return;
+  u.status = status; renderUsers();
+}
+function deleteUser(id) {
+  const u = USERS.find(x=>x.id===id); if (!u) return;
+  if (!confirm(`Delete ${u.name}? This cannot be undone.`)) return;
+  USERS = USERS.filter(x=>x.id!==id); renderUsers();
+}
+function openUserModal(id) {
+  EDIT_USER_ID = id || null;
+  const modal = document.getElementById('user-modal');
+  document.getElementById('um-title').textContent = id ? 'Edit User' : 'Add New User';
+  const u = id ? USERS.find(x=>x.id===id) : {name:'',email:'',role:'Resident',zone:'Zone 1',status:'Active'};
+  document.getElementById('um-name').value = u.name;
+  document.getElementById('um-email').value = u.email;
+  document.getElementById('um-role').value = u.role;
+  document.getElementById('um-zone').value = u.zone;
+  document.getElementById('um-status').value = u.status;
+  modal.style.display = 'flex';
+}
+function closeUserModal() { document.getElementById('user-modal').style.display = 'none'; }
+function saveUser() {
+  const name = document.getElementById('um-name').value.trim();
+  const email = document.getElementById('um-email').value.trim();
+  if (!name || !email) { alert('Name and email are required.'); return; }
+  const data = {
+    name, email,
+    role: document.getElementById('um-role').value,
+    zone: document.getElementById('um-zone').value,
+    status: document.getElementById('um-status').value,
+  };
+  if (EDIT_USER_ID) {
+    const u = USERS.find(x=>x.id===EDIT_USER_ID);
+    Object.assign(u, data);
+  } else {
+    const now = new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'});
+    USERS.unshift({id: Date.now(), joined: now, last: 'Just now', ...data});
+  }
+  closeUserModal(); renderUsers();
+}
+function exportUsersCSV() {
+  const rows = [['Name','Email','Role','Zone','Joined','Last Active','Status']];
+  filteredUsers().forEach(u => rows.push([u.name,u.email,u.role,u.zone,u.joined,u.last,u.status]));
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'users.csv'; a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.addEventListener('DOMContentLoaded', renderUsers);
 </script>
 </body>
 </html>
