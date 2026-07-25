@@ -733,7 +733,7 @@
     window.scrollTo(0,0);
   }
   function showHome(){ updateGreeting(); updateNextCard(); renderRecent(); showScreen('scr-home'); }
-  function showSchedule(){ renderZonePicker(); renderDays(); showScreen('scr-sched'); }
+  function showSchedule(){ renderZonePicker(); renderMonth(); renderUpcoming(); showScreen('scr-sched'); }
   function showReport(){ renderReportPickers(); renderMyReports(); showScreen('scr-report'); }
   function showRewards(){ renderRewards(); showScreen('scr-rewards'); }
   function showAlerts(){ renderAlerts(); showScreen('scr-alerts'); const b=document.getElementById('bell-badge'); if(b) b.classList.add('hide'); }
