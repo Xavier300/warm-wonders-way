@@ -232,7 +232,7 @@
         <div class="tile-title">My Schedule</div>
         <div class="tile-sub">This week's pickups</div>
       </button>
-      <button class="tile" onclick="notImpl('Self-Compliance Form')">
+      <button class="tile" onclick="showCompliance()">
         <div class="tile-ic">📋</div>
         <div class="tile-title">Self-Compliance Form</div>
         <div class="tile-sub">Declare waste type</div>
@@ -454,6 +454,46 @@
     </div>
   </section>
 
+  <!-- Self-Compliance Form screen -->
+  <section class="screen" id="scr-comp">
+    <div class="scr-head">
+      <button class="back" onclick="showHome()">← Back</button>
+      <div style="flex:1"><h2>Self-Compliance Form</h2></div>
+    </div>
+    <div class="form">
+      <div style="background:#eaf7ee;border:1px solid #bbf7d0;border-radius:12px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+        <div style="font-size:20px">📋</div>
+        <div style="font-size:12px;color:var(--text-2);line-height:1.5">
+          Submit this form to report a <b>missed garbage collection</b> or to declare your household waste for this week's schedule.
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Household Address</label>
+        <input id="cf-addr" type="text" placeholder="e.g. 123 Rizal Street, Calatagan Proper" maxlength="120"/>
+      </div>
+
+      <div class="field">
+        <label>Collection Date Missed</label>
+        <input id="cf-date" type="date"/>
+      </div>
+
+      <div class="field">
+        <label>🗑️ Declare waste type (select all that apply)</label>
+        <div id="cf-waste" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+
+      <div class="field">
+        <label>Additional remarks (optional)</label>
+        <textarea id="cf-notes" maxlength="500" placeholder="Describe the issue or reason for missed collection…"></textarea>
+      </div>
+
+      <button class="btn-primary" onclick="submitCompliance()">Submit form</button>
+      <button class="btn-ghost" onclick="showHome()">Cancel</button>
+    </div>
+  </section>
+
+
   <!-- Tab bar -->
   <nav class="tabbar">
     <button class="tab on" id="tab-home" onclick="showHome()"><span class="ic">🏠</span>Home</button>
@@ -573,6 +613,56 @@
   function showRewards(){ renderRewards(); showScreen('scr-rewards'); }
   function showEco(){ renderEco(); showScreen('scr-eco'); }
   function showProfile(){ renderProfile(); showScreen('scr-profile'); }
+  function showCompliance(){ renderCompliance(); showScreen('scr-comp'); }
+
+  // ---------- SELF-COMPLIANCE FORM ----------
+  const CF_WASTE = [
+    { key:'Bio',   ic:'🌿', name:'Biodegradable Waste', desc:'Food scraps, leaves, garden waste' },
+    { key:'Recyc', ic:'♻️', name:'Recyclable Waste',    desc:'Paper, plastic, glass, metals' },
+    { key:'Resid', ic:'🗑️', name:'Residual Waste',      desc:'Non-recyclable, contaminated items' },
+    { key:'Spec',  ic:'☣️', name:'Special Waste',       desc:'Batteries, chemicals, e-waste, meds' },
+  ];
+  let cfSelected = new Set();
+  function renderCompliance(){
+    cfSelected = new Set();
+    const box = document.getElementById('cf-waste');
+    box.innerHTML = CF_WASTE.map(w => `
+      <button type="button" class="cf-opt" data-k="${w.key}" onclick="toggleCfWaste('${w.key}')"
+        style="display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid var(--line);border-radius:14px;background:#fff;text-align:left;width:100%">
+        <div style="width:42px;height:42px;border-radius:12px;background:#f1f5f9;display:grid;place-items:center;font-size:22px;flex-shrink:0">${w.ic}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:800;font-size:13px;color:var(--text)">${w.name}</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px">${w.desc}</div>
+        </div>
+        <div class="cf-check" style="width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:#fff;font-size:13px;font-weight:900;flex-shrink:0"></div>
+      </button>
+    `).join('');
+    document.getElementById('cf-addr').value = '';
+    document.getElementById('cf-notes').value = '';
+    document.getElementById('cf-date').value = new Date().toISOString().slice(0,10);
+  }
+  function toggleCfWaste(k){
+    if(cfSelected.has(k)) cfSelected.delete(k); else cfSelected.add(k);
+    document.querySelectorAll('#cf-waste .cf-opt').forEach(btn => {
+      const on = cfSelected.has(btn.dataset.k);
+      btn.style.borderColor = on ? 'var(--g700)' : 'var(--line)';
+      btn.style.background = on ? '#f2fbf5' : '#fff';
+      const chk = btn.querySelector('.cf-check');
+      chk.style.background = on ? 'var(--g700)' : 'transparent';
+      chk.style.borderColor = on ? 'var(--g700)' : 'var(--line)';
+      chk.textContent = on ? '✓' : '';
+    });
+  }
+  function submitCompliance(){
+    const addr = document.getElementById('cf-addr').value.trim();
+    const date = document.getElementById('cf-date').value;
+    if(!addr){ toast('Please enter your address'); return; }
+    if(!date){ toast('Please select the collection date'); return; }
+    if(cfSelected.size === 0){ toast('Select at least one waste type'); return; }
+    toast('Compliance form submitted ✓');
+    setTimeout(showHome, 700);
+  }
+
 
   // ---------- ECO AWARENESS ----------
   const ECO_TIPS = [
