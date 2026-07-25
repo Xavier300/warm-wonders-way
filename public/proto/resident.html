@@ -81,11 +81,57 @@
   /* Bottom nav */
   .tabbar{
     position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);
-    display:grid;grid-template-columns:repeat(6,1fr);padding:8px 4px;gap:2px;
+    display:grid;grid-template-columns:repeat(5,1fr);padding:8px 4px;gap:2px;
   }
+  .tabbar.has-eco{grid-template-columns:repeat(6,1fr)}
   .tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:12px;color:var(--text-3);font-size:11px;font-weight:700}
   .tab.on{color:var(--g700);background:#eaf7ee}
   .tab .ic{font-size:18px}
+  .tab.hidden{display:none}
+
+  /* --- New home design (mockup match) --- */
+  .hi-small{font-size:13px;color:rgba(255,255,255,.75);font-weight:600}
+  .hi-name{font-size:24px;font-weight:900;letter-spacing:-.4px;margin-top:2px}
+  .bell{position:relative;width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);display:grid;place-items:center;font-size:20px}
+  .bell-badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#ef4444;color:#fff;font-size:10px;font-weight:900;display:grid;place-items:center;border:2px solid #14351f}
+  .bell-badge.hide{display:none}
+
+  .next2{margin-top:18px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 16px 16px}
+  .next2-label{font-size:11px;font-weight:800;color:rgba(255,255,255,.7);letter-spacing:.08em;text-transform:uppercase}
+  .next2-date{margin-top:4px;font-size:22px;font-weight:900;color:#fff;letter-spacing:-.3px;line-height:1.2}
+  .next2-time{margin-top:6px;font-size:14px;font-weight:800;color:#c7f24a;display:flex;align-items:center;gap:6px}
+  .next2-pills{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+  .np{padding:6px 12px;border-radius:999px;font-size:12px;font-weight:800;display:inline-flex;align-items:center;gap:4px}
+  .np-bio{background:rgba(63,166,104,.25);color:#a7f3c8;border:1px solid rgba(111,207,151,.4)}
+  .np-rec{background:rgba(59,130,246,.2);color:#93c5fd;border:1px solid rgba(147,197,253,.4)}
+  .np-res{background:rgba(148,163,184,.2);color:#cbd5e1;border:1px solid rgba(203,213,225,.35)}
+  .np-spec{background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid rgba(252,165,165,.4)}
+
+  .tiles2{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px 16px 8px}
+  .tile2{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;text-align:left;display:flex;flex-direction:column;gap:8px;box-shadow:0 4px 14px rgba(15,42,26,.04);transition:transform .12s ease,box-shadow .12s ease}
+  .tile2:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,42,26,.08)}
+  .tile2-ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:22px}
+  .ic-red{background:#fee2e2}
+  .ic-blue{background:#dbeafe}
+  .ic-yellow{background:#fef3c7}
+  .ic-green{background:#dcfce7}
+  .tile2-title{font-weight:800;font-size:14px;line-height:1.25;color:var(--text)}
+  .tile2-sub{font-size:12px;color:var(--text-3)}
+
+  .recent{padding:0 16px 22px;display:flex;flex-direction:column;gap:10px}
+  .rr-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;align-items:flex-start;gap:12px;box-shadow:0 4px 14px rgba(15,42,26,.04)}
+  .rr-ic{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:22px;color:#fff;flex-shrink:0}
+  .rr-ic.g{background:linear-gradient(135deg,#1e5233,#3fa668)}
+  .rr-ic.b{background:linear-gradient(135deg,#1e40af,#3b82f6)}
+  .rr-ic.o{background:linear-gradient(135deg,#b45309,#f59e0b)}
+  .rr-body{flex:1;min-width:0}
+  .rr-title{font-weight:800;font-size:14px;color:var(--text)}
+  .rr-sub{font-size:12px;color:var(--text-3);margin-top:2px;display:flex;align-items:center;gap:4px}
+  .rr-status{margin-top:6px;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px}
+  .rs-review{background:#e0e7ff;color:#3730a3}
+  .rs-approved{background:#dcfce7;color:#166534}
+  .rs-pending{background:#fef3c7;color:#92400e}
+  .rs-rejected{background:#fee2e2;color:#991b1b}
 
   /* Screens */
   .screen{display:none;flex-direction:column;flex:1}
@@ -197,81 +243,51 @@
   <section class="screen on" id="scr-home">
     <section class="hero">
       <div class="hero-top">
-        <div class="brand">
-          <div class="brand-logo">♻️</div>
-          <div>EcoBarangay</div>
+        <div>
+          <div class="hi-small" id="greet-word">Good morning</div>
+          <div class="hi-name" id="uname">Resident</div>
         </div>
-        <button class="signout" onclick="signOut()">Sign out</button>
+        <button class="bell" onclick="showAlerts()" aria-label="Alerts">
+          🔔<span class="bell-badge" id="bell-badge">3</span>
+        </button>
       </div>
-      <div class="greeting">
-        Hello, <span id="uname">Resident</span> 👋
-        <small id="uemail">Welcome back to your EcoBarangay portal</small>
+
+      <div class="next2">
+        <div class="next2-label">🗓 Next Collection</div>
+        <div class="next2-date" id="next2-date">Wednesday, May 14, 2026</div>
+        <div class="next2-time">⏰ <span id="next2-time">6:00 AM – 8:00 AM · Zone 1</span></div>
+        <div class="next2-pills" id="next2-pills">
+          <span class="np np-bio">🌿 Biodegradable</span>
+        </div>
       </div>
-      <div class="role-pill">🏠 Resident account</div>
     </section>
 
-    <div class="next">
-      <div class="next-ic">🗓️</div>
-      <div style="flex:1;min-width:0">
-        <div class="next-title">Next Collection</div>
-        <div class="next-body" id="next-body">Tomorrow · 6:00 AM – 9:00 AM</div>
-        <div class="next-sub" id="next-sub">Zone 1 · Biodegradable</div>
-      </div>
-      <div class="next-tag" id="next-tag">Bio</div>
-    </div>
-
-    <div class="section"><h3>Quick actions</h3></div>
-    <div class="tiles">
-      <button class="tile" onclick="showReport()">
-        <div class="tile-ic">🚨</div>
-        <div class="tile-title">Report Dumping</div>
-        <div class="tile-sub">Photo + location</div>
+    <div class="tiles2">
+      <button class="tile2" onclick="showReport()">
+        <div class="tile2-ic ic-red">🚨</div>
+        <div class="tile2-title">Report Illegal Dumping</div>
+        <div class="tile2-sub">Submit a new report</div>
       </button>
-      <button class="tile" onclick="showSchedule()">
-        <div class="tile-ic">📅</div>
-        <div class="tile-title">My Schedule</div>
-        <div class="tile-sub">This week's pickups</div>
+      <button class="tile2" onclick="showSchedule()">
+        <div class="tile2-ic ic-blue">📅</div>
+        <div class="tile2-title">View Schedule</div>
+        <div class="tile2-sub" id="tile-month">This week's pickups</div>
       </button>
-      <button class="tile" onclick="showCompliance()">
-        <div class="tile-ic">📋</div>
-        <div class="tile-title">Self-Compliance Form</div>
-        <div class="tile-sub">Declare waste type</div>
+      <button class="tile2" onclick="showCompliance()">
+        <div class="tile2-ic ic-blue">📋</div>
+        <div class="tile2-title">Self-Compliance Form</div>
+        <div class="tile2-sub">Declare waste type</div>
       </button>
-      <button class="tile" onclick="showEco()">
-        <div class="tile-ic">🌱</div>
-        <div class="tile-title">Eco Awareness</div>
-        <div class="tile-sub">Guides & tips</div>
+      <button class="tile2" onclick="showEco()">
+        <div class="tile2-ic ic-yellow">🌱</div>
+        <div class="tile2-title">Eco Awareness</div>
+        <div class="tile2-sub">Guides & tips</div>
       </button>
     </div>
 
-    <div class="section"><h3>Segregation guide</h3></div>
-    <div class="guide">
-      <div class="guide-title">Segregate before pickup</div>
-      <div class="guide-sub">Please separate by waste type. Improper segregation may be refused.</div>
-      <div class="waste">
-        <span class="w w-bio">🌿 Biodegradable</span>
-        <span class="w w-rec">♻️ Recyclable</span>
-        <span class="w w-res">🗑️ Residual</span>
-        <span class="w w-spec">☣️ Special</span>
-      </div>
-    </div>
-
-    <div class="section"><h3>Announcements</h3></div>
-    <div class="ann">
-      <div class="ann-item">
-        <div class="ann-head">
-          <div class="ann-title">📢 Zone 1 collection moved</div>
-          <div class="ann-when">2h ago</div>
-        </div>
-        <div class="ann-body">Due to road works, Wednesday pickup will be moved to Thursday, 6:00 AM. Please segregate bio waste for pickup.</div>
-      </div>
-      <div class="ann-item">
-        <div class="ann-head">
-          <div class="ann-title">🌿 Composting workshop</div>
-          <div class="ann-when">Yesterday</div>
-        </div>
-        <div class="ann-body">Free composting workshop at the barangay hall this Saturday, 9 AM. Bring your own container.</div>
-      </div>
+    <div class="section"><h3>My Recent Reports</h3></div>
+    <div class="recent" id="recent-list">
+      <div class="empty" style="padding:12px 0">No reports yet — tap Report to submit one.</div>
     </div>
   </section>
 
@@ -493,14 +509,23 @@
     </div>
   </section>
 
+  <!-- ALERTS SCREEN -->
+  <section class="screen" id="scr-alerts">
+    <div class="scr-head">
+      <button class="back" onclick="showHome()">← Back</button>
+      <div><h2>Alerts 🔔</h2><p>Latest announcements & updates</p></div>
+    </div>
+    <div class="ann" id="alerts-list" style="padding:14px 16px 24px"></div>
+  </section>
+
 
   <!-- Tab bar -->
-  <nav class="tabbar">
+  <nav class="tabbar" id="tabbar">
     <button class="tab on" id="tab-home" onclick="showHome()"><span class="ic">🏠</span>Home</button>
     <button class="tab" id="tab-sched" onclick="showSchedule()"><span class="ic">📅</span>Schedule</button>
     <button class="tab" id="tab-report" onclick="showReport()"><span class="ic">🚨</span>Report</button>
-    <button class="tab" id="tab-rewards" onclick="showRewards()"><span class="ic">🎁</span>Rewards</button>
-    <button class="tab" id="tab-eco" onclick="showEco()"><span class="ic">🌱</span>Eco</button>
+    <button class="tab" id="tab-alerts" onclick="showAlerts()"><span class="ic">🔔</span>Alerts</button>
+    <button class="tab hidden" id="tab-eco" onclick="showEco()"><span class="ic">🌱</span>Eco</button>
     <button class="tab" id="tab-profile" onclick="showProfile()"><span class="ic">👤</span>Profile</button>
   </nav>
 </div>
@@ -585,35 +610,103 @@
     const zone = ZONES.find(z => z.id === activeZone) || ZONES[0];
     const today = new Date();
     const order = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    for(let i=1; i<=7; i++){
+    for(let i=0; i<=7; i++){
       const d = new Date(today); d.setDate(today.getDate() + i);
       const dow = order[d.getDay()];
       const type = zone.days[dow];
       if(type){
-        const label = i===1 ? 'Tomorrow' : d.toLocaleDateString(undefined,{weekday:'long'});
-        document.getElementById('next-body').textContent = `${label} · ${zone.time}`;
-        document.getElementById('next-sub').textContent  = `${zone.name} · ${WASTE_LABEL[type]}`;
-        document.getElementById('next-tag').textContent  = type;
+        const dateStr = d.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric', year:'numeric'});
+        const dEl = document.getElementById('next2-date');
+        const tEl = document.getElementById('next2-time');
+        const pEl = document.getElementById('next2-pills');
+        if(dEl) dEl.textContent = dateStr;
+        if(tEl) tEl.textContent = `${zone.time} · ${zone.name}`;
+        if(pEl){
+          const cls = {Bio:'np-bio',Recyc:'np-rec',Resid:'np-res',Spec:'np-spec'}[type] || 'np-bio';
+          pEl.innerHTML = `<span class="np ${cls}">${WASTE_ICON[type]} ${WASTE_LABEL[type]}</span>`;
+        }
         return;
       }
     }
   }
 
+  function renderRecent(){
+    const list = (typeof loadReports === 'function' ? loadReports() : []).slice(0,3);
+    const el = document.getElementById('recent-list');
+    if(!el) return;
+    if(list.length === 0){
+      el.innerHTML = `<div class="empty" style="padding:12px 0">No reports yet — tap Report to submit one.</div>`;
+      return;
+    }
+    const colors = ['g','b','o'];
+    const statusMap = {Pending:'rs-pending','Under Review':'rs-review',Approved:'rs-approved',Rejected:'rs-rejected'};
+    el.innerHTML = list.map((r,i)=>{
+      const st = r.status || 'Pending';
+      const stCls = statusMap[st] || 'rs-pending';
+      const when = r.when ? new Date(r.when).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '';
+      const ic = { Bio:'🗑️', Recyc:'♻️', Resid:'🗑️', Spec:'☣️' }[r.waste] || '📷';
+      return `<div class="rr-card">
+        <div class="rr-ic ${colors[i%3]}">${ic}</div>
+        <div class="rr-body">
+          <div class="rr-title">${r.title || 'Illegal Dumping Report'}</div>
+          <div class="rr-sub">📍 ${r.location || 'Unknown'} · ${when}</div>
+          <span class="rr-status ${stCls}">${st==='Approved'?'✅ ':''}${st}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function updateGreeting(){
+    const h = new Date().getHours();
+    const g = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+    const el = document.getElementById('greet-word');
+    if(el) el.textContent = g;
+  }
+
   function showScreen(id){
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id===id));
-    ['home','sched','report','rewards','eco','profile'].forEach(k => {
+    ['home','sched','report','alerts','eco','profile'].forEach(k => {
       const el = document.getElementById('tab-'+k);
       if(el) el.classList.toggle('on', id==='scr-'+k);
     });
     window.scrollTo(0,0);
   }
-  function showHome(){ showScreen('scr-home'); }
+  function showHome(){ updateGreeting(); updateNextCard(); renderRecent(); showScreen('scr-home'); }
   function showSchedule(){ renderZonePicker(); renderDays(); showScreen('scr-sched'); }
   function showReport(){ renderReportPickers(); renderMyReports(); showScreen('scr-report'); }
   function showRewards(){ renderRewards(); showScreen('scr-rewards'); }
-  function showEco(){ renderEco(); showScreen('scr-eco'); }
+  function showAlerts(){ renderAlerts(); showScreen('scr-alerts'); const b=document.getElementById('bell-badge'); if(b) b.classList.add('hide'); }
+  function showEco(){
+    // Reveal the hidden Eco tab the first time the user opens Eco Awareness
+    const tab = document.getElementById('tab-eco');
+    const bar = document.getElementById('tabbar');
+    if(tab && tab.classList.contains('hidden')){
+      tab.classList.remove('hidden');
+      if(bar) bar.classList.add('has-eco');
+    }
+    renderEco(); showScreen('scr-eco');
+  }
   function showProfile(){ renderProfile(); showScreen('scr-profile'); }
   function showCompliance(){ renderCompliance(); showScreen('scr-comp'); }
+
+  // ---------- ALERTS ----------
+  const ALERTS = [
+    { icon:'📢', title:'Zone 1 collection moved', when:'2h ago', body:'Due to road works, Wednesday pickup will be moved to Thursday, 6:00 AM. Please segregate bio waste for pickup.' },
+    { icon:'🌿', title:'Composting workshop', when:'Yesterday', body:'Free composting workshop at the barangay hall this Saturday, 9 AM. Bring your own container.' },
+    { icon:'✅', title:'Report approved', when:'2 days ago', body:'Your report on Rizal St. has been approved by the barangay official. Thank you!' },
+  ];
+  function renderAlerts(){
+    const el = document.getElementById('alerts-list');
+    if(!el) return;
+    el.innerHTML = ALERTS.map(a=>`
+      <div class="ann-item">
+        <div class="ann-head">
+          <div class="ann-title">${a.icon} ${a.title}</div>
+          <div class="ann-when">${a.when}</div>
+        </div>
+        <div class="ann-body">${a.body}</div>
+      </div>`).join('');
+  }
 
   // ---------- SELF-COMPLIANCE FORM ----------
   const CF_WASTE = [
@@ -900,9 +993,10 @@
       const name  = s.name || (email.split('@')[0] || 'Resident').replace(/[._-]+/g,' ')
                      .replace(/\b\w/g, c => c.toUpperCase());
       document.getElementById('uname').textContent  = name;
-      document.getElementById('uemail').textContent = email;
       activeZone = getResidentZone();
+      updateGreeting();
       updateNextCard();
+      renderRecent();
     } catch(_){
       window.location.replace('/proto/signin.html');
     }
