@@ -81,11 +81,57 @@
   /* Bottom nav */
   .tabbar{
     position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);
-    display:grid;grid-template-columns:repeat(6,1fr);padding:8px 4px;gap:2px;
+    display:grid;grid-template-columns:repeat(5,1fr);padding:8px 4px;gap:2px;
   }
+  .tabbar.has-eco{grid-template-columns:repeat(6,1fr)}
   .tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:12px;color:var(--text-3);font-size:11px;font-weight:700}
   .tab.on{color:var(--g700);background:#eaf7ee}
   .tab .ic{font-size:18px}
+  .tab.hidden{display:none}
+
+  /* --- New home design (mockup match) --- */
+  .hi-small{font-size:13px;color:rgba(255,255,255,.75);font-weight:600}
+  .hi-name{font-size:24px;font-weight:900;letter-spacing:-.4px;margin-top:2px}
+  .bell{position:relative;width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);display:grid;place-items:center;font-size:20px}
+  .bell-badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#ef4444;color:#fff;font-size:10px;font-weight:900;display:grid;place-items:center;border:2px solid #14351f}
+  .bell-badge.hide{display:none}
+
+  .next2{margin-top:18px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 16px 16px}
+  .next2-label{font-size:11px;font-weight:800;color:rgba(255,255,255,.7);letter-spacing:.08em;text-transform:uppercase}
+  .next2-date{margin-top:4px;font-size:22px;font-weight:900;color:#fff;letter-spacing:-.3px;line-height:1.2}
+  .next2-time{margin-top:6px;font-size:14px;font-weight:800;color:#c7f24a;display:flex;align-items:center;gap:6px}
+  .next2-pills{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+  .np{padding:6px 12px;border-radius:999px;font-size:12px;font-weight:800;display:inline-flex;align-items:center;gap:4px}
+  .np-bio{background:rgba(63,166,104,.25);color:#a7f3c8;border:1px solid rgba(111,207,151,.4)}
+  .np-rec{background:rgba(59,130,246,.2);color:#93c5fd;border:1px solid rgba(147,197,253,.4)}
+  .np-res{background:rgba(148,163,184,.2);color:#cbd5e1;border:1px solid rgba(203,213,225,.35)}
+  .np-spec{background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid rgba(252,165,165,.4)}
+
+  .tiles2{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px 16px 8px}
+  .tile2{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;text-align:left;display:flex;flex-direction:column;gap:8px;box-shadow:0 4px 14px rgba(15,42,26,.04);transition:transform .12s ease,box-shadow .12s ease}
+  .tile2:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,42,26,.08)}
+  .tile2-ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:22px}
+  .ic-red{background:#fee2e2}
+  .ic-blue{background:#dbeafe}
+  .ic-yellow{background:#fef3c7}
+  .ic-green{background:#dcfce7}
+  .tile2-title{font-weight:800;font-size:14px;line-height:1.25;color:var(--text)}
+  .tile2-sub{font-size:12px;color:var(--text-3)}
+
+  .recent{padding:0 16px 22px;display:flex;flex-direction:column;gap:10px}
+  .rr-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;align-items:flex-start;gap:12px;box-shadow:0 4px 14px rgba(15,42,26,.04)}
+  .rr-ic{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:22px;color:#fff;flex-shrink:0}
+  .rr-ic.g{background:linear-gradient(135deg,#1e5233,#3fa668)}
+  .rr-ic.b{background:linear-gradient(135deg,#1e40af,#3b82f6)}
+  .rr-ic.o{background:linear-gradient(135deg,#b45309,#f59e0b)}
+  .rr-body{flex:1;min-width:0}
+  .rr-title{font-weight:800;font-size:14px;color:var(--text)}
+  .rr-sub{font-size:12px;color:var(--text-3);margin-top:2px;display:flex;align-items:center;gap:4px}
+  .rr-status{margin-top:6px;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px}
+  .rs-review{background:#e0e7ff;color:#3730a3}
+  .rs-approved{background:#dcfce7;color:#166534}
+  .rs-pending{background:#fef3c7;color:#92400e}
+  .rs-rejected{background:#fee2e2;color:#991b1b}
 
   /* Screens */
   .screen{display:none;flex-direction:column;flex:1}
