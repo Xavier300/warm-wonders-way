@@ -1737,7 +1737,10 @@ body {
       <!-- Content area -->
       <div class="a-content">
         <div class="a-topbar">
-          <div class="a-page-title" id="a-page-title">Dashboard Overview</div>
+          <div style="display:flex; align-items:center; min-width:0; flex:1;">
+            <button class="a-menu-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+            <div class="a-page-title" id="a-page-title" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Dashboard Overview</div>
+          </div>
           <div class="a-topbar-right">
             <input class="a-search" placeholder="🔍  Search reports, users...">
             <div class="a-icon-btn">🔔</div>
