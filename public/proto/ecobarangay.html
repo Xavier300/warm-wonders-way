@@ -2854,6 +2854,26 @@ function populateCollectorSelect(current){
     (current && !known.has(current) ? `<option value="${current}">${current} (inactive)</option>` : '');
   sel.value = current || '';
 }
+// Auto-sync schedules with User Management on entry
+function syncSchedules(){
+  const users = (typeof USERS !== 'undefined' ? USERS : []);
+  const byName = new Map(users.map(u=>[u.name, u]));
+  const active = new Set(users.filter(u=>u.role==='Collector' && u.status==='Active').map(u=>u.name));
+  let changed = false;
+  ZONES.forEach(z=>{
+    if(z.collector && !active.has(z.collector)){
+      // try to reassign to a same-zone active collector
+      const zoneKey = z.name.split(' – ')[0];
+      const replacement = users.find(u=>u.role==='Collector' && u.status==='Active' && (u.zone||'').includes(zoneKey));
+      if(replacement){ z.collector = replacement.name; changed = true; }
+    }
+  });
+  // Refresh dropdowns and derived data
+  generateWeek();
+  renderZones();
+  renderWeek();
+  populateCollectorSelect(document.getElementById('zm-coll')?.value||'');
+  if(changed && typeof toast==='function') toast('Schedules synced with User Management');
 let WEEK = [];
 let ZONE_EDIT_ID = null;
 
