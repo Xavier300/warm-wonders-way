@@ -1030,7 +1030,9 @@
     const oldTxt = btn ? btn.textContent : '';
     if(btn){ btn.disabled = true; btn.textContent = 'Submitting…'; }
     try {
-      await window.EB.addReport({ waste:repWaste, severity:repSev, location:loc, description:desc });
+      const photoInput = document.getElementById('rep-photo');
+      const photoFile = photoInput && photoInput.files && photoInput.files[0] ? photoInput.files[0] : null;
+      await window.EB.addReport({ waste:repWaste, severity:repSev, location:loc, description:desc, photoFile });
       addHistory('report', `Report submitted`, +10);
       document.getElementById('rep-desc').value = '';
       document.getElementById('rep-photo').value = '';
