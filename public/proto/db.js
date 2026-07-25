@@ -93,10 +93,25 @@ async function signInWithGoogle() {
   if (error) throw error;
 }
 async function signOut() {
-  try { await sb.auth.signOut(); } catch (_) {}
+  // Use local scope so we always clear the browser session, even if the
+  // global sign-out call to the auth server fails (offline, stale token,
+  // 403 session_not_found). Without this, a failed network call leaves
+  // the Supabase session in localStorage and the next page load
+  // "auto-logs-in" the user.
+  try { await sb.auth.signOut({ scope: 'local' }); } catch (_) {}
+  // Belt-and-braces: hard-remove any lingering Supabase auth token and
+  // our mirrored app state before we navigate.
+  try {
+    Object.keys(localStorage).forEach(k => {
+      if (k === 'sb-eb-auth' || k.startsWith('sb-') && k.endsWith('-auth-token')) {
+        localStorage.removeItem(k);
+      }
+    });
+  } catch (_) {}
   ['eb_auth', 'eb_reports', 'eb_forms', 'eb_announcements', 'eb_users', 'eb_schedules', 'eb_logs', 'eb_ann_full']
     .forEach(k => localStorage.removeItem(k));
-  location.href = '/proto/signin.html';
+  state.session = null; state.profile = null; state.role = null;
+  location.replace('/proto/signin.html');
 }
 
 // ---------- hydration ----------
