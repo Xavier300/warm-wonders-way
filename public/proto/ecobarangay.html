@@ -3090,6 +3090,8 @@ function renderWeek(){
       : `<button class="a-btn" onclick="markCollection('${w.id}','Scheduled')">Reset</button>`;
     return `<tr><td>${dateStr}</td><td>${w.zoneName}</td><td>${w.time}</td><td>${wasteChips(w.waste,true)}</td><td>${w.collector||'—'}</td><td><span class="badge ${badge}">${w.status}</span></td><td>${action}</td></tr>`;
   }).join('');
+  if (typeof renderOverview==='function') renderOverview();
+
 }
 function markCollection(id, status){
   const w = WEEK.find(x=>x.id===id); if(!w) return;
