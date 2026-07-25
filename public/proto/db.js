@@ -431,7 +431,7 @@ window.EB = {
   supabase: sb, state,
   loadSession, signIn, signUp, signInWithGoogle, signOut,
   hydrateAll,
-  addReport, addComplianceForm,
+  addReport, addComplianceForm, getReportPhotoSignedUrl,
   addAnnouncement, updateAnnouncement, deleteAnnouncement, publishAnnouncement,
   setReportStatus, deleteReport, setCompStatus, deleteComp,
   saveUserRow, deleteUserRow, updateSelfProfile,
