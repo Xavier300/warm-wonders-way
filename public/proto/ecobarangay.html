@@ -1622,6 +1622,7 @@ body {
   outline: none;
 }
 </style>
+<script type="module" src="./db.js"></script>
 </head>
 <body>
 
@@ -2425,9 +2426,9 @@ function renderAnn() {
       <td>${a.reach} residents</td>
       <td>${annStatusBadge(a.status)}</td>
       <td>
-        <button class="a-btn blue" onclick="editAnn(${a.id})">Edit</button>
-        ${a.status==='Scheduled' ? `<button class="a-btn green" onclick="publishAnn(${a.id})">Publish</button>` : ''}
-        <button class="a-btn red" onclick="deleteAnn(${a.id})">Delete</button>
+        <button class="a-btn blue" onclick="editAnn('${a.id}')">Edit</button>
+        ${a.status==='Scheduled' ? `<button class="a-btn green" onclick="publishAnn('${a.id}')">Publish</button>` : ''}
+        <button class="a-btn red" onclick="deleteAnn('${a.id}')">Delete</button>
       </td>
     </tr>`).join('') : `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--muted);">No announcements yet.</td></tr>`;
 }
@@ -2514,8 +2515,8 @@ function statusBadge(s) {
   return '<span class="badge approved">Active</span>';
 }
 function actionBtns(u) {
-  const edit = `<button class="a-btn blue" onclick="openUserModal(${u.id})">Edit</button>`;
-  const del  = `<button class="a-btn red" onclick="deleteUser(${u.id})">Delete</button>`;
+  const edit = `<button class="a-btn blue" onclick="openUserModal('${u.id}')">Edit</button>`;
+  const del  = `<button class="a-btn red" onclick="deleteUser('${u.id}')">Delete</button>`;
   if (u.status==='Pending') return `<button class="a-btn green" onclick="setUserStatus(${u.id},'Active')">Approve</button> <button class="a-btn red" onclick="setUserStatus(${u.id},'Suspended')">Reject</button> ${edit}`;
   if (u.status==='Suspended') return `<button class="a-btn green" onclick="setUserStatus(${u.id},'Active')">Reactivate</button> ${edit} ${del}`;
   return `${edit} <button class="a-btn red" onclick="setUserStatus(${u.id},'Suspended')">Suspend</button>`;
@@ -2643,10 +2644,10 @@ function repStatusBadge(s){
   return `<span class="badge ${cls}">${s}</span>`;
 }
 function repActions(r){
-  const view = `<button class="a-btn blue" onclick="viewReport(${r.id})">View</button>`;
+  const view = `<button class="a-btn blue" onclick="viewReport('${r.id}')">View</button>`;
   if (r.status==='Pending' || r.status==='Review')
-    return `<button class="a-btn green" onclick="setReportStatus(${r.id},'Approved')">✓</button> <button class="a-btn red" onclick="setReportStatus(${r.id},'Rejected')">✗</button> ${view}`;
-  return `${view} <button class="a-btn red" onclick="deleteReport(${r.id})">Delete</button>`;
+    return `<button class="a-btn green" onclick="setReportStatus('${r.id}','Approved')">✓</button> <button class="a-btn red" onclick="setReportStatus('${r.id}','Rejected')">✗</button> ${view}`;
+  return `${view} <button class="a-btn red" onclick="deleteReport('${r.id}')">Delete</button>`;
 }
 function renderReportTabs(){
   const counts = {All: REPORTS.length};
@@ -2760,8 +2761,8 @@ function viewReport(id){
       <div style="color:var(--muted);">Notes</div><div>${r.notes}</div>
     </div>
     <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
-      <button class="a-btn green" onclick="setReportStatus(${r.id},'Approved'); closeReportModal();">Approve</button>
-      <button class="a-btn red" onclick="setReportStatus(${r.id},'Rejected'); closeReportModal();">Reject</button>
+      <button class="a-btn green" onclick="setReportStatus('${r.id}','Approved'); closeReportModal();">Approve</button>
+      <button class="a-btn red" onclick="setReportStatus('${r.id}','Rejected'); closeReportModal();">Reject</button>
       <button class="a-btn" onclick="closeReportModal()">Close</button>
     </div>`;
   document.getElementById('rep-modal').style.display = 'flex';
@@ -2946,7 +2947,7 @@ function renderLogs(){
       <td style="font-weight:700;">${l.user}</td>
       <td>${l.action}</td>
       <td style="font-family:ui-monospace,monospace; font-size:11px; color:var(--muted);">${l.ip}</td>
-      <td><button class="a-btn red" onclick="deleteLog(${l.id})">✗</button></td>
+      <td><button class="a-btn red" onclick="deleteLog('${l.id}')">✗</button></td>
     </tr>`).join('') : `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--muted);">No logs match your filters.</td></tr>`;
 
   document.getElementById('logs-count').textContent =
