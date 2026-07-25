@@ -1717,10 +1717,10 @@ body {
         <div class="a-nav">
           <div class="a-nav-section">Main</div>
           <div class="a-nav-item on" onclick="gotoAdmin('a-overview')" id="anav-a-overview"><span class="a-nav-icon">📊</span> Dashboard</div>
-          <div class="a-nav-item" onclick="gotoAdmin('a-reports')" id="anav-a-reports"><span class="a-nav-icon">🚨</span> Reports <span class="a-nav-badge">5</span></div>
+          <div class="a-nav-item" onclick="gotoAdmin('a-reports')" id="anav-a-reports"><span class="a-nav-icon">🚨</span> Reports <span class="a-nav-badge" id="nav-badge-reports">0</span></div>
           <div class="a-nav-item" onclick="gotoAdmin('a-schedule')" id="anav-a-schedule"><span class="a-nav-icon">📅</span> Schedules</div>
           <div class="a-nav-section">Monitoring</div>
-          <div class="a-nav-item" onclick="gotoAdmin('a-compliance')" id="anav-a-compliance"><span class="a-nav-icon">📋</span> Compliance <span class="a-nav-badge">3</span></div>
+          <div class="a-nav-item" onclick="gotoAdmin('a-compliance')" id="anav-a-compliance"><span class="a-nav-icon">📋</span> Compliance <span class="a-nav-badge" id="nav-badge-comp">0</span></div>
           <div class="a-nav-item" onclick="gotoAdmin('a-cctv')" id="anav-a-cctv"><span class="a-nav-icon">📹</span> CCTV Monitor</div>
           <div class="a-nav-item" onclick="gotoAdmin('a-analytics')" id="anav-a-analytics"><span class="a-nav-icon">📈</span> Analytics</div>
           <div class="a-nav-section">Settings</div>
@@ -2689,7 +2689,20 @@ function renderReports(){
       <td>${repActions(r)}</td>
     </tr>`).join('') : `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--muted);">No reports match your filters.</td></tr>`;
   document.getElementById('rep-count').textContent = `Showing ${list.length} of ${REPORTS.length} reports`;
+  updateNavBadges();
   if (typeof renderAnalytics === 'function') renderAnalytics();
+}
+function updateNavBadges(){
+  const rb = document.getElementById('nav-badge-reports');
+  if (rb){
+    const n = REPORTS.filter(r=>r.status==='Pending'||r.status==='Under Review').length;
+    rb.textContent = n; rb.style.display = n?'':'none';
+  }
+  const cb = document.getElementById('nav-badge-comp');
+  if (cb && typeof COMP !== 'undefined'){
+    const n = COMP.filter(c=>c.status==='Pending').length;
+    cb.textContent = n; cb.style.display = n?'':'none';
+  }
 }
 function setReportStatus(id, status){
   const r = REPORTS.find(x=>x.id===id); if (!r) return;
@@ -3163,6 +3176,7 @@ function renderComp(){
       <td style="display:flex; gap:5px; flex-wrap:wrap;">${act}<button class="a-btn" onclick="deleteComp('${c.id}')" style="color:#b91c1c;">Delete</button></td>
     </tr>`;
   }).join('');
+  if (typeof updateNavBadges==='function') updateNavBadges();
 }
 function setCompStatus(id,status){
   const c=COMP.find(x=>x.id===id); if(!c) return;
