@@ -504,12 +504,207 @@
 
   function showScreen(id){
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id===id));
-    document.getElementById('tab-home').classList.toggle('on', id==='scr-home');
-    document.getElementById('tab-sched').classList.toggle('on', id==='scr-sched');
+    ['home','sched','report','rewards','profile'].forEach(k => {
+      const el = document.getElementById('tab-'+k);
+      if(el) el.classList.toggle('on', id==='scr-'+k);
+    });
     window.scrollTo(0,0);
   }
   function showHome(){ showScreen('scr-home'); }
   function showSchedule(){ renderZonePicker(); renderDays(); showScreen('scr-sched'); }
+  function showReport(){ renderReportPickers(); renderMyReports(); showScreen('scr-report'); }
+  function showRewards(){ renderRewards(); showScreen('scr-rewards'); }
+  function showProfile(){ renderProfile(); showScreen('scr-profile'); }
+
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('on');
+    clearTimeout(window.__tt); window.__tt = setTimeout(()=>t.classList.remove('on'), 2200);
+  }
+
+  // ---------- REPORTS ----------
+  const SEV_OPTS = ['Low','Medium','High'];
+  let repWaste = 'Bio', repSev = 'Medium';
+
+  function loadReports(){
+    try { return JSON.parse(localStorage.getItem('eb_reports')||'[]'); } catch(_){ return []; }
+  }
+  function saveReports(list){ localStorage.setItem('eb_reports', JSON.stringify(list)); }
+
+  function renderReportPickers(){
+    document.getElementById('rep-waste-picker').innerHTML =
+      ['Bio','Recyc','Resid','Spec'].map(w =>
+        `<button type="button" class="chip ${w===repWaste?'on':''}" onclick="setRepWaste('${w}')">${WASTE_ICON[w]} ${w}</button>`
+      ).join('');
+    document.getElementById('rep-sev-picker').innerHTML =
+      SEV_OPTS.map(s =>
+        `<button type="button" class="chip ${s===repSev?'on':''}" onclick="setRepSev('${s}')">${s}</button>`
+      ).join('');
+  }
+  function setRepWaste(w){ repWaste = w; renderReportPickers(); }
+  function setRepSev(s){ repSev = s; renderReportPickers(); }
+
+  function submitReport(){
+    const loc = document.getElementById('rep-loc').value.trim();
+    const desc = document.getElementById('rep-desc').value.trim();
+    if(!loc){ toast('Please enter a location'); return; }
+    if(!desc){ toast('Please describe what you saw'); return; }
+    const list = loadReports();
+    const id = 'R-' + String(1000 + list.length + 1);
+    list.unshift({
+      id, waste:repWaste, severity:repSev, location:loc, description:desc,
+      status:'Pending', createdAt: Date.now(),
+      reporter: (JSON.parse(localStorage.getItem('eb_auth')||'{}').email)||'resident',
+      points: 10
+    });
+    saveReports(list);
+    addHistory('report', `Report ${id} submitted`, +10);
+    document.getElementById('rep-loc').value = '';
+    document.getElementById('rep-desc').value = '';
+    document.getElementById('rep-photo').value = '';
+    renderMyReports();
+    toast('Report submitted · +10 pts');
+  }
+
+  function myReports(){
+    const email = (JSON.parse(localStorage.getItem('eb_auth')||'{}').email)||'';
+    return loadReports().filter(r => r.reporter === email);
+  }
+
+  function renderMyReports(){
+    const mine = myReports();
+    document.getElementById('rep-count-label').textContent =
+      `${mine.length} report${mine.length===1?'':'s'} submitted`;
+    const el = document.getElementById('rep-list');
+    if(!mine.length){ el.innerHTML = '<div class="empty">No reports yet. Submit your first above.</div>'; return; }
+    el.innerHTML = mine.map(r => {
+      const bClass = r.status==='Pending'?'b-pending':r.status==='Under Review'?'b-review':r.status==='Approved'?'b-approved':'b-rejected';
+      const when = new Date(r.createdAt).toLocaleDateString(undefined,{month:'short',day:'numeric'});
+      return `<div class="rep-card">
+        <div class="rep-head">
+          <div class="rep-id">${r.id} · ${when}</div>
+          <span class="badge ${bClass}">${r.status}</span>
+        </div>
+        <div class="rep-title">${WASTE_ICON[r.waste]} ${WASTE_LABEL[r.waste]||r.waste} · ${r.severity}</div>
+        <div class="rep-sub">📍 ${r.location}</div>
+        <div class="rep-sub" style="margin-top:6px;color:var(--text-2)">${r.description}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ---------- REWARDS ----------
+  const CATALOG = [
+    { id:'eco-bag', name:'Eco Tote Bag', cost:50,  ic:'👜' },
+    { id:'bin',     name:'Segregation Bin Set', cost:150, ic:'🗑️' },
+    { id:'plant',   name:'Free Seedling', cost:30, ic:'🌱' },
+    { id:'load',    name:'₱50 Mobile Load', cost:120, ic:'📱' },
+    { id:'discount',name:'10% Sari-sari Voucher', cost:80, ic:'🎟️' },
+    { id:'tumbler', name:'Reusable Tumbler', cost:100, ic:'🥤' },
+  ];
+  const TIERS = [
+    { min:0,   name:'🌱 Seedling', next:100 },
+    { min:100, name:'🌿 Sprout',   next:250 },
+    { min:250, name:'🌳 Tree',     next:500 },
+    { min:500, name:'🌍 Guardian', next:null },
+  ];
+
+  function loadRW(){
+    try { return JSON.parse(localStorage.getItem('eb_rewards')||'{"points":0,"history":[]}'); }
+    catch(_) { return { points:0, history:[] }; }
+  }
+  function saveRW(r){ localStorage.setItem('eb_rewards', JSON.stringify(r)); }
+  function addHistory(kind, text, delta){
+    const r = loadRW();
+    r.points = Math.max(0, (r.points||0) + delta);
+    r.history.unshift({ kind, text, delta, at: Date.now() });
+    r.history = r.history.slice(0, 30);
+    saveRW(r);
+  }
+
+  function renderRewards(){
+    const r = loadRW();
+    const pts = r.points || 0;
+    document.getElementById('rw-points').textContent = pts;
+    const tier = [...TIERS].reverse().find(t => pts >= t.min) || TIERS[0];
+    const toNext = tier.next ? Math.max(0, tier.next - pts) : 0;
+    document.getElementById('rw-tier').textContent = tier.next
+      ? `${tier.name} · ${toNext} pts to next tier` : `${tier.name} · Max tier reached`;
+    const pct = tier.next ? Math.min(100, Math.round((pts - tier.min) / (tier.next - tier.min) * 100)) : 100;
+    document.getElementById('rw-bar-fill').style.width = pct + '%';
+
+    document.getElementById('rw-catalog').innerHTML = CATALOG.map(c => {
+      const locked = pts < c.cost;
+      return `<button class="rw-item ${locked?'locked':''}" onclick="redeem('${c.id}')">
+        <div class="rw-ic">${c.ic}</div>
+        <div class="rw-name">${c.name}</div>
+        <div class="rw-cost">${c.cost} pts ${locked?'· 🔒':''}</div>
+      </button>`;
+    }).join('');
+
+    const hist = (r.history||[]);
+    document.getElementById('rw-history').innerHTML = hist.length
+      ? hist.map(h => {
+          const ic = h.kind==='redeem'?'🎁':h.kind==='report'?'🚨':'✨';
+          const when = timeAgo(h.at);
+          const sign = h.delta>0?'+':'';
+          return `<div class="hist">
+            <div class="hist-ic">${ic}</div>
+            <div class="hist-txt">${h.text}<div class="hist-when">${when}</div></div>
+            <div class="hist-pts ${h.delta<0?'neg':''}">${sign}${h.delta} pts</div>
+          </div>`;
+        }).join('')
+      : '<div class="empty">No activity yet. Submit a report to earn points.</div>';
+  }
+
+  function redeem(id){
+    const item = CATALOG.find(c => c.id === id); if(!item) return;
+    const r = loadRW();
+    if((r.points||0) < item.cost){ toast('Not enough points'); return; }
+    if(!confirm(`Redeem "${item.name}" for ${item.cost} points?`)) return;
+    addHistory('redeem', `Redeemed ${item.name}`, -item.cost);
+    renderRewards();
+    toast(`Redeemed · -${item.cost} pts`);
+  }
+
+  function timeAgo(ts){
+    const s = Math.floor((Date.now()-ts)/1000);
+    if(s<60) return 'Just now';
+    if(s<3600) return Math.floor(s/60)+'m ago';
+    if(s<86400) return Math.floor(s/3600)+'h ago';
+    return Math.floor(s/86400)+'d ago';
+  }
+
+  // ---------- PROFILE ----------
+  function renderProfile(){
+    const s = JSON.parse(localStorage.getItem('eb_auth')||'{}');
+    const email = s.email || 'resident@ecobarangay.app';
+    const name  = s.name || (email.split('@')[0]||'Resident').replace(/[._-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    document.getElementById('prof-avatar').textContent = (name[0]||'R').toUpperCase();
+    document.getElementById('prof-name').textContent = name;
+    document.getElementById('prof-email').textContent = email;
+    document.getElementById('pf-name').value = name;
+    document.getElementById('pf-email').value = email;
+    document.getElementById('pf-phone').value = s.phone || '';
+    document.getElementById('pf-zone').value = s.zone || 'Z1';
+    document.getElementById('stat-reports').textContent = myReports().length;
+    document.getElementById('stat-points').textContent = loadRW().points || 0;
+    document.getElementById('stat-zone').textContent = s.zone || 'Z1';
+  }
+  function saveProfile(){
+    const s = JSON.parse(localStorage.getItem('eb_auth')||'{}');
+    const name = document.getElementById('pf-name').value.trim();
+    const phone = document.getElementById('pf-phone').value.trim();
+    const zone = document.getElementById('pf-zone').value;
+    if(!name){ toast('Name is required'); return; }
+    if(phone && !/^\d[\d\s-]{6,}$/.test(phone)){ toast('Enter a valid phone'); return; }
+    s.name = name; s.phone = phone; s.zone = zone;
+    localStorage.setItem('eb_auth', JSON.stringify(s));
+    activeZone = zone;
+    document.getElementById('uname').textContent = name;
+    updateNextCard();
+    renderProfile();
+    toast('Profile updated');
+  }
 
   (function initSession(){
     try {
@@ -518,7 +713,7 @@
       const s = JSON.parse(raw);
       if(s.role !== 'Resident'){ window.location.replace('/proto/ecobarangay.html'); return; }
       const email = s.email || 'resident@ecobarangay.app';
-      const name  = (email.split('@')[0] || 'Resident').replace(/[._-]+/g,' ')
+      const name  = s.name || (email.split('@')[0] || 'Resident').replace(/[._-]+/g,' ')
                      .replace(/\b\w/g, c => c.toUpperCase());
       document.getElementById('uname').textContent  = name;
       document.getElementById('uemail').textContent = email;
@@ -536,6 +731,7 @@
   function notImpl(label){
     alert(label + ' — coming soon in the resident app (prototype).');
   }
+
 </script>
 </body>
 </html>
