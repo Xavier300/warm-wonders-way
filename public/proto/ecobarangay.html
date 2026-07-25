@@ -2705,7 +2705,7 @@ function renderOverview(){
   const repTotal = REPORTS.length;
   const repPending = REPORTS.filter(r=>r.status==='Pending'||r.status==='Under Review').length;
   const compTotal = (typeof COMP!=='undefined') ? COMP.length : 0;
-  const colDone = (typeof WEEK!=='undefined') ? WEEK.filter(w=>w.status==='Done').length : 0;
+  const colDone = (typeof WEEK!=='undefined') ? WEEK.filter(w=>w.status==='Completed').length : 0;
   const colTotal = (typeof WEEK!=='undefined') ? WEEK.length : 0;
   const set = (id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
   set('ov-rep-total', repTotal);
