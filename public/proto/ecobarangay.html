@@ -2296,6 +2296,16 @@ function gotoAdmin(id) {
   const titleEl = document.getElementById('a-page-title');
   if (titleEl) titleEl.textContent = ADMIN_TITLES[id] || id;
   if (id === 'a-schedule' && typeof syncSchedules === 'function') syncSchedules();
+  if (window.innerWidth <= 768) toggleSidebar(false);
+}
+
+function toggleSidebar(force){
+  const sb = document.getElementById('a-sidebar');
+  const bd = document.getElementById('a-sb-backdrop');
+  if(!sb) return;
+  const open = typeof force === 'boolean' ? force : !sb.classList.contains('open');
+  sb.classList.toggle('open', open);
+  bd?.classList.toggle('show', open);
 }
 
 // Login role toggle
