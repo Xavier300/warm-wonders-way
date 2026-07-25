@@ -561,7 +561,7 @@
 
   function showScreen(id){
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id===id));
-    ['home','sched','report','rewards','profile'].forEach(k => {
+    ['home','sched','report','rewards','eco','profile'].forEach(k => {
       const el = document.getElementById('tab-'+k);
       if(el) el.classList.toggle('on', id==='scr-'+k);
     });
@@ -571,7 +571,44 @@
   function showSchedule(){ renderZonePicker(); renderDays(); showScreen('scr-sched'); }
   function showReport(){ renderReportPickers(); renderMyReports(); showScreen('scr-report'); }
   function showRewards(){ renderRewards(); showScreen('scr-rewards'); }
+  function showEco(){ renderEco(); showScreen('scr-eco'); }
   function showProfile(){ renderProfile(); showScreen('scr-profile'); }
+
+  // ---------- ECO AWARENESS ----------
+  const ECO_TIPS = [
+    'Rinse recyclables before disposal — clean items are more likely to be reprocessed.',
+    'Compost kitchen scraps to cut household waste by up to 30%.',
+    'Bring your own bag — a single reusable bag can replace 700+ plastic ones.',
+    'Break down cardboard boxes to save space in collection bins.',
+    'Never mix batteries with regular trash — bring them to a special-waste drop point.',
+    'Say no to single-use straws and cutlery when ordering takeout.',
+    'Repair before you replace — many appliances just need a small fix.',
+  ];
+  const ECO_FACTS = [
+    'A plastic bottle takes up to 450 years to decompose in a landfill.',
+    'Recycling one aluminum can saves enough energy to power a TV for 3 hours.',
+    'Filipino households generate an average of 0.4 kg of waste per person per day.',
+    'Composting can divert nearly half of your household waste from landfills.',
+    'Segregation at source is the single most effective waste management practice.',
+  ];
+  let ecoFactIdx = 0;
+  function renderEco(){
+    const tips = document.getElementById('eco-tips');
+    if(tips) tips.innerHTML = ECO_TIPS.map(t=>`<li>${t}</li>`).join('');
+    const fact = document.getElementById('eco-fact');
+    if(fact) fact.textContent = ECO_FACTS[ecoFactIdx];
+    const reports = (typeof MY_REPORTS !== 'undefined' ? MY_REPORTS.length : 0);
+    const points = (typeof userPoints !== 'undefined' ? userPoints : 0);
+    document.getElementById('eco-reports').textContent = reports;
+    document.getElementById('eco-points').textContent = points;
+    const days = new Set((typeof MY_REPORTS !== 'undefined' ? MY_REPORTS : []).map(r=>(r.when||'').slice(0,10))).size;
+    document.getElementById('eco-days').textContent = days;
+  }
+  function nextFact(){
+    ecoFactIdx = (ecoFactIdx+1) % ECO_FACTS.length;
+    const fact = document.getElementById('eco-fact');
+    if(fact) fact.textContent = ECO_FACTS[ecoFactIdx];
+  }
 
   function toast(msg){
     const t = document.getElementById('toast');
