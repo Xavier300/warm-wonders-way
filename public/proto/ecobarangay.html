@@ -2230,6 +2230,7 @@ function gotoAdmin(id) {
   if (nav) nav.classList.add('on');
   const titleEl = document.getElementById('a-page-title');
   if (titleEl) titleEl.textContent = ADMIN_TITLES[id] || id;
+  if (id === 'a-schedule' && typeof syncSchedules === 'function') syncSchedules();
 }
 
 // Login role toggle
