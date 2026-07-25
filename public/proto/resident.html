@@ -584,44 +584,88 @@
       `<button class="${z.id===activeZone?'on':''}" onclick="pickZone('${z.id}')">${z.name}</button>`
     ).join('');
   }
-  function pickZone(id){ activeZone = id; renderZonePicker(); renderDays(); updateNextCard(); }
+  function pickZone(id){ activeZone = id; selectedDate = null; renderZonePicker(); renderMonth(); renderUpcoming(); updateNextCard(); }
+  function cycleZone(){
+    const i = ZONES.findIndex(z => z.id === activeZone);
+    pickZone(ZONES[(i+1) % ZONES.length].id);
+  }
 
-  function renderDays(){
+  let selectedDate = null; // YYYY-MM-DD
+
+  function ymd(d){ return d.toISOString().slice(0,10); }
+  function typeForDate(zone, d){ return zone.days[DOW[d.getDay()]]; }
+
+  function renderMonth(){
     const zone = ZONES.find(z => z.id === activeZone) || ZONES[0];
-    document.getElementById('sched-zone-label').textContent =
-      `${zone.name} · Collector: ${zone.collector} · ${zone.time}`;
-
     const today = new Date();
-    const todayIdx = today.getDay(); // 0=Sun
-    // start from Monday of current week
-    const monOffset = todayIdx === 0 ? -6 : 1 - todayIdx;
-    const start = new Date(today); start.setDate(today.getDate() + monOffset);
+    const year = today.getFullYear(), month = today.getMonth();
+    const first = new Date(year, month, 1);
+    const startIdx = first.getDay(); // 0 Sun
+    const daysInMonth = new Date(year, month+1, 0).getDate();
+    const cells = [];
+    for(let i=0;i<startIdx;i++) cells.push({mute:true});
+    for(let d=1; d<=daysInMonth; d++){
+      const date = new Date(year, month, d);
+      const type = typeForDate(zone, date);
+      cells.push({
+        d, date,
+        has: !!type,
+        today: date.toDateString() === today.toDateString(),
+        sel: selectedDate === ymd(date),
+      });
+    }
+    while(cells.length % 7 !== 0) cells.push({mute:true});
 
-    const order = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    const rows = order.map((dow, i) => {
-      const d = new Date(start); d.setDate(start.getDate() + i);
-      const isToday = d.toDateString() === today.toDateString();
-      const type = zone.days[dow];
-      const badge = type
-        ? `<span class="day-badge">${WASTE_ICON[type]} ${type}</span>`
-        : `<span class="day-badge rest">Rest day</span>`;
-      const info = type
-        ? `<div class="day-title">${WASTE_ICON[type]} ${WASTE_LABEL[type]} pickup</div>
-           <div class="day-sub">${zone.time} · ${zone.collector}</div>
-           ${isToday?'<span class="today-tag">● TODAY</span>':''}`
-        : `<div class="day-title" style="color:#94a3b8">No collection</div>
-           <div class="day-sub">Rest day for ${zone.name}</div>`;
-      return `<div class="day ${isToday?'today':''}">
-        <div class="day-dt">
-          <div class="day-dow">${dow}</div>
-          <div class="day-num">${d.getDate()}</div>
-        </div>
-        <div class="day-info">${info}</div>
-        ${badge}
+    document.getElementById('cal-grid').innerHTML = cells.map(c => {
+      if(c.mute) return `<div class="cal-cell mute"></div>`;
+      const cls = ['cal-cell'];
+      if(c.has) cls.push('has');
+      if(c.today) cls.push('today');
+      if(c.sel) cls.push('sel');
+      return `<div class="${cls.join(' ')}" onclick="selectDate('${ymd(c.date)}')">
+        ${c.d}${c.has?'<span class="cal-dot"></span>':''}
       </div>`;
     }).join('');
-    document.getElementById('day-list').innerHTML = rows;
   }
+
+  function selectDate(iso){ selectedDate = (selectedDate === iso ? null : iso); renderMonth(); renderUpcoming(); }
+
+  function renderUpcoming(){
+    const zone = ZONES.find(z => z.id === activeZone) || ZONES[0];
+    const today = new Date(); today.setHours(0,0,0,0);
+    const list = [];
+    // if a specific date is selected, show only that (if it has collection); else next 6 upcoming
+    if(selectedDate){
+      const d = new Date(selectedDate + 'T00:00:00');
+      const type = typeForDate(zone, d);
+      if(type) list.push({date:d, types:[type]});
+    } else {
+      for(let i=0; i<31 && list.length<6; i++){
+        const d = new Date(today); d.setDate(today.getDate()+i);
+        const type = typeForDate(zone, d);
+        if(type) list.push({date:d, types:[type]});
+      }
+    }
+    const el = document.getElementById('upc-list');
+    if(list.length === 0){
+      el.innerHTML = `<div class="empty" style="padding:12px 4px;color:#94a3b8;font-size:13px">No collections on this date.</div>`;
+      return;
+    }
+    el.innerHTML = list.map(item => {
+      const day = item.date.getDate();
+      const mon = item.date.toLocaleString(undefined,{month:'short'}).toUpperCase();
+      const tags = item.types.map(t => `<span class="w ${WASTE_CLASS[t]}">${WASTE_ICON[t]} ${WASTE_SHORT[t]}</span>`).join('');
+      return `<div class="upc">
+        <div class="upc-date ${zone.color}"><div class="d">${day}</div><div class="m">${mon}</div></div>
+        <div class="upc-body">
+          <div class="upc-title">${zone.name} – ${zone.area}</div>
+          <div class="upc-time">⏰ ${zone.time}</div>
+          <div class="upc-tags">${tags}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
 
   function updateNextCard(){
     const zone = ZONES.find(z => z.id === activeZone) || ZONES[0];
