@@ -1622,6 +1622,7 @@ body {
   outline: none;
 }
 </style>
+<script type="module" src="./db.js"></script>
 </head>
 <body>
 
@@ -2425,9 +2426,9 @@ function renderAnn() {
       <td>${a.reach} residents</td>
       <td>${annStatusBadge(a.status)}</td>
       <td>
-        <button class="a-btn blue" onclick="editAnn(${a.id})">Edit</button>
-        ${a.status==='Scheduled' ? `<button class="a-btn green" onclick="publishAnn(${a.id})">Publish</button>` : ''}
-        <button class="a-btn red" onclick="deleteAnn(${a.id})">Delete</button>
+        <button class="a-btn blue" onclick="editAnn('${a.id}')">Edit</button>
+        ${a.status==='Scheduled' ? `<button class="a-btn green" onclick="publishAnn('${a.id}')">Publish</button>` : ''}
+        <button class="a-btn red" onclick="deleteAnn('${a.id}')">Delete</button>
       </td>
     </tr>`).join('') : `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--muted);">No announcements yet.</td></tr>`;
 }
@@ -2514,8 +2515,8 @@ function statusBadge(s) {
   return '<span class="badge approved">Active</span>';
 }
 function actionBtns(u) {
-  const edit = `<button class="a-btn blue" onclick="openUserModal(${u.id})">Edit</button>`;
-  const del  = `<button class="a-btn red" onclick="deleteUser(${u.id})">Delete</button>`;
+  const edit = `<button class="a-btn blue" onclick="openUserModal('${u.id}')">Edit</button>`;
+  const del  = `<button class="a-btn red" onclick="deleteUser('${u.id}')">Delete</button>`;
   if (u.status==='Pending') return `<button class="a-btn green" onclick="setUserStatus(${u.id},'Active')">Approve</button> <button class="a-btn red" onclick="setUserStatus(${u.id},'Suspended')">Reject</button> ${edit}`;
   if (u.status==='Suspended') return `<button class="a-btn green" onclick="setUserStatus(${u.id},'Active')">Reactivate</button> ${edit} ${del}`;
   return `${edit} <button class="a-btn red" onclick="setUserStatus(${u.id},'Suspended')">Suspend</button>`;
@@ -2643,10 +2644,10 @@ function repStatusBadge(s){
   return `<span class="badge ${cls}">${s}</span>`;
 }
 function repActions(r){
-  const view = `<button class="a-btn blue" onclick="viewReport(${r.id})">View</button>`;
+  const view = `<button class="a-btn blue" onclick="viewReport('${r.id}')">View</button>`;
   if (r.status==='Pending' || r.status==='Review')
-    return `<button class="a-btn green" onclick="setReportStatus(${r.id},'Approved')">✓</button> <button class="a-btn red" onclick="setReportStatus(${r.id},'Rejected')">✗</button> ${view}`;
-  return `${view} <button class="a-btn red" onclick="deleteReport(${r.id})">Delete</button>`;
+    return `<button class="a-btn green" onclick="setReportStatus('${r.id}','Approved')">✓</button> <button class="a-btn red" onclick="setReportStatus('${r.id}','Rejected')">✗</button> ${view}`;
+  return `${view} <button class="a-btn red" onclick="deleteReport('${r.id}')">Delete</button>`;
 }
 function renderReportTabs(){
   const counts = {All: REPORTS.length};
@@ -2760,8 +2761,8 @@ function viewReport(id){
       <div style="color:var(--muted);">Notes</div><div>${r.notes}</div>
     </div>
     <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
-      <button class="a-btn green" onclick="setReportStatus(${r.id},'Approved'); closeReportModal();">Approve</button>
-      <button class="a-btn red" onclick="setReportStatus(${r.id},'Rejected'); closeReportModal();">Reject</button>
+      <button class="a-btn green" onclick="setReportStatus('${r.id}','Approved'); closeReportModal();">Approve</button>
+      <button class="a-btn red" onclick="setReportStatus('${r.id}','Rejected'); closeReportModal();">Reject</button>
       <button class="a-btn" onclick="closeReportModal()">Close</button>
     </div>`;
   document.getElementById('rep-modal').style.display = 'flex';
@@ -2946,7 +2947,7 @@ function renderLogs(){
       <td style="font-weight:700;">${l.user}</td>
       <td>${l.action}</td>
       <td style="font-family:ui-monospace,monospace; font-size:11px; color:var(--muted);">${l.ip}</td>
-      <td><button class="a-btn red" onclick="deleteLog(${l.id})">✗</button></td>
+      <td><button class="a-btn red" onclick="deleteLog('${l.id}')">✗</button></td>
     </tr>`).join('') : `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--muted);">No logs match your filters.</td></tr>`;
 
   document.getElementById('logs-count').textContent =
@@ -3257,96 +3258,199 @@ function exportCompCSV(){
 document.addEventListener('DOMContentLoaded', renderComp);
 
 
-// ================= LIVE SYNC WITH RESIDENT APP =================
+// ================= LIVE SYNC WITH SUPABASE (via db.js) =================
 (function(){
-  const SEV_IN  = {Low:'Low', Medium:'Med', High:'High'};
-  const SEV_OUT = {Low:'Low', Med:'Medium', High:'High'};
-  const ST_IN   = {Pending:'Pending','Under Review':'Review',Approved:'Approved',Rejected:'Rejected'};
-  const ST_OUT  = {Pending:'Pending', Review:'Under Review', Approved:'Approved', Rejected:'Rejected'};
   const WI = {Bio:'🌿', Recyc:'♻️', Resid:'🗑️', Spec:'☣️'};
-  const SEED_REPORTS = REPORTS.slice();
-  const SEED_COMP    = COMP.slice();
-  const loadJSON = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || JSON.stringify(d)); } catch(_) { return d; } };
+  const SEV_IN = {Low:'Low', Medium:'Med', High:'High'};
+  const ST_IN  = {Pending:'Pending','Under Review':'Review',Approved:'Approved',Rejected:'Rejected',Verified:'Verified'};
+  const loadJSON = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(_) { return d; } };
+
   function normReport(r){
     return {
-      id: r.id, reporter: r.reporter || 'Resident',
-      location: r.location || '—', evidence: '📷 photo',
+      id: r._dbId || r.id,
+      reporter: r.reporterName || r.reporter || 'Resident',
+      location: r.location || '—',
+      evidence: '📷 report',
       sev: SEV_IN[r.severity] || 'Med',
       status: ST_IN[r.status] || 'Pending',
-      date: new Date(r.createdAt||Date.now()).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+      date: new Date(r.createdAt || Date.now()).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
       notes: `${WI[r.waste]||''} ${r.waste||''} — ${r.description||''}`.trim(),
-      _resident: true
     };
-  }
-  function rebuildReports(){
-    REPORTS = [...loadJSON('eb_reports', []).map(normReport), ...SEED_REPORTS];
-    if (typeof renderReports==='function') renderReports();
   }
   function normForm(f){
     return {
-      id: f.id, name: f.name || f.reporter || 'Household',
-      waste: f.waste || [], pct: (f.pct ?? 75),
+      id: f._dbId || f.id,
+      name: f.name || 'Household',
+      waste: f.waste || [],
+      pct: (f.pct ?? 75),
       last: f.date || new Date(f.createdAt||Date.now()).toISOString().slice(0,10),
-      status: f.status || 'Pending',
-      notes: f.remarks || f.notes || '', _resident: true
+      status: f.status === 'Under Review' ? 'Pending' : (f.status || 'Pending'),
+      notes: f.remarks || '',
     };
   }
-  function rebuildComp(){
-    COMP = [...loadJSON('eb_forms', []).map(normForm), ...SEED_COMP];
-    if (typeof renderComp==='function') renderComp();
+  function normUser(u){
+    return {
+      id: u._dbId || u.id,
+      name: u.name, email: u.email, role: u.role,
+      zone: u.zone, joined: u.joined, last: u.last, status: u.status,
+      _dbRole: u._dbRole,
+    };
   }
-  function pushAnnouncements(){
-    const pub = ANNOUNCEMENTS.filter(a=>a.status==='Published').map(a=>({
-      id:a.id, title:a.title, type:a.type, msg:a.msg, date:a.date, waste:a.waste||[]
-    }));
-    localStorage.setItem('eb_announcements', JSON.stringify(pub));
+  function normAnn(a){
+    return {
+      id: a.id, title: a.title, type: a.type, msg: a.msg,
+      waste: a.waste || [], date: a.date, reach: a.reach || 342, status: a.status,
+    };
   }
-  const _setReportStatus = window.setReportStatus;
-  window.setReportStatus = function(id, status){
-    const r = REPORTS.find(x=>x.id===id);
-    _setReportStatus(id, status);
-    if (r && r._resident){
-      const list = loadJSON('eb_reports', []);
-      const t = list.find(x=>x.id===id);
-      if (t){ t.status = ST_OUT[status]||status; localStorage.setItem('eb_reports', JSON.stringify(list)); }
+  function normLog(l){
+    return {
+      id: l.id, ts: new Date(l.ts), level: l.level, cat: l.cat,
+      user: l.user, action: l.action, ip: l.ip || '—',
+    };
+  }
+  // Rebuild ZONES from schedules rows (one row per zone-day). Group by zone.
+  function normZones(rows){
+    const map = new Map();
+    (rows||[]).forEach(r => {
+      let meta = {}; try { meta = r.notes ? JSON.parse(r.notes) : {}; } catch(_) {}
+      const key = r.zone;
+      let z = map.get(key);
+      if(!z){
+        z = { id: meta.orig_id || key, name: r.zone, color: meta.color || '#22c55e',
+              collector: meta.collector || '', collector_id: r.collector_id,
+              start: r.time_start, end: r.time_end,
+              days: [], waste: meta.waste || (r.waste_type ? r.waste_type.split(',') : []) };
+        map.set(key, z);
+      }
+      if(r.day_of_week && !z.days.includes(r.day_of_week)) z.days.push(r.day_of_week);
+    });
+    return Array.from(map.values());
+  }
+
+  function rebuildAll(){
+    REPORTS      = loadJSON('eb_reports', []).map(normReport);
+    COMP         = loadJSON('eb_forms',   []).map(normForm);
+    ANNOUNCEMENTS = loadJSON('eb_ann_full',[]).map(normAnn);
+    const users  = loadJSON('eb_users',   []).map(normUser);
+    if(users.length) USERS = users;
+    const logs   = loadJSON('eb_logs',    []).map(normLog);
+    if(logs.length) LOGS = logs;
+    const zoneRows = loadJSON('eb_schedules', []);
+    if(zoneRows.length) ZONES = normZones(zoneRows);
+
+    if(typeof renderReports==='function') renderReports();
+    if(typeof renderComp==='function')    renderComp();
+    if(typeof renderAnn==='function')     renderAnn();
+    if(typeof renderUsers==='function')   renderUsers();
+    if(typeof renderLogs==='function')    renderLogs();
+    if(typeof generateWeek==='function'){ try{ generateWeek(); }catch(_){} }
+    if(typeof renderZones==='function')   renderZones();
+    if(typeof renderWeek==='function')    renderWeek();
+    if(typeof renderDashboard==='function') renderDashboard();
+    if(typeof updateNavBadges==='function') updateNavBadges();
+  }
+
+  // Route mutations through EB (which updates DB + rehydrates).
+  window.setReportStatus = (id, status) => window.EB.setReportStatus(id, status);
+  window.deleteReport    = (id) => { if(confirm('Delete this report?')) window.EB.deleteReport(id); };
+  window.setCompStatus   = (id, status) => window.EB.setCompStatus(id, status);
+  window.deleteComp      = (id) => { if(confirm('Delete this compliance record?')) window.EB.deleteComp(id); };
+  window.deleteLog       = (id) => window.EB.deleteLog(id);
+  window.clearLogs       = () => { if(confirm('Clear all logs?')) window.EB.clearLogs(); };
+  window.deleteUser      = (id) => {
+    const u = USERS.find(x => String(x.id) === String(id));
+    if(!u) return;
+    if(!confirm(`Delete ${u.name}?`)) return;
+    window.EB.deleteUserRow(id);
+  };
+
+  // Rebind saveUser: convert UI role to db role and persist via EB.
+  const uiToDbRole = { 'Resident':'resident', 'Collector':'collector', 'Admin':'staff' };
+  window.saveUser = function(){
+    const name = document.getElementById('um-name').value.trim();
+    const email = document.getElementById('um-email').value.trim();
+    if(!name || !email){ alert('Name and email are required.'); return; }
+    const uiRole = document.getElementById('um-role').value;
+    const changes = {
+      name, zone: document.getElementById('um-zone').value,
+      status: document.getElementById('um-status').value,
+      dbRole: uiToDbRole[uiRole] || 'resident',
+    };
+    if(EDIT_USER_ID){
+      window.EB.saveUserRow(EDIT_USER_ID, changes);
+      closeUserModal();
+    } else {
+      alert('New user accounts are created via the sign-up page. Ask the user to register, then edit their profile here.');
+      closeUserModal();
     }
   };
-  const _delReport = window.deleteReport;
-  window.deleteReport = function(id){
-    const r = REPORTS.find(x=>x.id===id);
-    _delReport(id);
-    if (r && r._resident){
-      localStorage.setItem('eb_reports', JSON.stringify(loadJSON('eb_reports', []).filter(x=>x.id!==id)));
-    }
+
+  // Announcements → EB
+  window.submitAnn = async function(){
+    const title = document.getElementById('ann-title').value.trim();
+    const type = document.getElementById('ann-type').value;
+    const msg  = document.getElementById('ann-msg').value.trim();
+    const sched = document.getElementById('ann-sched').value.trim();
+    if(!title || !msg){ alert('Title and message are required.'); return; }
+    const waste = Array.from(ANN_WASTE);
+    const status = sched ? 'Scheduled' : 'Published';
+    const payload = { title, type, msg, waste, status, scheduled_at: sched || null };
+    try {
+      if(ANN_EDIT_ID) await window.EB.updateAnnouncement(ANN_EDIT_ID, payload);
+      else await window.EB.addAnnouncement(payload);
+      cancelAnn();
+    } catch(err){ alert(err.message || 'Save failed'); }
   };
-  const _setCompStatus = window.setCompStatus;
-  window.setCompStatus = function(id, status){
-    const c = COMP.find(x=>x.id===id);
-    _setCompStatus(id, status);
-    if (c && c._resident){
-      const list = loadJSON('eb_forms', []);
-      const t = list.find(x=>x.id===id);
-      if (t){ t.status = status; localStorage.setItem('eb_forms', JSON.stringify(list)); }
-    }
+  window.publishAnn = (id) => window.EB.publishAnnouncement(id);
+  window.deleteAnn  = (id) => {
+    const a = ANNOUNCEMENTS.find(x => String(x.id) === String(id));
+    if(a && !confirm(`Delete "${a.title}"?`)) return;
+    window.EB.deleteAnnouncement(id);
   };
-  const _delComp = window.deleteComp;
-  window.deleteComp = function(id){
-    const c = COMP.find(x=>x.id===id);
-    _delComp(id);
-    if (c && c._resident){
-      localStorage.setItem('eb_forms', JSON.stringify(loadJSON('eb_forms', []).filter(x=>x.id!==id)));
-    }
+
+  // Schedules → EB
+  window.saveZone = function(){
+    const name = document.getElementById('zm-name').value.trim();
+    if(!name){ alert('Zone name is required.'); return; }
+    const days = [...document.querySelectorAll('#zm-days input:checked')].map(i=>i.value);
+    if(!days.length){ alert('Pick at least one collection day.'); return; }
+    const waste = [...document.querySelectorAll('#zm-waste input:checked')].map(i=>i.value);
+    if(!waste.length){ alert('Pick at least one waste type.'); return; }
+    const collectorName = document.getElementById('zm-coll').value;
+    const collector_id = (USERS.find(u => u.name === collectorName)||{}).id || null;
+    const origZone = ZONE_EDIT_ID ? ZONES.find(z => z.id === ZONE_EDIT_ID) : null;
+    window.EB.saveZone({
+      name, days, waste, color: document.getElementById('zm-color').value,
+      collector: collectorName, collector_id,
+      start: document.getElementById('zm-start').value,
+      end:   document.getElementById('zm-end').value,
+      origName: origZone?.name,
+      id: origZone?.id || ('Z-' + Date.now()),
+    });
+    closeZoneModal();
   };
-  const _renderAnn = window.renderAnn;
-  window.renderAnn = function(){ if(_renderAnn) _renderAnn(); pushAnnouncements(); };
-  document.addEventListener('DOMContentLoaded', ()=>{
-    rebuildReports(); rebuildComp(); pushAnnouncements();
+  window.deleteZone = function(id){
+    const z = ZONES.find(x => String(x.id) === String(id));
+    if(!z) return;
+    if(!confirm(`Delete ${z.name}?`)) return;
+    window.EB.deleteZone(z.name);
+  };
+
+  // Sign-out button (if the admin UI wires one)
+  window.signOut = () => window.EB.signOut();
+
+  // Wait for db.js, then take over.
+  function boot(){
+    // Guard: if not signed in, db.js will already have redirected.
+    if(!window.EB || !window.EB.state.session) return;
+    rebuildAll();
+  }
+  if(window.EB && window.EB.state.ready) boot();
+  document.addEventListener('eb:ready', boot);
+  document.addEventListener('eb:data', rebuildAll);
+  window.addEventListener('storage', (e) => {
+    if(!e.key || e.key.startsWith('eb_')) rebuildAll();
   });
-  window.addEventListener('storage', (e)=>{
-    if (e.key==='eb_reports') rebuildReports();
-    if (e.key==='eb_forms')   rebuildComp();
-  });
-  setInterval(()=>{ rebuildReports(); rebuildComp(); }, 3000);
 })();
 </script>
 </body>
