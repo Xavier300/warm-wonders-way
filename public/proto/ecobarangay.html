@@ -2779,12 +2779,20 @@ function viewReport(id){
       if (!wrap) return;
       if (url) {
         wrap.innerHTML = `<a href="${url}" target="_blank" rel="noopener" style="display:block; width:100%;">
-          <img src="${url}" alt="Report evidence" style="display:block; width:100%; max-height:420px; object-fit:contain; background:#000;"/>
+          <img src="${url}" alt="Report evidence" style="display:block; width:100%; max-height:420px; object-fit:contain; background:#000;"
+               onerror="this.parentNode.parentNode.innerHTML='&lt;div style=\\'color:#dc2626;font-size:13px;padding:16px;\\'&gt;Photo file missing from storage.&lt;/div&gt;'"/>
         </a>`;
       } else {
-        wrap.innerHTML = `<div style="color:var(--red); font-size:13px; padding:16px;">Could not load photo.</div>`;
+        wrap.innerHTML = `<div style="color:var(--red); font-size:13px; padding:16px;">Could not load photo (permission denied or file missing).</div>`;
       }
+    }).catch(err => {
+      console.error('[EB] signed url failed', err);
+      const wrap = document.getElementById('rep-photo-wrap');
+      if (wrap) wrap.innerHTML = `<div style="color:var(--red); font-size:13px; padding:16px;">Photo error: ${(err && err.message) || err}</div>`;
     });
+  } else if (r.photoPath) {
+    const wrap = document.getElementById('rep-photo-wrap');
+    if (wrap) wrap.innerHTML = `<div style="color:var(--muted); font-size:13px; padding:16px;">Photo viewer not ready — reload the page.</div>`;
   }
 }
 function closeReportModal(){ document.getElementById('rep-modal').style.display = 'none'; }
