@@ -454,6 +454,46 @@
     </div>
   </section>
 
+  <!-- Self-Compliance Form screen -->
+  <section class="screen" id="scr-comp">
+    <div class="scr-head">
+      <button class="back" onclick="showHome()">← Back</button>
+      <div style="flex:1"><h2>Self-Compliance Form</h2></div>
+    </div>
+    <div class="form">
+      <div style="background:#eaf7ee;border:1px solid #bbf7d0;border-radius:12px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+        <div style="font-size:20px">📋</div>
+        <div style="font-size:12px;color:var(--text-2);line-height:1.5">
+          Submit this form to report a <b>missed garbage collection</b> or to declare your household waste for this week's schedule.
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Household Address</label>
+        <input id="cf-addr" type="text" placeholder="e.g. 123 Rizal Street, Calatagan Proper" maxlength="120"/>
+      </div>
+
+      <div class="field">
+        <label>Collection Date Missed</label>
+        <input id="cf-date" type="date"/>
+      </div>
+
+      <div class="field">
+        <label>🗑️ Declare waste type (select all that apply)</label>
+        <div id="cf-waste" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+
+      <div class="field">
+        <label>Additional remarks (optional)</label>
+        <textarea id="cf-notes" maxlength="500" placeholder="Describe the issue or reason for missed collection…"></textarea>
+      </div>
+
+      <button class="btn-primary" onclick="submitCompliance()">Submit form</button>
+      <button class="btn-ghost" onclick="showHome()">Cancel</button>
+    </div>
+  </section>
+
+
   <!-- Tab bar -->
   <nav class="tabbar">
     <button class="tab on" id="tab-home" onclick="showHome()"><span class="ic">🏠</span>Home</button>
