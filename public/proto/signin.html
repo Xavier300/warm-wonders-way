@@ -294,18 +294,48 @@
     document.getElementById('register').style.display='block';
     window.scrollTo(0,0);
   }
+  let CURRENT_ROLE = 'Resident';
+  let CURRENT_REG_ROLE = 'Resident';
+
   function setRole(r){
+    CURRENT_ROLE = r;
     document.querySelectorAll('#login .role-opt').forEach(b=>{
       b.classList.toggle('on', b.dataset.role===r);
     });
   }
   function setRegRole(r){
+    CURRENT_REG_ROLE = r;
     document.querySelectorAll('#register .role-opt').forEach(b=>{
       b.classList.toggle('on', b.dataset.rrole===r);
     });
+    const zoneLabel = document.getElementById('r_zone_label');
+    const zoneInput = document.getElementById('r_zone');
+    if(r === 'Official'){
+      zoneLabel.textContent = 'Position / Office';
+      zoneInput.placeholder = 'e.g. Barangay Secretary';
+    } else {
+      zoneLabel.textContent = 'Zone / Purok';
+      zoneInput.placeholder = 'Zone 1';
+    }
   }
-  function goApp(){ window.location.href = '/proto/ecobarangay.html'; }
-  function handleGoogle(){ goApp(); }
+
+  function saveSession(role, email){
+    try {
+      localStorage.setItem('eb_auth', JSON.stringify({ role, email, at: Date.now() }));
+    } catch(_) {}
+  }
+  function routeByRole(role){
+    if(role === 'Official'){
+      window.location.href = '/proto/ecobarangay.html';
+    } else {
+      window.location.href = '/proto/resident.html';
+    }
+  }
+
+  function handleGoogle(){
+    saveSession(CURRENT_ROLE, 'google-user@ecobarangay.app');
+    routeByRole(CURRENT_ROLE);
+  }
   function handleSignIn(e){
     e.preventDefault();
     const email = document.getElementById('email').value.trim();
@@ -314,7 +344,8 @@
     const okEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     if(!okEmail || pass.length < 4){ err.classList.add('show'); return; }
     err.classList.remove('show');
-    goApp();
+    saveSession(CURRENT_ROLE, email);
+    routeByRole(CURRENT_ROLE);
   }
   function handleRegister(e){
     e.preventDefault();
@@ -334,8 +365,10 @@
       return;
     }
     err.classList.remove('show');
-    alert('Account created (prototype). Signing you in…');
-    goApp();
+    const roleLabel = CURRENT_REG_ROLE === 'Official' ? 'Official' : 'Resident';
+    alert(roleLabel + ' account created (prototype). Signing you in…');
+    saveSession(CURRENT_REG_ROLE, email);
+    routeByRole(CURRENT_REG_ROLE);
   }
 </script>
 </body>
