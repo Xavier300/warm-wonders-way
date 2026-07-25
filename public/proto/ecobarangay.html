@@ -2830,10 +2830,22 @@ const WASTE_TYPES = [
   {k:'Spec', cls:'spec', ico:'☣️'}
 ];
 let ZONES = [
-  {id:'Z-A', name:'Zone A – Calatagan Proper', color:'#22c55e', days:['Mon','Wed','Fri'], start:'06:00', end:'08:00', waste:['Bio','Recyc'], collector:'Carlos M.'},
-  {id:'Z-B', name:'Zone B – Upper Calatagan', color:'#3b82f6', days:['Tue','Thu'], start:'07:00', end:'09:00', waste:['Resid','Spec'], collector:'Ramon B.'},
-  {id:'Z-C', name:'Zone C – Barangay Hall', color:'#8b5cf6', days:['Mon','Thu','Sat'], start:'05:30', end:'07:30', waste:['Recyc','Resid'], collector:'Ben P.'}
+  {id:'Z-A', name:'Zone A – Calatagan Proper', color:'#22c55e', days:['Mon','Wed','Fri'], start:'06:00', end:'08:00', waste:['Bio','Recyc'], collector:'Juan Dela Cruz'},
+  {id:'Z-B', name:'Zone B – Upper Calatagan', color:'#3b82f6', days:['Tue','Thu'], start:'07:00', end:'09:00', waste:['Resid','Spec'], collector:'Pedro Mendoza'},
+  {id:'Z-C', name:'Zone C – Barangay Hall', color:'#8b5cf6', days:['Mon','Thu','Sat'], start:'05:30', end:'07:30', waste:['Recyc','Resid'], collector:'Diego Cruz'}
 ];
+function activeCollectors(){
+  return (typeof USERS !== 'undefined' ? USERS : []).filter(u=>u.role==='Collector' && u.status==='Active');
+}
+function populateCollectorSelect(current){
+  const sel = document.getElementById('zm-coll'); if(!sel) return;
+  const opts = activeCollectors();
+  const known = new Set(opts.map(u=>u.name));
+  sel.innerHTML = '<option value="">— Select collector —</option>' +
+    opts.map(u=>`<option value="${u.name}">${u.name} · ${u.zone||''}</option>`).join('') +
+    (current && !known.has(current) ? `<option value="${current}">${current} (inactive)</option>` : '');
+  sel.value = current || '';
+}
 let WEEK = [];
 let ZONE_EDIT_ID = null;
 
