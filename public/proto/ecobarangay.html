@@ -3176,6 +3176,7 @@ function renderComp(){
       <td style="display:flex; gap:5px; flex-wrap:wrap;">${act}<button class="a-btn" onclick="deleteComp('${c.id}')" style="color:#b91c1c;">Delete</button></td>
     </tr>`;
   }).join('');
+  if (typeof updateNavBadges==='function') updateNavBadges();
 }
 function setCompStatus(id,status){
   const c=COMP.find(x=>x.id===id); if(!c) return;
