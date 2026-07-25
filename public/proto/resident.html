@@ -1020,8 +1020,15 @@
   async function submitReport(){
     const loc = document.getElementById('rep-loc').value.trim();
     const desc = document.getElementById('rep-desc').value.trim();
-    if(!loc){ toast('Please enter a location'); return; }
-    if(!desc){ toast('Please describe what you saw'); return; }
+    if(!loc){ alert('Please enter a location'); return; }
+    if(!desc){ alert('Please describe what you saw (Description field is required).'); return; }
+    if(!window.EB || !window.EB.state || !window.EB.state.session){
+      alert('You are not signed in. Please sign in again to submit a report.');
+      return;
+    }
+    const btn = document.querySelector('button.btn-primary[onclick="submitReport()"]');
+    const oldTxt = btn ? btn.textContent : '';
+    if(btn){ btn.disabled = true; btn.textContent = 'Submitting…'; }
     try {
       await window.EB.addReport({ waste:repWaste, severity:repSev, location:loc, description:desc });
       addHistory('report', `Report submitted`, +10);
@@ -1031,7 +1038,10 @@
       renderMyReports();
       toast('Report submitted · +10 pts');
     } catch(err){
-      toast(err.message || 'Submit failed');
+      console.error('submitReport failed:', err);
+      alert('Submit failed: ' + (err && (err.message || err.error_description) || 'Unknown error. Check console for details.'));
+    } finally {
+      if(btn){ btn.disabled = false; btn.textContent = oldTxt; }
     }
   }
 
