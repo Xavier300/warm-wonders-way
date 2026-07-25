@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>EcoBarangay · Resident</title>
+<style>
+  :root{
+    --g900:#0d1f14; --g800:#14351f; --g700:#1e5233; --g600:#2b7a49;
+    --g500:#3fa668; --g400:#6fcf97; --lime:#c7f24a;
+    --text:#0f172a; --text-2:#334155; --text-3:#64748b;
+    --line:#e2e8f0; --bg:#f7faf8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;min-height:100dvh;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--text);background:var(--bg);}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;cursor:pointer;border:0;background:transparent;color:inherit}
+
+  .shell{max-width:460px;margin:0 auto;min-height:100dvh;background:#fff;box-shadow:0 20px 60px rgba(15,42,26,.08);display:flex;flex-direction:column}
+
+  /* Top hero */
+  .hero{
+    padding:22px 20px 26px;color:#fff;
+    background:
+      radial-gradient(120% 80% at 100% 0%, rgba(199,242,74,.18), transparent 60%),
+      linear-gradient(160deg, #0d1f14 0%, #14351f 60%, #1e5233 100%);
+  }
+  .hero-top{display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.2px}
+  .brand-logo{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);display:grid;place-items:center;font-size:18px}
+  .signout{font-size:12px;font-weight:800;color:#c7f24a;border:1px solid rgba(199,242,74,.4);padding:6px 10px;border-radius:999px;background:rgba(199,242,74,.08)}
+  .greeting{margin-top:16px;font-size:22px;font-weight:900;letter-spacing:-.3px}
+  .greeting small{display:block;font-weight:500;color:rgba(255,255,255,.75);font-size:13px;margin-top:2px}
+
+  .role-pill{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:6px 10px;font-size:12px;font-weight:800;background:rgba(199,242,74,.15);color:#c7f24a;border:1px solid rgba(199,242,74,.35);border-radius:999px}
+
+  /* Next collection card */
+  .next{
+    margin:-14px 16px 0;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;
+    box-shadow:0 10px 30px rgba(15,42,26,.08);display:flex;align-items:center;gap:12px
+  }
+  .next-ic{width:42px;height:42px;border-radius:12px;background:#eaf7ee;display:grid;place-items:center;font-size:20px}
+  .next-title{font-size:12px;color:var(--text-3);font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+  .next-body{font-weight:800;font-size:15px;margin-top:2px}
+  .next-sub{font-size:12px;color:var(--text-3);margin-top:2px}
+  .next-tag{margin-left:auto;background:var(--g800);color:#c7f24a;font-size:11px;font-weight:800;padding:6px 10px;border-radius:999px}
+
+  /* Section */
+  .section{padding:18px 20px 4px}
+  .section h3{margin:0 0 10px;font-size:13px;letter-spacing:.06em;color:var(--text-3);text-transform:uppercase}
+
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 16px}
+  .tile{
+    background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;text-align:left;
+    display:flex;flex-direction:column;gap:6px;transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+  }
+  .tile:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(15,42,26,.08);border-color:#d6ecdd}
+  .tile-ic{width:38px;height:38px;border-radius:12px;background:#eaf7ee;display:grid;place-items:center;font-size:18px}
+  .tile-title{font-weight:800;font-size:14px}
+  .tile-sub{font-size:12px;color:var(--text-3)}
+
+  /* Waste guide */
+  .guide{margin:0 16px;background:linear-gradient(140deg,#eaf7ee, #f6fff2);border:1px solid #d6ecdd;border-radius:16px;padding:14px}
+  .guide-title{font-weight:900;font-size:14px}
+  .guide-sub{font-size:12px;color:var(--text-2);margin-top:2px}
+  .waste{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .w{padding:8px 10px;border-radius:999px;font-size:12px;font-weight:800;border:1px solid transparent}
+  .w-bio{background:#e6f9ec;color:#166534;border-color:#c7ecd0}
+  .w-rec{background:#e0f2fe;color:#075985;border-color:#bae6fd}
+  .w-res{background:#f1f5f9;color:#334155;border-color:#e2e8f0}
+  .w-spec{background:#fef2f2;color:#991b1b;border-color:#fecaca}
+
+  /* Announcements */
+  .ann{margin:0 16px 22px;display:flex;flex-direction:column;gap:10px}
+  .ann-item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+  .ann-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .ann-title{font-weight:800;font-size:14px}
+  .ann-when{font-size:11px;color:var(--text-3)}
+  .ann-body{font-size:13px;color:var(--text-2);margin-top:4px;line-height:1.4}
+
+  /* Bottom nav */
+  .tabbar{
+    position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);
+    display:grid;grid-template-columns:repeat(5,1fr);padding:8px 6px;gap:2px;
+  }
+  .tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:12px;color:var(--text-3);font-size:11px;font-weight:700}
+  .tab.on{color:var(--g700);background:#eaf7ee}
+  .tab .ic{font-size:18px}
+
+  /* FAB */
+  .fab{
+    position:sticky;bottom:76px;margin:0 16px 8px 0;align-self:flex-end;
+    background:var(--g700);color:#fff;font-weight:800;font-size:14px;
+    padding:12px 18px;border-radius:999px;box-shadow:0 12px 28px rgba(30,82,51,.35);
+    display:inline-flex;align-items:center;gap:8px;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-top">
+      <div class="brand">
+        <div class="brand-logo">♻️</div>
+        <div>EcoBarangay</div>
+      </div>
+      <button class="signout" onclick="signOut()">Sign out</button>
+    </div>
+    <div class="greeting">
+      Hello, <span id="uname">Resident</span> 👋
+      <small id="uemail">Welcome back to your EcoBarangay portal</small>
+    </div>
+    <div class="role-pill">🏠 Resident account</div>
+  </section>
+
+  <!-- Next collection -->
+  <div class="next">
+    <div class="next-ic">🗓️</div>
+    <div>
+      <div class="next-title">Next Collection</div>
+      <div class="next-body">Tomorrow · 6:00 AM – 9:00 AM</div>
+      <div class="next-sub">Zone 1 · Biodegradable</div>
+    </div>
+    <div class="next-tag">Bio</div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="section"><h3>Quick actions</h3></div>
+  <div class="tiles">
+    <button class="tile" onclick="notImpl('Report Illegal Dumping')">
+      <div class="tile-ic">🚨</div>
+      <div class="tile-title">Report Dumping</div>
+      <div class="tile-sub">Photo + location</div>
+    </button>
+    <button class="tile" onclick="notImpl('My Schedule')">
+      <div class="tile-ic">📅</div>
+      <div class="tile-title">My Schedule</div>
+      <div class="tile-sub">This week's pickups</div>
+    </button>
+    <button class="tile" onclick="notImpl('Compliance Form')">
+      <div class="tile-ic">📋</div>
+      <div class="tile-title">Compliance</div>
+      <div class="tile-sub">Submit form</div>
+    </button>
+    <button class="tile" onclick="notImpl('CCTV View')">
+      <div class="tile-ic">📹</div>
+      <div class="tile-title">CCTV</div>
+      <div class="tile-sub">Nearby cameras</div>
+    </button>
+  </div>
+
+  <!-- Guide -->
+  <div class="section"><h3>Segregation guide</h3></div>
+  <div class="guide">
+    <div class="guide-title">Segregate before pickup</div>
+    <div class="guide-sub">Please separate by waste type. Improper segregation may be refused.</div>
+    <div class="waste">
+      <span class="w w-bio">🌿 Biodegradable</span>
+      <span class="w w-rec">♻️ Recyclable</span>
+      <span class="w w-res">🗑️ Residual</span>
+      <span class="w w-spec">☣️ Special</span>
+    </div>
+  </div>
+
+  <!-- Announcements -->
+  <div class="section"><h3>Announcements</h3></div>
+  <div class="ann">
+    <div class="ann-item">
+      <div class="ann-head">
+        <div class="ann-title">📢 Zone 1 collection moved</div>
+        <div class="ann-when">2h ago</div>
+      </div>
+      <div class="ann-body">Due to road works, Wednesday pickup will be moved to Thursday, 6:00 AM. Please segregate bio waste for pickup.</div>
+    </div>
+    <div class="ann-item">
+      <div class="ann-head">
+        <div class="ann-title">🌿 Composting workshop</div>
+        <div class="ann-when">Yesterday</div>
+      </div>
+      <div class="ann-body">Free composting workshop at the barangay hall this Saturday, 9 AM. Bring your own container.</div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <nav class="tabbar">
+    <button class="tab on"><span class="ic">🏠</span>Home</button>
+    <button class="tab" onclick="notImpl('Schedule')"><span class="ic">📅</span>Schedule</button>
+    <button class="tab" onclick="notImpl('Report')"><span class="ic">🚨</span>Report</button>
+    <button class="tab" onclick="notImpl('Rewards')"><span class="ic">🎁</span>Rewards</button>
+    <button class="tab" onclick="notImpl('Profile')"><span class="ic">👤</span>Profile</button>
+  </nav>
+</div>
+
+<script>
+  (function initSession(){
+    try {
+      const raw = localStorage.getItem('eb_auth');
+      if(!raw){ window.location.replace('/proto/signin.html'); return; }
+      const s = JSON.parse(raw);
+      if(s.role !== 'Resident'){ window.location.replace('/proto/ecobarangay.html'); return; }
+      const email = s.email || 'resident@ecobarangay.app';
+      const name  = (email.split('@')[0] || 'Resident').replace(/[._-]+/g,' ')
+                     .replace(/\b\w/g, c => c.toUpperCase());
+      document.getElementById('uname').textContent  = name;
+      document.getElementById('uemail').textContent = email;
+    } catch(_){
+      window.location.replace('/proto/signin.html');
+    }
+  })();
+
+  function signOut(){
+    try { localStorage.removeItem('eb_auth'); } catch(_){}
+    window.location.href = '/proto/signin.html';
+  }
+  function notImpl(label){
+    alert(label + ' — coming soon in the resident app (prototype).');
+  }
+</script>
+</body>
+</html>
