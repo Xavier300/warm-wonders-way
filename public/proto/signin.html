@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EcoBarangay — Sign In</title>
+<style>
+  :root{
+    --lime:#a3e635; --lime-2:#bef264;
+    --g900:#0d1f14; --g800:#14351f; --g700:#1f5233; --g600:#2f7a4b; --g500:#3fa668;
+    --g300:#86efac; --g100:#dcfce7;
+    --text:#0d1f14; --text-2:#334155; --text-3:#475569; --text-4:#94a3b8;
+    --line:#e5e7eb; --card:#ffffff;
+    --dark:#0d1f14; --dark-2:#14351f;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--text);background:#0a1a10}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;cursor:pointer;border:0;background:transparent;color:inherit}
+
+  /* ===== SPLASH (dark, gradient) ===== */
+  #splash{
+    min-height:100dvh; display:flex; align-items:center; justify-content:center;
+    padding:32px 20px;
+    background:
+      radial-gradient(circle at 82% 12%, rgba(163,230,53,.18), transparent 55%),
+      radial-gradient(circle at 12% 88%, rgba(63,166,104,.22), transparent 60%),
+      radial-gradient(circle at 50% 50%, rgba(47,122,75,.18), transparent 70%),
+      linear-gradient(160deg,#0d1f14 0%, #14351f 55%, #1f5233 100%);
+    color:#fff;
+  }
+  .splash-wrap{width:100%; max-width:420px; display:flex; flex-direction:column; align-items:center; text-align:center;}
+  .logo-tile{
+    width:96px; height:96px; border-radius:22px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(163,230,53,.22);
+    box-shadow:0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);
+    display:flex; align-items:center; justify-content:center;
+    font-size:44px; margin-top:40px;
+  }
+  .brand{
+    margin-top:22px; font-size:38px; font-weight:900; letter-spacing:-.5px;
+    color:#fff;
+  }
+  .brand em{ font-style:normal; color:var(--lime); }
+  .tag{
+    margin-top:10px; max-width:320px; color:rgba(255,255,255,.72);
+    font-size:14.5px; line-height:1.5;
+  }
+  .chips{ display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:22px; max-width:340px;}
+  .chip{
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+    color:rgba(255,255,255,.9); padding:8px 14px; border-radius:999px;
+    font-size:12.5px; font-weight:600; display:inline-flex; align-items:center; gap:6px;
+  }
+  .splash-actions{ width:100%; margin-top:auto; padding-top:36px; display:flex; flex-direction:column; gap:12px;}
+  .btn{
+    height:56px; border-radius:16px; font-weight:800; font-size:15.5px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    transition:transform .08s ease, filter .15s ease, background .15s ease;
+  }
+  .btn:active{ transform:scale(.985); }
+  .btn-primary{
+    background:var(--lime); color:#0d1f14;
+    box-shadow:0 10px 30px rgba(163,230,53,.25);
+  }
+  .btn-primary:hover{ filter:brightness(1.03); }
+  .btn-ghost{
+    background:transparent; color:#fff;
+    border:1px solid rgba(255,255,255,.18);
+  }
+  .btn-ghost:hover{ background:rgba(255,255,255,.05); }
+
+  /* ===== LOGIN (light) ===== */
+  #login{ display:none; min-height:100dvh; background:#fff; }
+  .login-wrap{ width:100%; max-width:420px; margin:0 auto; padding:22px 22px 40px; }
+  .top-bar{ display:flex; align-items:center; justify-content:space-between; }
+  .icon-btn{
+    width:38px; height:38px; border-radius:10px; border:1px solid var(--line);
+    background:#fff; display:flex; align-items:center; justify-content:center; font-size:16px;
+  }
+  .icon-btn:hover{ background:#f8fafc; }
+  .skip{ color:var(--g600); font-weight:700; font-size:14px; padding:6px 8px; }
+  .hi{
+    margin-top:22px; font-size:30px; font-weight:900; letter-spacing:-.4px; color:var(--text);
+  }
+  .sub{ margin-top:6px; color:var(--text-3); font-size:14px; }
+  .label{
+    margin-top:22px; font-size:12px; font-weight:800; letter-spacing:.06em;
+    color:var(--text-2); text-transform:uppercase;
+  }
+  .role-toggle{
+    margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:8px;
+    background:#f1f5f9; padding:6px; border-radius:14px;
+  }
+  .role-opt{
+    height:46px; border-radius:10px; display:flex; align-items:center; justify-content:center; gap:8px;
+    font-weight:800; font-size:14px; color:var(--text-3);
+  }
+  .role-opt.on{ background:var(--g800); color:#fff; box-shadow:0 4px 14px rgba(20,53,31,.25); }
+
+  .field{ margin-top:14px; }
+  .field-head{ display:flex; align-items:center; justify-content:space-between; }
+  .link{ color:var(--g600); font-weight:700; font-size:13px; }
+  .link:hover{ text-decoration:underline; }
+  .input{
+    margin-top:8px; width:100%; height:52px; border-radius:12px;
+    background:#f1f5f9; border:1px solid transparent;
+    padding:0 16px; font-size:15px; color:var(--text);
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .input::placeholder{ color:#94a3b8; }
+  .input:focus{ outline:0; background:#fff; border-color:var(--g500); box-shadow:0 0 0 4px rgba(63,166,104,.15); }
+
+  .signin{
+    margin-top:22px; width:100%; height:56px; border-radius:14px;
+    background:var(--g800); color:#fff; font-weight:800; font-size:16px;
+    box-shadow:0 10px 24px rgba(20,53,31,.25);
+  }
+  .signin:hover{ background:var(--g700); }
+
+  .divider{ display:flex; align-items:center; gap:10px; margin:20px 0 16px; color:var(--text-4); font-size:12px; }
+  .divider::before, .divider::after{ content:""; flex:1; height:1px; background:var(--line); }
+
+  .google{
+    width:100%; height:54px; border-radius:14px; background:#fff; border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; gap:10px; font-weight:800; color:var(--text);
+  }
+  .google:hover{ background:#f8fafc; }
+  .g-ico{ width:20px; height:20px; }
+
+  .foot{ text-align:center; margin-top:16px; font-size:13.5px; color:var(--text-3); }
+  .foot a{ color:var(--g700); font-weight:800; }
+  .foot a:hover{ text-decoration:underline; }
+
+  .err{
+    display:none; margin-top:10px; padding:10px 12px; border-radius:10px;
+    background:#fee2e2; color:#b91c1c; font-size:13px; font-weight:700;
+  }
+  .err.show{ display:block; }
+
+  @media (min-width: 600px){
+    .splash-wrap, .login-wrap{ max-width:460px; }
+    .brand{ font-size:44px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SPLASH ============ -->
+<section id="splash">
+  <div class="splash-wrap">
+    <div class="logo-tile">♻️</div>
+    <div class="brand">Eco<em>Barangay</em></div>
+    <div class="tag">Your community's smart platform for waste collection monitoring and illegal dumping reporting.</div>
+
+    <div class="chips">
+      <div class="chip">📅 Schedules</div>
+      <div class="chip">🚨 Reports</div>
+      <div class="chip">📹 CCTV</div>
+      <div class="chip">📋 Compliance</div>
+      <div class="chip">🌿 Awareness</div>
+    </div>
+
+    <div class="splash-actions">
+      <button class="btn btn-primary" onclick="showLogin()">Get Started →</button>
+      <button class="btn btn-ghost" onclick="showLogin()">Sign In to Existing Account</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LOGIN ============ -->
+<section id="login">
+  <div class="login-wrap">
+    <div class="top-bar">
+      <button class="icon-btn" onclick="showSplash()" aria-label="Back">←</button>
+      <button class="skip" onclick="goApp()">Skip</button>
+    </div>
+
+    <h1 class="hi">Welcome back <span style="font-weight:400;">👋</span></h1>
+    <div class="sub">Sign in to your EcoBarangay account</div>
+
+    <div class="label">Login As</div>
+    <div class="role-toggle" role="tablist">
+      <button class="role-opt on" data-role="Resident" onclick="setRole('Resident')">🏠 Resident</button>
+      <button class="role-opt" data-role="Official" onclick="setRole('Official')">🏢 Official</button>
+    </div>
+
+    <form id="loginForm" onsubmit="handleSignIn(event)" novalidate>
+      <div class="field">
+        <div class="label" style="margin-top:0;">Email Address</div>
+        <input class="input" id="email" type="email" placeholder="juan@calatagan.com" autocomplete="email" required>
+      </div>
+
+      <div class="field">
+        <div class="field-head">
+          <div class="label" style="margin-top:0;">Password</div>
+          <a class="link" href="#" onclick="event.preventDefault(); alert('Password reset flow (prototype).')">Forgot?</a>
+        </div>
+        <input class="input" id="password" type="password" placeholder="••••••••" autocomplete="current-password" required>
+      </div>
+
+      <div class="err" id="err">Please enter a valid email and password.</div>
+
+      <button class="signin" type="submit">Sign In</button>
+    </form>
+
+    <div class="divider">or</div>
+
+    <button class="google" onclick="handleGoogle()">
+      <svg class="g-ico" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.9 32.4 29.4 35.5 24 35.5c-6.4 0-11.5-5.2-11.5-11.5S17.6 12.5 24 12.5c2.9 0 5.6 1.1 7.6 2.9l5.7-5.7C33.6 6.3 29.1 4.5 24 4.5 13.2 4.5 4.5 13.2 4.5 24S13.2 43.5 24 43.5 43.5 34.8 43.5 24c0-1.2-.1-2.4-.3-3.5z"/>
+        <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12.5 24 12.5c2.9 0 5.6 1.1 7.6 2.9l5.7-5.7C33.6 6.3 29.1 4.5 24 4.5 16.3 4.5 9.7 8.9 6.3 14.7z"/>
+        <path fill="#4CAF50" d="M24 43.5c5 0 9.5-1.7 13-4.6l-6-5.1c-2 1.4-4.4 2.2-7 2.2-5.4 0-10-3.4-11.6-8.2l-6.6 5.1C9.6 39.1 16.2 43.5 24 43.5z"/>
+        <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.6l6 5.1c-.4.4 6.5-4.7 6.5-14.7 0-1.2-.1-2.4-.4-3.5z"/>
+      </svg>
+      Continue with Google
+    </button>
+
+    <div class="foot">No account? <a href="#" onclick="event.preventDefault(); alert('Registration flow (prototype).')">Register</a></div>
+  </div>
+</section>
+
+<script>
+  function showLogin(){ document.getElementById('splash').style.display='none'; document.getElementById('login').style.display='block'; window.scrollTo(0,0); }
+  function showSplash(){ document.getElementById('login').style.display='none'; document.getElementById('splash').style.display='flex'; }
+  function setRole(r){
+    document.querySelectorAll('.role-opt').forEach(b=>{
+      b.classList.toggle('on', b.dataset.role===r);
+    });
+  }
+  function goApp(){ window.location.href = '/proto/ecobarangay.html'; }
+  function handleGoogle(){
+    // Prototype only
+    goApp();
+  }
+  function handleSignIn(e){
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const pass  = document.getElementById('password').value;
+    const err   = document.getElementById('err');
+    const okEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if(!okEmail || pass.length < 4){ err.classList.add('show'); return; }
+    err.classList.remove('show');
+    goApp();
+  }
+</script>
+</body>
+</html>
