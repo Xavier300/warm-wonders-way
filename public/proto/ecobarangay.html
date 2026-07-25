@@ -2498,12 +2498,19 @@ function saveUser() {
   };
   if (EDIT_USER_ID) {
     const u = USERS.find(x=>x.id===EDIT_USER_ID);
+    const oldName = u.name;
     Object.assign(u, data);
+    // Cascade rename into schedules so existing zones keep pointing at this collector
+    if (oldName !== data.name && typeof ZONES !== 'undefined') {
+      ZONES.forEach(z=>{ if (z.collector===oldName) z.collector = data.name; });
+    }
   } else {
     const now = new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'});
     USERS.unshift({id: Date.now(), joined: now, last: 'Just now', ...data});
   }
   closeUserModal(); renderUsers();
+  if (typeof renderZones==='function') renderZones();
+  if (typeof renderWeek==='function') { generateWeek(); renderWeek(); }
 }
 function exportUsersCSV() {
   const rows = [['Name','Email','Role','Zone','Joined','Last Active','Status']];
