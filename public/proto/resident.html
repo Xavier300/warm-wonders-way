@@ -895,9 +895,22 @@
   function submitCompliance(){
     const addr = document.getElementById('cf-addr').value.trim();
     const date = document.getElementById('cf-date').value;
+    const remarks = (document.getElementById('cf-remarks')?.value||'').trim();
     if(!addr){ toast('Please enter your address'); return; }
     if(!date){ toast('Please select the collection date'); return; }
     if(cfSelected.size === 0){ toast('Select at least one waste type'); return; }
+    try {
+      const auth = JSON.parse(localStorage.getItem('eb_auth')||'{}');
+      const list = JSON.parse(localStorage.getItem('eb_forms')||'[]');
+      const id = 'CF-' + Date.now().toString().slice(-6);
+      list.unshift({
+        id, name: auth.name || auth.email || 'Household',
+        reporter: auth.email || 'resident',
+        address: addr, date, waste: Array.from(cfSelected),
+        remarks, status: 'Pending', createdAt: Date.now()
+      });
+      localStorage.setItem('eb_forms', JSON.stringify(list));
+    } catch(_){}
     toast('Compliance form submitted ✓');
     setTimeout(showHome, 700);
   }
