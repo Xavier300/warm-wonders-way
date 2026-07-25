@@ -1,7 +1,42 @@
 // db.js — Supabase sync layer for the Official EcoBarangay HTML prototypes.
-// Loaded as an ES module by signin.html, resident.html, ecobarangay.html.
-// Mirrors DB rows into the localStorage keys the existing prototype code
-// already reads, and pushes local mutations back through window.EB.*.
+// Loaded as a plain script by signin.html, resident.html, ecobarangay.html.
+// Application data lives in Supabase. An in-memory shim intercepts the
+// legacy `eb_*` localStorage keys the prototype code was written against
+// so nothing user- or content-related is persisted to the browser — only
+// the Supabase auth session (`sb-eb-auth`) and UI prefs (`eb_settings`)
+// remain on disk.
+
+// ---------- in-memory shim for legacy eb_* keys ----------
+(function installEbStorageShim() {
+  const mem = new Map();
+  const PASSTHROUGH = new Set(['eb_settings']); // UI prefs stay on disk
+  const isEb = (k) => typeof k === 'string' && k.startsWith('eb_') && !PASSTHROUGH.has(k);
+
+  // Purge any pre-existing eb_* data written by earlier builds so nothing
+  // survives on the user's device.
+  try {
+    Object.keys(localStorage).forEach((k) => { if (isEb(k)) localStorage.removeItem(k); });
+  } catch (_) {}
+
+  const proto = Object.getPrototypeOf(localStorage);
+  const nativeGet = proto.getItem.bind(localStorage);
+  const nativeSet = proto.setItem.bind(localStorage);
+  const nativeRemove = proto.removeItem.bind(localStorage);
+
+  localStorage.getItem = function (k) {
+    if (isEb(k)) return mem.has(k) ? mem.get(k) : null;
+    return nativeGet(k);
+  };
+  localStorage.setItem = function (k, v) {
+    if (isEb(k)) { mem.set(k, String(v)); return; }
+    return nativeSet(k, v);
+  };
+  localStorage.removeItem = function (k) {
+    if (isEb(k)) { mem.delete(k); return; }
+    return nativeRemove(k);
+  };
+})();
+
 
 const { createClient } = window.supabase; // from supabase-js UMD
 
