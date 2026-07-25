@@ -2629,6 +2629,118 @@ function exportAnalyticsCSV(){
   URL.revokeObjectURL(a.href);
 }
 document.addEventListener('DOMContentLoaded', renderAnalytics);
+
+// ================= SYSTEM LOGS =================
+const LOG_ACTORS = ['Kap. Maria Santos','Juan Dela Cruz','Ana Reyes','Pedro Mendoza','Liza Gomez','Carlo Bautista','system'];
+const LOG_TEMPLATES = [
+  {lvl:'Info',    cat:'Auth',         act:'User signed in'},
+  {lvl:'Info',    cat:'Auth',         act:'User signed out'},
+  {lvl:'Warning', cat:'Auth',         act:'Failed login attempt'},
+  {lvl:'Error',   cat:'Auth',         act:'Account locked after 5 failed attempts'},
+  {lvl:'Info',    cat:'Report',       act:'Report #1027 approved'},
+  {lvl:'Info',    cat:'Report',       act:'Report #1024 rejected'},
+  {lvl:'Warning', cat:'Report',       act:'High severity report flagged'},
+  {lvl:'Info',    cat:'User',         act:'New user registered'},
+  {lvl:'Info',    cat:'User',         act:'User role updated to Collector'},
+  {lvl:'Warning', cat:'User',         act:'User suspended'},
+  {lvl:'Info',    cat:'Schedule',     act:'Zone A schedule updated'},
+  {lvl:'Info',    cat:'Announcement', act:'Announcement published'},
+  {lvl:'Info',    cat:'System',       act:'Automated backup completed'},
+  {lvl:'Warning', cat:'System',       act:'CCTV CAM-05 offline'},
+  {lvl:'Error',   cat:'System',       act:'Database write timeout'},
+];
+function randIP(){ return `192.168.${Math.floor(Math.random()*20)+1}.${Math.floor(Math.random()*250)+1}`; }
+function seedLogs(){
+  const out = []; const now = Date.now();
+  for (let i=0; i<48; i++){
+    const t = LOG_TEMPLATES[Math.floor(Math.random()*LOG_TEMPLATES.length)];
+    const actor = t.cat==='System' ? 'system' : LOG_ACTORS[Math.floor(Math.random()*(LOG_ACTORS.length-1))];
+    out.push({
+      id: now - i*60000 - Math.floor(Math.random()*30000),
+      ts: new Date(now - i*60000*Math.random()*90),
+      level: t.lvl, cat: t.cat, user: actor, action: t.act, ip: randIP(),
+    });
+  }
+  return out.sort((a,b)=>b.ts-a.ts);
+}
+let LOGS = seedLogs();
+let LOG_PAGE = 1;
+const LOG_PAGE_SIZE = 12;
+
+function logLevelBadge(l){
+  if (l==='Error')   return '<span class="badge rejected">Error</span>';
+  if (l==='Warning') return '<span class="badge pending">Warning</span>';
+  return '<span class="badge approved">Info</span>';
+}
+function logCatTag(c){
+  const colors = {Auth:'#93c5fd', User:'#86efac', Report:'#fca5a5', Schedule:'#fcd34d', Announcement:'#c4b5fd', System:'#94a3b8'};
+  return `<span class="ann-tag" style="font-size:10px; background:rgba(255,255,255,.06); color:${colors[c]||'#cbd5e1'};">${c}</span>`;
+}
+function fmtLogTime(d){
+  const diff = (Date.now()-d.getTime())/1000;
+  if (diff < 60) return `${Math.floor(diff)}s ago`;
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  return d.toLocaleDateString('en-US',{month:'short',day:'2-digit'}) + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+}
+function filteredLogs(){
+  const q = (document.getElementById('lf-search')?.value||'').toLowerCase();
+  const lvl = document.getElementById('lf-level')?.value||'';
+  const cat = document.getElementById('lf-cat')?.value||'';
+  return LOGS.filter(l =>
+    (!lvl || l.level===lvl) && (!cat || l.cat===cat) &&
+    (!q || l.user.toLowerCase().includes(q) || l.action.toLowerCase().includes(q) || l.ip.includes(q))
+  );
+}
+function renderLogs(){
+  document.getElementById('lk-total').textContent = LOGS.length;
+  const today = new Date(); today.setHours(0,0,0,0);
+  document.getElementById('lk-today').textContent = LOGS.filter(l => l.ts >= today).length;
+  document.getElementById('lk-warn').textContent = LOGS.filter(l => l.level==='Warning').length;
+  document.getElementById('lk-err').textContent  = LOGS.filter(l => l.level==='Error').length;
+
+  const list = filteredLogs();
+  const pages = Math.max(1, Math.ceil(list.length / LOG_PAGE_SIZE));
+  if (LOG_PAGE > pages) LOG_PAGE = pages;
+  const start = (LOG_PAGE-1)*LOG_PAGE_SIZE;
+  const page = list.slice(start, start+LOG_PAGE_SIZE);
+
+  const tbody = document.getElementById('logs-tbody'); if (!tbody) return;
+  tbody.innerHTML = page.length ? page.map(l => `
+    <tr>
+      <td style="font-size:11px; color:var(--muted); white-space:nowrap;">${fmtLogTime(l.ts)}</td>
+      <td>${logLevelBadge(l.level)}</td>
+      <td>${logCatTag(l.cat)}</td>
+      <td style="font-weight:700;">${l.user}</td>
+      <td>${l.action}</td>
+      <td style="font-family:ui-monospace,monospace; font-size:11px; color:var(--muted);">${l.ip}</td>
+      <td><button class="a-btn red" onclick="deleteLog(${l.id})">✗</button></td>
+    </tr>`).join('') : `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--muted);">No logs match your filters.</td></tr>`;
+
+  document.getElementById('logs-count').textContent =
+    list.length ? `Showing ${start+1}–${start+page.length} of ${list.length} events` : 'No events';
+
+  const pager = document.getElementById('logs-pager');
+  let html = `<button class="a-btn" onclick="pageLogs(${LOG_PAGE-1})" ${LOG_PAGE<=1?'disabled':''}>‹ Prev</button>`;
+  for (let i=1;i<=pages;i++) html += `<button class="a-btn ${i===LOG_PAGE?'blue':''}" onclick="pageLogs(${i})">${i}</button>`;
+  html += `<button class="a-btn" onclick="pageLogs(${LOG_PAGE+1})" ${LOG_PAGE>=pages?'disabled':''}>Next ›</button>`;
+  pager.innerHTML = html;
+}
+function pageLogs(p){ LOG_PAGE = p; renderLogs(); }
+function deleteLog(id){ LOGS = LOGS.filter(l => l.id !== id); renderLogs(); }
+function clearLogs(){
+  if (!confirm('Clear ALL system log entries? This cannot be undone.')) return;
+  LOGS = []; renderLogs();
+}
+function exportLogsCSV(){
+  const rows = [['Timestamp','Level','Category','User','Action','IP']];
+  filteredLogs().forEach(l => rows.push([l.ts.toISOString(), l.level, l.cat, l.user, l.action, l.ip]));
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'system-logs.csv'; a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.addEventListener('DOMContentLoaded', renderLogs);
 </script>
 </body>
 </html>
