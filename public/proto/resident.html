@@ -309,22 +309,22 @@
 
   <!-- SCHEDULE SCREEN -->
   <section class="screen" id="scr-sched">
-    <div class="scr-head">
-      <button class="back" onclick="showHome()">← Back</button>
-      <div>
-        <h2>My Schedule</h2>
-        <p id="sched-zone-label">Zone 1 · This week's pickups</p>
-      </div>
+    <div class="sched-top">
+      <button class="ic-btn" onclick="showHome()" aria-label="Back">←</button>
+      <h2>Collection Schedule</h2>
+      <button class="ic-btn" onclick="cycleZone()" aria-label="Switch zone">🔍</button>
     </div>
     <div class="zone-pick" id="zone-pick"></div>
-    <div class="sched-legend">
-      <span class="w w-bio">🌿 Bio</span>
-      <span class="w w-rec">♻️ Recyc</span>
-      <span class="w w-res">🗑️ Resid</span>
-      <span class="w w-spec">☣️ Spec</span>
+    <div class="cal">
+      <div class="cal-dows">
+        <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
     </div>
-    <div class="day-list" id="day-list"></div>
+    <div class="upc-head">UPCOMING COLLECTIONS</div>
+    <div class="upc-list" id="upc-list"></div>
   </section>
+
 
   <!-- REPORT SCREEN -->
   <section class="screen" id="scr-report">
