@@ -2188,6 +2188,90 @@ function toggleWT(el) {
   else        { check.textContent = ''; }
 }
 
+// ================= ANNOUNCEMENTS =================
+let ANNOUNCEMENTS = [
+  {id:1, title:'Barangay Clean-Up Drive', type:'✅ Notice', msg:'Join us this Saturday for community cleanup.', date:'May 11', reach:342, status:'Published'},
+  {id:2, title:'Proper Segregation Week', type:'⚠️ Warning', msg:'Enforcement of proper segregation starts this week.', date:'May 11', reach:342, status:'Published'},
+  {id:3, title:'New Routes – Zone B & C', type:'📌 Info', msg:'Updated collection routes take effect May 20.', date:'May 10', reach:156, status:'Scheduled'},
+];
+let ANN_EDIT_ID = null;
+
+function typeTag(t) {
+  if (t.startsWith('⚠️')) return `<span class="ann-tag warn" style="font-size:10px;">${t}</span>`;
+  if (t.startsWith('📌')) return `<span class="ann-tag info" style="font-size:10px;">${t}</span>`;
+  return `<span class="ann-tag success" style="font-size:10px;">${t}</span>`;
+}
+function annStatusBadge(s) {
+  if (s==='Scheduled') return '<span class="badge review">Scheduled</span>';
+  if (s==='Draft') return '<span class="badge pending">Draft</span>';
+  return '<span class="badge approved">Published</span>';
+}
+function renderAnn() {
+  const tbody = document.getElementById('ann-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = ANNOUNCEMENTS.length ? ANNOUNCEMENTS.map(a => `
+    <tr>
+      <td style="font-weight:700;">${a.title}</td>
+      <td>${typeTag(a.type)}</td>
+      <td>${a.date}</td>
+      <td>${a.reach} residents</td>
+      <td>${annStatusBadge(a.status)}</td>
+      <td>
+        <button class="a-btn blue" onclick="editAnn(${a.id})">Edit</button>
+        ${a.status==='Scheduled' ? `<button class="a-btn green" onclick="publishAnn(${a.id})">Publish</button>` : ''}
+        <button class="a-btn red" onclick="deleteAnn(${a.id})">Delete</button>
+      </td>
+    </tr>`).join('') : `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--muted);">No announcements yet.</td></tr>`;
+}
+function submitAnn() {
+  const title = document.getElementById('ann-title').value.trim();
+  const type = document.getElementById('ann-type').value;
+  const msg = document.getElementById('ann-msg').value.trim();
+  const sched = document.getElementById('ann-sched').value.trim();
+  if (!title || !msg) { alert('Title and message are required.'); return; }
+  const date = new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit'});
+  const status = sched ? 'Scheduled' : 'Published';
+  if (ANN_EDIT_ID) {
+    const a = ANNOUNCEMENTS.find(x=>x.id===ANN_EDIT_ID);
+    Object.assign(a, {title, type, msg, status, date: sched || a.date});
+  } else {
+    ANNOUNCEMENTS.unshift({id: Date.now(), title, type, msg, date: sched || date, reach: 342, status});
+  }
+  cancelAnn(); renderAnn();
+}
+function editAnn(id) {
+  const a = ANNOUNCEMENTS.find(x=>x.id===id); if (!a) return;
+  ANN_EDIT_ID = id;
+  document.getElementById('ann-form-title').textContent = 'Edit Announcement';
+  document.getElementById('ann-title').value = a.title;
+  document.getElementById('ann-type').value = a.type;
+  document.getElementById('ann-msg').value = a.msg;
+  document.getElementById('ann-sched').value = a.status==='Scheduled' ? a.date : '';
+  document.getElementById('ann-submit').textContent = 'Update';
+  document.getElementById('ann-cancel').style.display = 'inline-block';
+  document.getElementById('ann-title').scrollIntoView({behavior:'smooth', block:'center'});
+}
+function cancelAnn() {
+  ANN_EDIT_ID = null;
+  document.getElementById('ann-form-title').textContent = 'Post New Announcement';
+  document.getElementById('ann-title').value = '';
+  document.getElementById('ann-msg').value = '';
+  document.getElementById('ann-sched').value = '';
+  document.getElementById('ann-submit').textContent = 'Publish';
+  document.getElementById('ann-cancel').style.display = 'none';
+}
+function publishAnn(id) {
+  const a = ANNOUNCEMENTS.find(x=>x.id===id); if (!a) return;
+  a.status = 'Published'; renderAnn();
+}
+function deleteAnn(id) {
+  const a = ANNOUNCEMENTS.find(x=>x.id===id); if (!a) return;
+  if (!confirm(`Delete "${a.title}"?`)) return;
+  ANNOUNCEMENTS = ANNOUNCEMENTS.filter(x=>x.id!==id); renderAnn();
+}
+function clearAnnFilter() { renderAnn(); }
+document.addEventListener('DOMContentLoaded', renderAnn);
+
 // ================= USER MANAGEMENT =================
 let USERS = [
   {id:1, name:'Maria Santos', email:'maria.santos@email.com', role:'Resident', zone:'Zone 2', joined:'Jan 12, 2026', last:'2h ago', status:'Active'},
