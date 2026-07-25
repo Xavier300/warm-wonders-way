@@ -144,6 +144,7 @@
     .brand{ font-size:44px; }
   }
 </style>
+<script type="module" src="./db.js"></script>
 </head>
 <body>
 
@@ -319,56 +320,86 @@
     }
   }
 
-  function saveSession(role, email){
-    try {
-      localStorage.setItem('eb_auth', JSON.stringify({ role, email, at: Date.now() }));
-    } catch(_) {}
+  function routeByDbRole(dbRole){
+    if(dbRole && dbRole !== 'resident') window.location.href = '/proto/ecobarangay.html';
+    else window.location.href = '/proto/resident.html';
   }
-  function routeByRole(role){
-    if(role === 'Official'){
-      window.location.href = '/proto/ecobarangay.html';
-    } else {
-      window.location.href = '/proto/resident.html';
+  function waitForEB(){
+    return new Promise(res => {
+      if(window.EB && window.EB.state.ready) return res();
+      document.addEventListener('eb:ready', () => res(), { once:true });
+    });
+  }
+  // If someone lands on signin while already authenticated, bounce them to the right app.
+  waitForEB().then(() => {
+    if(window.EB && window.EB.state.session){
+      routeByDbRole(window.EB.state.role);
     }
-  }
+  });
 
-  function handleGoogle(){
-    saveSession(CURRENT_ROLE, 'google-user@ecobarangay.app');
-    routeByRole(CURRENT_ROLE);
+  async function handleGoogle(){
+    try { await window.EB.signInWithGoogle(); }
+    catch(err){ const e=document.getElementById('err'); e.textContent = err.message || 'Google sign-in failed.'; e.classList.add('show'); }
   }
-  function handleSignIn(e){
+  async function handleSignIn(e){
     e.preventDefault();
     const email = document.getElementById('email').value.trim();
     const pass  = document.getElementById('password').value;
     const err   = document.getElementById('err');
-    const okEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if(!okEmail || pass.length < 4){ err.classList.add('show'); return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || pass.length < 6){
+      err.textContent = 'Please enter a valid email and password (≥ 6 chars).';
+      err.classList.add('show'); return;
+    }
     err.classList.remove('show');
-    saveSession(CURRENT_ROLE, email);
-    routeByRole(CURRENT_ROLE);
+    try {
+      await waitForEB();
+      await window.EB.signIn(email, pass);
+      const dbRole = window.EB.state.role;
+      if(CURRENT_ROLE === 'Official' && dbRole === 'resident'){
+        err.textContent = 'This account is a Resident. Switch the toggle to Resident.'; err.classList.add('show'); return;
+      }
+      if(CURRENT_ROLE === 'Resident' && dbRole !== 'resident'){
+        err.textContent = 'This account is an Official. Switch the toggle to Official.'; err.classList.add('show'); return;
+      }
+      routeByDbRole(dbRole);
+    } catch(ex){
+      err.textContent = ex.message || 'Sign in failed.'; err.classList.add('show');
+    }
   }
-  function handleRegister(e){
+  async function handleRegister(e){
     e.preventDefault();
     const name  = document.getElementById('r_name').value.trim();
     const email = document.getElementById('r_email').value.trim();
     const phone = document.getElementById('r_phone').value.trim();
-    const zone  = document.getElementById('r_zone').value.trim();
-    const p1    = document.getElementById('r_password').value;
-    const p2    = document.getElementById('r_password2').value;
-    const err   = document.getElementById('r_err');
-    const okEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if(!name || !okEmail || phone.length < 7 || !zone || p1.length < 6 || p1 !== p2){
-      err.textContent = p1 !== p2
-        ? 'Passwords do not match.'
-        : 'Please complete all fields correctly (password ≥ 6 chars).';
-      err.classList.add('show');
-      return;
+    const zoneOrPos = document.getElementById('r_zone').value.trim();
+    const p1 = document.getElementById('r_password').value;
+    const p2 = document.getElementById('r_password2').value;
+    const err = document.getElementById('r_err');
+    if(!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || phone.length < 7 || !zoneOrPos || p1.length < 6 || p1 !== p2){
+      err.textContent = p1 !== p2 ? 'Passwords do not match.' : 'Please complete all fields correctly (password ≥ 6 chars).';
+      err.classList.add('show'); return;
     }
     err.classList.remove('show');
-    const roleLabel = CURRENT_REG_ROLE === 'Official' ? 'Official' : 'Resident';
-    alert(roleLabel + ' account created (prototype). Signing you in…');
-    saveSession(CURRENT_REG_ROLE, email);
-    routeByRole(CURRENT_REG_ROLE);
+    try {
+      await waitForEB();
+      const isOfficial = CURRENT_REG_ROLE === 'Official';
+      await window.EB.signUp({
+        email, password: p1, full_name: name, phone,
+        zone: isOfficial ? '' : zoneOrPos,
+        position: isOfficial ? zoneOrPos : '',
+        role: isOfficial ? 'staff' : 'resident',
+      });
+      if(!window.EB.state.session){
+        err.textContent = 'Account created. Check your email to confirm, then sign in.';
+        err.style.background = '#dcfce7'; err.style.color = '#166534';
+        err.classList.add('show');
+        setTimeout(showLogin, 1200);
+        return;
+      }
+      routeByDbRole(window.EB.state.role);
+    } catch(ex){
+      err.textContent = ex.message || 'Registration failed.'; err.classList.add('show');
+    }
   }
 </script>
 </body>
