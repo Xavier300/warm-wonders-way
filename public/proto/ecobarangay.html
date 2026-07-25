@@ -1641,13 +1641,75 @@ body {
   max-width: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+  position: relative;
+}
+
+/* ===== Responsive: tablet & mobile ===== */
+.a-menu-btn {
+  display: none;
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer;
+  margin-right: 8px;
+}
+.a-sidebar-backdrop {
+  display: none;
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 40;
+}
+.a-sidebar-backdrop.show { display: block; }
+
+/* Tablet (≤1024px): compact sidebar + smaller paddings */
+@media (max-width: 1024px) {
+  .a-sidebar { width: 180px; }
+  .a-search { width: 140px; }
+  .a-body { padding: 14px 14px; }
+  .a-stats { grid-template-columns: repeat(2, 1fr) !important; }
+  .a-topbar { padding: 0 14px; }
+}
+
+/* Mobile (≤768px): drawer sidebar */
+@media (max-width: 768px) {
+  .a-menu-btn { display: inline-flex; }
+  .a-sidebar {
+    position: absolute; top: 0; left: 0; bottom: 0;
+    width: 240px; z-index: 50;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    box-shadow: 4px 0 20px rgba(0,0,0,.3);
+  }
+  .a-sidebar.open { transform: translateX(0); }
+  .a-content { width: 100%; }
+  .a-topbar { padding: 0 10px; height: 52px; }
+  .a-page-title { font-size: 14px; }
+  .a-search { display: none; }
+  .a-body { padding: 12px 10px; }
+  .a-stats { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; }
+  /* Horizontal scroll for wide tables/rows */
+  .a-body table { min-width: 640px; }
+  .a-body .a-card { overflow-x: auto; }
+  /* Filter rows wrap */
+  .a-body [style*="display:flex"][style*="gap"] { flex-wrap: wrap; }
+}
+
+/* Small phones (≤480px): single-column stats */
+@media (max-width: 480px) {
+  .a-stats { grid-template-columns: 1fr !important; }
+  .a-topbar-right .a-icon-btn { width: 32px; height: 32px; font-size: 14px; }
 }
 </style>
 
+
     <div class="admin-wrap">
 
+      <div class="a-sidebar-backdrop" id="a-sb-backdrop" onclick="toggleSidebar(false)"></div>
+
       <!-- Sidebar -->
-      <nav class="a-sidebar">
+      <nav class="a-sidebar" id="a-sidebar">
         <div class="a-sidebar-logo">
           <div class="a-logo-icon">♻️</div>
           <div><div class="a-logo-name">EcoBarangay</div><div class="a-logo-sub">Admin Console</div></div>
@@ -1675,7 +1737,10 @@ body {
       <!-- Content area -->
       <div class="a-content">
         <div class="a-topbar">
-          <div class="a-page-title" id="a-page-title">Dashboard Overview</div>
+          <div style="display:flex; align-items:center; min-width:0; flex:1;">
+            <button class="a-menu-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+            <div class="a-page-title" id="a-page-title" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Dashboard Overview</div>
+          </div>
           <div class="a-topbar-right">
             <input class="a-search" placeholder="🔍  Search reports, users...">
             <div class="a-icon-btn">🔔</div>
@@ -2231,6 +2296,16 @@ function gotoAdmin(id) {
   const titleEl = document.getElementById('a-page-title');
   if (titleEl) titleEl.textContent = ADMIN_TITLES[id] || id;
   if (id === 'a-schedule' && typeof syncSchedules === 'function') syncSchedules();
+  if (window.innerWidth <= 768) toggleSidebar(false);
+}
+
+function toggleSidebar(force){
+  const sb = document.getElementById('a-sidebar');
+  const bd = document.getElementById('a-sb-backdrop');
+  if(!sb) return;
+  const open = typeof force === 'boolean' ? force : !sb.classList.contains('open');
+  sb.classList.toggle('open', open);
+  bd?.classList.toggle('show', open);
 }
 
 // Login role toggle
