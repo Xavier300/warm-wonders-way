@@ -153,67 +153,113 @@
     <div class="next-tag">Bio</div>
   </div>
 
-  <!-- Quick actions -->
-  <div class="section"><h3>Quick actions</h3></div>
-  <div class="tiles">
-    <button class="tile" onclick="notImpl('Report Illegal Dumping')">
-      <div class="tile-ic">🚨</div>
-      <div class="tile-title">Report Dumping</div>
-      <div class="tile-sub">Photo + location</div>
-    </button>
-    <button class="tile" onclick="notImpl('My Schedule')">
-      <div class="tile-ic">📅</div>
-      <div class="tile-title">My Schedule</div>
-      <div class="tile-sub">This week's pickups</div>
-    </button>
-    <button class="tile" onclick="notImpl('Compliance Form')">
-      <div class="tile-ic">📋</div>
-      <div class="tile-title">Compliance</div>
-      <div class="tile-sub">Submit form</div>
-    </button>
-    <button class="tile" onclick="notImpl('CCTV View')">
-      <div class="tile-ic">📹</div>
-      <div class="tile-title">CCTV</div>
-      <div class="tile-sub">Nearby cameras</div>
-    </button>
-  </div>
-
-  <!-- Guide -->
-  <div class="section"><h3>Segregation guide</h3></div>
-  <div class="guide">
-    <div class="guide-title">Segregate before pickup</div>
-    <div class="guide-sub">Please separate by waste type. Improper segregation may be refused.</div>
-    <div class="waste">
-      <span class="w w-bio">🌿 Biodegradable</span>
-      <span class="w w-rec">♻️ Recyclable</span>
-      <span class="w w-res">🗑️ Residual</span>
-      <span class="w w-spec">☣️ Special</span>
-    </div>
-  </div>
-
-  <!-- Announcements -->
-  <div class="section"><h3>Announcements</h3></div>
-  <div class="ann">
-    <div class="ann-item">
-      <div class="ann-head">
-        <div class="ann-title">📢 Zone 1 collection moved</div>
-        <div class="ann-when">2h ago</div>
+<body>
+<div class="shell">
+  <!-- HOME SCREEN -->
+  <section class="screen on" id="scr-home">
+    <section class="hero">
+      <div class="hero-top">
+        <div class="brand">
+          <div class="brand-logo">♻️</div>
+          <div>EcoBarangay</div>
+        </div>
+        <button class="signout" onclick="signOut()">Sign out</button>
       </div>
-      <div class="ann-body">Due to road works, Wednesday pickup will be moved to Thursday, 6:00 AM. Please segregate bio waste for pickup.</div>
-    </div>
-    <div class="ann-item">
-      <div class="ann-head">
-        <div class="ann-title">🌿 Composting workshop</div>
-        <div class="ann-when">Yesterday</div>
+      <div class="greeting">
+        Hello, <span id="uname">Resident</span> 👋
+        <small id="uemail">Welcome back to your EcoBarangay portal</small>
       </div>
-      <div class="ann-body">Free composting workshop at the barangay hall this Saturday, 9 AM. Bring your own container.</div>
+      <div class="role-pill">🏠 Resident account</div>
+    </section>
+
+    <div class="next">
+      <div class="next-ic">🗓️</div>
+      <div style="flex:1;min-width:0">
+        <div class="next-title">Next Collection</div>
+        <div class="next-body" id="next-body">Tomorrow · 6:00 AM – 9:00 AM</div>
+        <div class="next-sub" id="next-sub">Zone 1 · Biodegradable</div>
+      </div>
+      <div class="next-tag" id="next-tag">Bio</div>
     </div>
-  </div>
+
+    <div class="section"><h3>Quick actions</h3></div>
+    <div class="tiles">
+      <button class="tile" onclick="notImpl('Report Illegal Dumping')">
+        <div class="tile-ic">🚨</div>
+        <div class="tile-title">Report Dumping</div>
+        <div class="tile-sub">Photo + location</div>
+      </button>
+      <button class="tile" onclick="showSchedule()">
+        <div class="tile-ic">📅</div>
+        <div class="tile-title">My Schedule</div>
+        <div class="tile-sub">This week's pickups</div>
+      </button>
+      <button class="tile" onclick="notImpl('Compliance Form')">
+        <div class="tile-ic">📋</div>
+        <div class="tile-title">Compliance</div>
+        <div class="tile-sub">Submit form</div>
+      </button>
+      <button class="tile" onclick="notImpl('CCTV View')">
+        <div class="tile-ic">📹</div>
+        <div class="tile-title">CCTV</div>
+        <div class="tile-sub">Nearby cameras</div>
+      </button>
+    </div>
+
+    <div class="section"><h3>Segregation guide</h3></div>
+    <div class="guide">
+      <div class="guide-title">Segregate before pickup</div>
+      <div class="guide-sub">Please separate by waste type. Improper segregation may be refused.</div>
+      <div class="waste">
+        <span class="w w-bio">🌿 Biodegradable</span>
+        <span class="w w-rec">♻️ Recyclable</span>
+        <span class="w w-res">🗑️ Residual</span>
+        <span class="w w-spec">☣️ Special</span>
+      </div>
+    </div>
+
+    <div class="section"><h3>Announcements</h3></div>
+    <div class="ann">
+      <div class="ann-item">
+        <div class="ann-head">
+          <div class="ann-title">📢 Zone 1 collection moved</div>
+          <div class="ann-when">2h ago</div>
+        </div>
+        <div class="ann-body">Due to road works, Wednesday pickup will be moved to Thursday, 6:00 AM. Please segregate bio waste for pickup.</div>
+      </div>
+      <div class="ann-item">
+        <div class="ann-head">
+          <div class="ann-title">🌿 Composting workshop</div>
+          <div class="ann-when">Yesterday</div>
+        </div>
+        <div class="ann-body">Free composting workshop at the barangay hall this Saturday, 9 AM. Bring your own container.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCHEDULE SCREEN -->
+  <section class="screen" id="scr-sched">
+    <div class="scr-head">
+      <button class="back" onclick="showHome()">← Back</button>
+      <div>
+        <h2>My Schedule</h2>
+        <p id="sched-zone-label">Zone 1 · This week's pickups</p>
+      </div>
+    </div>
+    <div class="zone-pick" id="zone-pick"></div>
+    <div class="sched-legend">
+      <span class="w w-bio">🌿 Bio</span>
+      <span class="w w-rec">♻️ Recyc</span>
+      <span class="w w-res">🗑️ Resid</span>
+      <span class="w w-spec">☣️ Spec</span>
+    </div>
+    <div class="day-list" id="day-list"></div>
+  </section>
 
   <!-- Tab bar -->
   <nav class="tabbar">
-    <button class="tab on"><span class="ic">🏠</span>Home</button>
-    <button class="tab" onclick="notImpl('Schedule')"><span class="ic">📅</span>Schedule</button>
+    <button class="tab on" id="tab-home" onclick="showHome()"><span class="ic">🏠</span>Home</button>
+    <button class="tab" id="tab-sched" onclick="showSchedule()"><span class="ic">📅</span>Schedule</button>
     <button class="tab" onclick="notImpl('Report')"><span class="ic">🚨</span>Report</button>
     <button class="tab" onclick="notImpl('Rewards')"><span class="ic">🎁</span>Rewards</button>
     <button class="tab" onclick="notImpl('Profile')"><span class="ic">👤</span>Profile</button>
@@ -221,6 +267,105 @@
 </div>
 
 <script>
+  // ---- Schedule data (mirrors the admin prototype's zones) ----
+  const ZONES = [
+    { id:'Z1', name:'Zone 1', collector:'Juan Dela Cruz',
+      days:{ Mon:'Bio', Tue:'Recyc', Wed:'Bio', Thu:'Resid', Fri:'Bio', Sat:'Spec', Sun:null },
+      time:'6:00 AM – 9:00 AM' },
+    { id:'Z2', name:'Zone 2', collector:'Maria Santos',
+      days:{ Mon:'Recyc', Tue:'Bio', Wed:'Resid', Thu:'Bio', Fri:'Recyc', Sat:null, Sun:'Bio' },
+      time:'7:00 AM – 10:00 AM' },
+    { id:'Z3', name:'Zone 3', collector:'Pedro Reyes',
+      days:{ Mon:'Bio', Tue:'Resid', Wed:'Recyc', Thu:'Bio', Fri:'Spec', Sat:'Bio', Sun:null },
+      time:'6:30 AM – 9:30 AM' },
+    { id:'Z4', name:'Zone 4', collector:'Ana Lopez',
+      days:{ Mon:'Resid', Tue:'Bio', Wed:'Recyc', Thu:'Spec', Fri:'Bio', Sat:'Recyc', Sun:null },
+      time:'6:00 AM – 9:00 AM' },
+  ];
+  const WASTE_LABEL = { Bio:'Biodegradable', Recyc:'Recyclable', Resid:'Residual', Spec:'Special' };
+  const WASTE_ICON  = { Bio:'🌿', Recyc:'♻️', Resid:'🗑️', Spec:'☣️' };
+  const WASTE_CLASS = { Bio:'w-bio', Recyc:'w-rec', Resid:'w-res', Spec:'w-spec' };
+  const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  let activeZone = 'Z1';
+
+  function getResidentZone(){
+    try { const s = JSON.parse(localStorage.getItem('eb_auth')||'{}'); return s.zone || 'Z1'; }
+    catch(_) { return 'Z1'; }
+  }
+
+  function renderZonePicker(){
+    const wrap = document.getElementById('zone-pick');
+    wrap.innerHTML = ZONES.map(z =>
+      `<button class="${z.id===activeZone?'on':''}" onclick="pickZone('${z.id}')">${z.name}</button>`
+    ).join('');
+  }
+  function pickZone(id){ activeZone = id; renderZonePicker(); renderDays(); updateNextCard(); }
+
+  function renderDays(){
+    const zone = ZONES.find(z => z.id === activeZone) || ZONES[0];
+    document.getElementById('sched-zone-label').textContent =
+      `${zone.name} · Collector: ${zone.collector} · ${zone.time}`;
+
+    const today = new Date();
+    const todayIdx = today.getDay(); // 0=Sun
+    // start from Monday of current week
+    const monOffset = todayIdx === 0 ? -6 : 1 - todayIdx;
+    const start = new Date(today); start.setDate(today.getDate() + monOffset);
+
+    const order = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const rows = order.map((dow, i) => {
+      const d = new Date(start); d.setDate(start.getDate() + i);
+      const isToday = d.toDateString() === today.toDateString();
+      const type = zone.days[dow];
+      const badge = type
+        ? `<span class="day-badge">${WASTE_ICON[type]} ${type}</span>`
+        : `<span class="day-badge rest">Rest day</span>`;
+      const info = type
+        ? `<div class="day-title">${WASTE_ICON[type]} ${WASTE_LABEL[type]} pickup</div>
+           <div class="day-sub">${zone.time} · ${zone.collector}</div>
+           ${isToday?'<span class="today-tag">● TODAY</span>':''}`
+        : `<div class="day-title" style="color:#94a3b8">No collection</div>
+           <div class="day-sub">Rest day for ${zone.name}</div>`;
+      return `<div class="day ${isToday?'today':''}">
+        <div class="day-dt">
+          <div class="day-dow">${dow}</div>
+          <div class="day-num">${d.getDate()}</div>
+        </div>
+        <div class="day-info">${info}</div>
+        ${badge}
+      </div>`;
+    }).join('');
+    document.getElementById('day-list').innerHTML = rows;
+  }
+
+  function updateNextCard(){
+    const zone = ZONES.find(z => z.id === activeZone) || ZONES[0];
+    const today = new Date();
+    const order = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    for(let i=1; i<=7; i++){
+      const d = new Date(today); d.setDate(today.getDate() + i);
+      const dow = order[d.getDay()];
+      const type = zone.days[dow];
+      if(type){
+        const label = i===1 ? 'Tomorrow' : d.toLocaleDateString(undefined,{weekday:'long'});
+        document.getElementById('next-body').textContent = `${label} · ${zone.time}`;
+        document.getElementById('next-sub').textContent  = `${zone.name} · ${WASTE_LABEL[type]}`;
+        document.getElementById('next-tag').textContent  = type;
+        return;
+      }
+    }
+  }
+
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id===id));
+    document.getElementById('tab-home').classList.toggle('on', id==='scr-home');
+    document.getElementById('tab-sched').classList.toggle('on', id==='scr-sched');
+    window.scrollTo(0,0);
+  }
+  function showHome(){ showScreen('scr-home'); }
+  function showSchedule(){ renderZonePicker(); renderDays(); showScreen('scr-sched'); }
+
   (function initSession(){
     try {
       const raw = localStorage.getItem('eb_auth');
@@ -232,6 +377,8 @@
                      .replace(/\b\w/g, c => c.toUpperCase());
       document.getElementById('uname').textContent  = name;
       document.getElementById('uemail').textContent = email;
+      activeZone = getResidentZone();
+      updateNextCard();
     } catch(_){
       window.location.replace('/proto/signin.html');
     }
