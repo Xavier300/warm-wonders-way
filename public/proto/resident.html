@@ -601,35 +601,103 @@
     const zone = ZONES.find(z => z.id === activeZone) || ZONES[0];
     const today = new Date();
     const order = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    for(let i=1; i<=7; i++){
+    for(let i=0; i<=7; i++){
       const d = new Date(today); d.setDate(today.getDate() + i);
       const dow = order[d.getDay()];
       const type = zone.days[dow];
       if(type){
-        const label = i===1 ? 'Tomorrow' : d.toLocaleDateString(undefined,{weekday:'long'});
-        document.getElementById('next-body').textContent = `${label} · ${zone.time}`;
-        document.getElementById('next-sub').textContent  = `${zone.name} · ${WASTE_LABEL[type]}`;
-        document.getElementById('next-tag').textContent  = type;
+        const dateStr = d.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric', year:'numeric'});
+        const dEl = document.getElementById('next2-date');
+        const tEl = document.getElementById('next2-time');
+        const pEl = document.getElementById('next2-pills');
+        if(dEl) dEl.textContent = dateStr;
+        if(tEl) tEl.textContent = `${zone.time} · ${zone.name}`;
+        if(pEl){
+          const cls = {Bio:'np-bio',Recyc:'np-rec',Resid:'np-res',Spec:'np-spec'}[type] || 'np-bio';
+          pEl.innerHTML = `<span class="np ${cls}">${WASTE_ICON[type]} ${WASTE_LABEL[type]}</span>`;
+        }
         return;
       }
     }
   }
 
+  function renderRecent(){
+    const list = (typeof loadReports === 'function' ? loadReports() : []).slice(0,3);
+    const el = document.getElementById('recent-list');
+    if(!el) return;
+    if(list.length === 0){
+      el.innerHTML = `<div class="empty" style="padding:12px 0">No reports yet — tap Report to submit one.</div>`;
+      return;
+    }
+    const colors = ['g','b','o'];
+    const statusMap = {Pending:'rs-pending','Under Review':'rs-review',Approved:'rs-approved',Rejected:'rs-rejected'};
+    el.innerHTML = list.map((r,i)=>{
+      const st = r.status || 'Pending';
+      const stCls = statusMap[st] || 'rs-pending';
+      const when = r.when ? new Date(r.when).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '';
+      const ic = { Bio:'🗑️', Recyc:'♻️', Resid:'🗑️', Spec:'☣️' }[r.waste] || '📷';
+      return `<div class="rr-card">
+        <div class="rr-ic ${colors[i%3]}">${ic}</div>
+        <div class="rr-body">
+          <div class="rr-title">${r.title || 'Illegal Dumping Report'}</div>
+          <div class="rr-sub">📍 ${r.location || 'Unknown'} · ${when}</div>
+          <span class="rr-status ${stCls}">${st==='Approved'?'✅ ':''}${st}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function updateGreeting(){
+    const h = new Date().getHours();
+    const g = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+    const el = document.getElementById('greet-word');
+    if(el) el.textContent = g;
+  }
+
   function showScreen(id){
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id===id));
-    ['home','sched','report','rewards','eco','profile'].forEach(k => {
+    ['home','sched','report','alerts','eco','profile'].forEach(k => {
       const el = document.getElementById('tab-'+k);
       if(el) el.classList.toggle('on', id==='scr-'+k);
     });
     window.scrollTo(0,0);
   }
-  function showHome(){ showScreen('scr-home'); }
+  function showHome(){ updateGreeting(); updateNextCard(); renderRecent(); showScreen('scr-home'); }
   function showSchedule(){ renderZonePicker(); renderDays(); showScreen('scr-sched'); }
   function showReport(){ renderReportPickers(); renderMyReports(); showScreen('scr-report'); }
   function showRewards(){ renderRewards(); showScreen('scr-rewards'); }
-  function showEco(){ renderEco(); showScreen('scr-eco'); }
+  function showAlerts(){ renderAlerts(); showScreen('scr-alerts'); const b=document.getElementById('bell-badge'); if(b) b.classList.add('hide'); }
+  function showEco(){
+    // Reveal the hidden Eco tab the first time the user opens Eco Awareness
+    const tab = document.getElementById('tab-eco');
+    const bar = document.getElementById('tabbar');
+    if(tab && tab.classList.contains('hidden')){
+      tab.classList.remove('hidden');
+      if(bar) bar.classList.add('has-eco');
+    }
+    renderEco(); showScreen('scr-eco');
+  }
   function showProfile(){ renderProfile(); showScreen('scr-profile'); }
   function showCompliance(){ renderCompliance(); showScreen('scr-comp'); }
+
+  // ---------- ALERTS ----------
+  const ALERTS = [
+    { icon:'📢', title:'Zone 1 collection moved', when:'2h ago', body:'Due to road works, Wednesday pickup will be moved to Thursday, 6:00 AM. Please segregate bio waste for pickup.' },
+    { icon:'🌿', title:'Composting workshop', when:'Yesterday', body:'Free composting workshop at the barangay hall this Saturday, 9 AM. Bring your own container.' },
+    { icon:'✅', title:'Report approved', when:'2 days ago', body:'Your report on Rizal St. has been approved by the barangay official. Thank you!' },
+  ];
+  function renderAlerts(){
+    const el = document.getElementById('alerts-list');
+    if(!el) return;
+    el.innerHTML = ALERTS.map(a=>`
+      <div class="ann-item">
+        <div class="ann-head">
+          <div class="ann-title">${a.icon} ${a.title}</div>
+          <div class="ann-when">${a.when}</div>
+        </div>
+        <div class="ann-body">${a.body}</div>
+      </div>`).join('');
+  }
 
   // ---------- SELF-COMPLIANCE FORM ----------
   const CF_WASTE = [
