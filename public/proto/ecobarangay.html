@@ -1663,7 +1663,7 @@ body {
           <div class="a-nav-item" onclick="gotoAdmin('a-analytics')" id="anav-a-analytics"><span class="a-nav-icon">📈</span> Analytics</div>
           <div class="a-nav-section">Settings</div>
           <div class="a-nav-item" onclick="gotoAdmin('a-announce')" id="anav-a-announce"><span class="a-nav-icon">📢</span> Announcements</div>
-          <div class="a-nav-item"><span class="a-nav-icon">👥</span> User Management</div>
+          <div class="a-nav-item" onclick="gotoAdmin('a-users')" id="anav-a-users"><span class="a-nav-icon">👥</span> User Management</div>
           <div class="a-nav-item"><span class="a-nav-icon">🔐</span> System Logs</div>
         </div>
         <div class="a-sidebar-user">
@@ -2004,7 +2004,115 @@ body {
             </div>
           </div>
 
+          <!-- USER MANAGEMENT -->
+          <div class="a-screen" id="a-users">
+            <div class="a-kpi-grid" style="margin-bottom:14px;">
+              <div class="a-kpi"><div class="a-kpi-label">Total Users</div><div class="a-kpi-value">1,284</div><div class="a-kpi-sub up">▲ 42 this month</div></div>
+              <div class="a-kpi"><div class="a-kpi-label">Residents</div><div class="a-kpi-value">1,196</div><div class="a-kpi-sub">Active accounts</div></div>
+              <div class="a-kpi"><div class="a-kpi-label">Collectors</div><div class="a-kpi-value">24</div><div class="a-kpi-sub">On field</div></div>
+              <div class="a-kpi"><div class="a-kpi-label">Admins / Staff</div><div class="a-kpi-value">8</div><div class="a-kpi-sub">Barangay office</div></div>
+            </div>
+
+            <div class="a-card" style="margin-bottom:14px;">
+              <div class="a-card-title">Filters
+                <span class="a-card-action">+ Add New User</span>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <input class="a-search" style="flex:1; min-width:220px;" placeholder="🔍 Search by name, email, or ID…">
+                <select class="a-select">
+                  <option>All Roles</option>
+                  <option>Resident</option>
+                  <option>Collector</option>
+                  <option>Admin</option>
+                </select>
+                <select class="a-select">
+                  <option>All Status</option>
+                  <option>Active</option>
+                  <option>Suspended</option>
+                  <option>Pending</option>
+                </select>
+                <select class="a-select">
+                  <option>All Zones</option>
+                  <option>Zone 1</option>
+                  <option>Zone 2</option>
+                  <option>Zone 3</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="a-card">
+              <div class="a-card-title">Registered Users <span class="a-card-action">Export CSV</span></div>
+              <table class="a-table">
+                <thead>
+                  <tr><th>User</th><th>Role</th><th>Zone</th><th>Joined</th><th>Last Active</th><th>Status</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><div style="font-weight:700;">Maria Santos</div><div style="font-size:11px; color:var(--muted);">maria.santos@email.com</div></td>
+                    <td><span class="ann-tag success" style="font-size:10px;">Resident</span></td>
+                    <td>Zone 2</td><td>Jan 12, 2026</td><td>2h ago</td>
+                    <td><span class="badge approved">Active</span></td>
+                    <td><button class="a-btn blue">Edit</button> <button class="a-btn red">Suspend</button></td>
+                  </tr>
+                  <tr>
+                    <td><div style="font-weight:700;">Juan Dela Cruz</div><div style="font-size:11px; color:var(--muted);">juan.dc@email.com</div></td>
+                    <td><span class="ann-tag warn" style="font-size:10px;">Collector</span></td>
+                    <td>Zone 1</td><td>Nov 03, 2025</td><td>5m ago</td>
+                    <td><span class="badge approved">Active</span></td>
+                    <td><button class="a-btn blue">Edit</button> <button class="a-btn red">Suspend</button></td>
+                  </tr>
+                  <tr>
+                    <td><div style="font-weight:700;">Ana Reyes</div><div style="font-size:11px; color:var(--muted);">ana.reyes@email.com</div></td>
+                    <td><span class="ann-tag success" style="font-size:10px;">Resident</span></td>
+                    <td>Zone 3</td><td>Feb 20, 2026</td><td>1d ago</td>
+                    <td><span class="badge pending">Pending</span></td>
+                    <td><button class="a-btn green">Approve</button> <button class="a-btn red">Reject</button></td>
+                  </tr>
+                  <tr>
+                    <td><div style="font-weight:700;">Pedro Mendoza</div><div style="font-size:11px; color:var(--muted);">pedro.m@email.com</div></td>
+                    <td><span class="ann-tag warn" style="font-size:10px;">Collector</span></td>
+                    <td>Zone 2</td><td>Aug 14, 2025</td><td>15m ago</td>
+                    <td><span class="badge approved">Active</span></td>
+                    <td><button class="a-btn blue">Edit</button> <button class="a-btn red">Suspend</button></td>
+                  </tr>
+                  <tr>
+                    <td><div style="font-weight:700;">Liza Gomez</div><div style="font-size:11px; color:var(--muted);">liza.g@email.com</div></td>
+                    <td><span class="ann-tag" style="font-size:10px; background:rgba(59,130,246,.15); color:#93c5fd;">Admin</span></td>
+                    <td>Office</td><td>Jun 01, 2025</td><td>Just now</td>
+                    <td><span class="badge approved">Active</span></td>
+                    <td><button class="a-btn blue">Edit</button></td>
+                  </tr>
+                  <tr>
+                    <td><div style="font-weight:700;">Carlo Bautista</div><div style="font-size:11px; color:var(--muted);">carlo.b@email.com</div></td>
+                    <td><span class="ann-tag success" style="font-size:10px;">Resident</span></td>
+                    <td>Zone 1</td><td>Mar 09, 2026</td><td>3d ago</td>
+                    <td><span class="badge rejected">Suspended</span></td>
+                    <td><button class="a-btn green">Reactivate</button></td>
+                  </tr>
+                  <tr>
+                    <td><div style="font-weight:700;">Rosa Villanueva</div><div style="font-size:11px; color:var(--muted);">rosa.v@email.com</div></td>
+                    <td><span class="ann-tag success" style="font-size:10px;">Resident</span></td>
+                    <td>Zone 3</td><td>Apr 02, 2026</td><td>6h ago</td>
+                    <td><span class="badge approved">Active</span></td>
+                    <td><button class="a-btn blue">Edit</button> <button class="a-btn red">Suspend</button></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:12px; color:var(--muted);">
+                <span>Showing 1–7 of 1,284 users</span>
+                <div style="display:flex; gap:6px;">
+                  <button class="a-btn">‹ Prev</button>
+                  <button class="a-btn blue">1</button>
+                  <button class="a-btn">2</button>
+                  <button class="a-btn">3</button>
+                  <button class="a-btn">Next ›</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div><!-- /a-body -->
+
       </div><!-- /a-content -->
     </div><!-- /admin-wrap -->
 <!-- ═══════════════════════════════════════════════
@@ -2030,7 +2138,7 @@ function gotoScreen(id) {
 }
 
 // Admin screen navigation
-const ADMIN_SCREENS = ['a-overview','a-reports','a-schedule','a-compliance','a-cctv','a-analytics','a-announce'];
+const ADMIN_SCREENS = ['a-overview','a-reports','a-schedule','a-compliance','a-cctv','a-analytics','a-announce','a-users'];
 const ADMIN_TITLES = {
   'a-overview': 'Dashboard Overview',
   'a-reports': 'Report Management',
@@ -2039,6 +2147,7 @@ const ADMIN_TITLES = {
   'a-cctv': 'CCTV Monitoring',
   'a-analytics': 'Analytics & Reports',
   'a-announce': 'Announcements',
+  'a-users': 'User Management',
 };
 
 function gotoAdmin(id) {
