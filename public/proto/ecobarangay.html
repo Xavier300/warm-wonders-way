@@ -2748,6 +2748,11 @@ function deleteReport(id){
 function viewReport(id){
   const r = REPORTS.find(x=>x.id===id); if (!r) return;
   const body = document.getElementById('rep-modal-body');
+  const photoBlock = r.photoPath
+    ? `<div id="rep-photo-wrap" style="margin:12px 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; background:#f8fafc; min-height:180px; display:flex; align-items:center; justify-content:center;">
+         <div style="color:var(--muted); font-size:13px;">Loading photo…</div>
+       </div>`
+    : `<div style="margin:12px 0; padding:14px; border:1px dashed var(--border); border-radius:8px; color:var(--muted); font-size:13px; text-align:center;">No photo evidence attached.</div>`;
   body.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
       <div style="font-weight:700; font-size:16px;">Report #${r.id}</div>
@@ -2761,12 +2766,26 @@ function viewReport(id){
       <div style="color:var(--muted);">Date</div><div>${r.date}</div>
       <div style="color:var(--muted);">Notes</div><div>${r.notes}</div>
     </div>
+    ${photoBlock}
     <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
       <button class="a-btn green" onclick="setReportStatus('${r.id}','Approved'); closeReportModal();">Approve</button>
       <button class="a-btn red" onclick="setReportStatus('${r.id}','Rejected'); closeReportModal();">Reject</button>
       <button class="a-btn" onclick="closeReportModal()">Close</button>
     </div>`;
   document.getElementById('rep-modal').style.display = 'flex';
+  if (r.photoPath && window.EB && window.EB.getReportPhotoSignedUrl){
+    window.EB.getReportPhotoSignedUrl(r.photoPath).then(url => {
+      const wrap = document.getElementById('rep-photo-wrap');
+      if (!wrap) return;
+      if (url) {
+        wrap.innerHTML = `<a href="${url}" target="_blank" rel="noopener" style="display:block; width:100%;">
+          <img src="${url}" alt="Report evidence" style="display:block; width:100%; max-height:420px; object-fit:contain; background:#000;"/>
+        </a>`;
+      } else {
+        wrap.innerHTML = `<div style="color:var(--red); font-size:13px; padding:16px;">Could not load photo.</div>`;
+      }
+    });
+  }
 }
 function closeReportModal(){ document.getElementById('rep-modal').style.display = 'none'; }
 function openReportModal(){
