@@ -1860,24 +1860,64 @@ body {
 
           <!-- ─── COMPLIANCE ─── -->
           <div class="a-screen" id="a-compliance">
-            <div class="a-stats" style="grid-template-columns:repeat(3,1fr); margin-bottom:14px;">
-              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:var(--g100);">📋</div><span class="a-stat-change up">▲ 4%</span></div><div class="a-stat-val">138</div><div class="a-stat-lbl">Forms Submitted</div></div>
-              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:#fef9c3;">⏳</div><span class="a-stat-change" style="background:#fef9c3;color:#a16207;">Pending</span></div><div class="a-stat-val">3</div><div class="a-stat-lbl">Awaiting Review</div></div>
-              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:var(--g100);">✅</div></div><div class="a-stat-val">94%</div><div class="a-stat-lbl">Avg. Compliance</div></div>
+            <div class="a-stats" style="grid-template-columns:repeat(4,1fr); margin-bottom:14px;">
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:var(--g100);">📋</div><span class="a-stat-change up">Total</span></div><div class="a-stat-val" id="ck-total">0</div><div class="a-stat-lbl">Forms Submitted</div></div>
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:#fef9c3;">⏳</div><span class="a-stat-change" style="background:#fef9c3;color:#a16207;">Pending</span></div><div class="a-stat-val" id="ck-pending">0</div><div class="a-stat-lbl">Awaiting Review</div></div>
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:var(--g100);">✅</div><span class="a-stat-change up">Verified</span></div><div class="a-stat-val" id="ck-verified">0</div><div class="a-stat-lbl">Verified</div></div>
+              <div class="a-stat"><div class="a-stat-top"><div class="a-stat-icon" style="background:#dbeafe;">📊</div><span class="a-stat-change up">Avg</span></div><div class="a-stat-val" id="ck-avg">0%</div><div class="a-stat-lbl">Avg. Compliance</div></div>
+            </div>
+            <div class="a-card" style="margin-bottom:14px;">
+              <div class="a-card-title">Filters
+                <span class="a-card-action" onclick="exportCompCSV()">⬇ Export CSV</span>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <input id="cf-search" class="a-search" style="flex:1; min-width:220px;" placeholder="🔍 Search household…" oninput="renderComp()">
+                <select id="cf-status" class="a-select" onchange="renderComp()">
+                  <option value="">All Status</option><option>Verified</option><option>Pending</option><option>Rejected</option>
+                </select>
+                <select id="cf-comp" class="a-select" onchange="renderComp()">
+                  <option value="">All Levels</option><option value="high">High (≥80%)</option><option value="mid">Mid (50-79%)</option><option value="low">Low (&lt;50%)</option>
+                </select>
+                <button class="a-btn green" onclick="openCompModal()" style="padding:8px 14px; font-size:12px;">+ Add Form</button>
+              </div>
             </div>
             <div class="a-card">
-              <div class="a-card-title">Household Compliance Overview</div>
+              <div class="a-card-title">Household Compliance Overview <span id="ck-count" style="color:var(--text-4); font-weight:600; font-size:11px;"></span></div>
               <table class="a-table">
                 <thead><tr><th>Household</th><th>Waste Declared</th><th>Compliance</th><th>Last Submit</th><th>Status</th><th>Action</th></tr></thead>
-                <tbody>
-                  <tr><td><div class="td-user"><div class="td-av">🏠</div>dela Cruz Fam.</div></td><td><span class="chip bio" style="font-size:10px;">Bio</span><span class="chip recyc" style="font-size:10px;">Recyc</span></td><td><div class="comp-progress"><div class="prog-bar"><div class="prog-fill" style="width:94%"></div></div><span style="font-size:10px;font-weight:800;color:var(--g700);">94%</span></div></td><td>May 12</td><td><span class="badge approved">Verified</span></td><td><button class="a-btn blue">View</button></td></tr>
-                  <tr><td><div class="td-user"><div class="td-av">🏠</div>Reyes Family</div></td><td><span class="chip resid" style="font-size:10px;">Resid</span></td><td><div class="comp-progress"><div class="prog-bar"><div class="prog-fill warn" style="width:67%"></div></div><span style="font-size:10px;font-weight:800;color:#a16207;">67%</span></div></td><td>May 11</td><td><span class="badge pending">Pending</span></td><td><button class="a-btn green">Verify</button></td></tr>
-                  <tr><td><div class="td-user"><div class="td-av">🏠</div>Santos Household</div></td><td><span class="chip bio" style="font-size:10px;">Bio</span></td><td><div class="comp-progress"><div class="prog-bar"><div class="prog-fill" style="width:88%"></div></div><span style="font-size:10px;font-weight:800;color:var(--g700);">88%</span></div></td><td>May 10</td><td><span class="badge approved">Verified</span></td><td><button class="a-btn blue">View</button></td></tr>
-                  <tr><td><div class="td-user"><div class="td-av">🏠</div>Gomez Residence</div></td><td><span class="chip spec" style="font-size:10px;">Special</span></td><td><div class="comp-progress"><div class="prog-bar"><div class="prog-fill low" style="width:42%"></div></div><span style="font-size:10px;font-weight:800;color:#b91c1c;">42%</span></div></td><td>May 8</td><td><span class="badge pending">Pending</span></td><td><button class="a-btn green">Verify</button></td></tr>
-                </tbody>
+                <tbody id="comp-body"></tbody>
               </table>
             </div>
           </div>
+
+          <!-- COMPLIANCE MODAL -->
+          <div id="compModalBg" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,.55); z-index:9999; align-items:center; justify-content:center;">
+            <div style="background:#fff; width:min(520px,92%); max-height:90vh; overflow:auto; border-radius:14px; padding:22px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <div style="font-size:16px; font-weight:900;" id="compModalTitle">Add Compliance Form</div>
+                <button onclick="closeCompModal()" style="background:none; border:none; font-size:20px; cursor:pointer;">✕</button>
+              </div>
+              <div style="display:grid; gap:10px;">
+                <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Household</label>
+                  <input id="cm-name" class="a-search" style="width:100%;" placeholder="e.g. dela Cruz Fam."></div>
+                <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Waste Declared</label>
+                  <div id="cm-waste" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;"></div></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                  <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Compliance %</label>
+                    <input id="cm-pct" type="number" min="0" max="100" class="a-search" style="width:100%;" value="80"></div>
+                  <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Status</label>
+                    <select id="cm-status" class="a-select" style="width:100%;"><option>Pending</option><option>Verified</option><option>Rejected</option></select></div>
+                </div>
+                <div><label style="font-size:11px; font-weight:800; color:var(--text-3);">Notes</label>
+                  <textarea id="cm-notes" class="a-search" style="width:100%; min-height:70px;" placeholder="Optional review notes…"></textarea></div>
+              </div>
+              <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+                <button class="a-btn" onclick="closeCompModal()">Cancel</button>
+                <button class="a-btn green" onclick="saveComp()">Save</button>
+              </div>
+            </div>
+          </div>
+
 
           <!-- ─── CCTV ─── -->
           <div class="a-screen" id="a-cctv">
