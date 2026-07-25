@@ -154,6 +154,7 @@ async function hydrateAll() {
     reporter: currentEmail, // let existing myReports() filter match
     reporterId: r.reporter_id,
     reporterName: r.reporter_name || '',
+    photoPath: r.photo_url || '',
     points: 10,
     _dbId: r.id,
   }));
@@ -259,15 +260,32 @@ function subscribeRealtime() {
 }
 
 // ---------- write API ----------
-async function addReport({ waste, severity, location, description }) {
+async function addReport({ waste, severity, location, description, photoFile }) {
   const uid = state.session?.user?.id;
   const sev = severity === 'Medium' ? 'Med' : severity;
+  let photo_url = null;
+  if (photoFile) {
+    const ext = (photoFile.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
+    const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+    const up = await sb.storage.from('report-photos').upload(path, photoFile, {
+      contentType: photoFile.type || 'image/jpeg', upsert: false,
+    });
+    if (up.error) throw up.error;
+    photo_url = path; // store storage path; signed URL generated on read
+  }
   const { data, error } = await sb.from('reports').insert({
     reporter_id: uid, title: waste, description, location, severity: sev, status: 'Pending',
+    photo_url,
   }).select().single();
   if (error) throw error;
   await hydrateAll();
   return data;
+}
+async function getReportPhotoSignedUrl(path) {
+  if (!path) return null;
+  const { data, error } = await sb.storage.from('report-photos').createSignedUrl(path, 3600);
+  if (error) { console.error('signed url error', error); return null; }
+  return data.signedUrl;
 }
 async function addComplianceForm({ address, date, waste, remarks, name }) {
   const uid = state.session?.user?.id;
@@ -413,7 +431,7 @@ window.EB = {
   supabase: sb, state,
   loadSession, signIn, signUp, signInWithGoogle, signOut,
   hydrateAll,
-  addReport, addComplianceForm,
+  addReport, addComplianceForm, getReportPhotoSignedUrl,
   addAnnouncement, updateAnnouncement, deleteAnnouncement, publishAnnouncement,
   setReportStatus, deleteReport, setCompStatus, deleteComp,
   saveUserRow, deleteUserRow, updateSelfProfile,
