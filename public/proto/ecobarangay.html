@@ -2968,6 +2968,105 @@ function exportSchedCSV(){
 }
 document.addEventListener('DOMContentLoaded', ()=>{ generateWeek(); renderZones(); renderWeek(); });
 
+/* ========== COMPLIANCE ========== */
+let COMP = [
+  {id:'C-001', name:'dela Cruz Fam.', waste:['Bio','Recyc'], pct:94, last:'2026-05-12', status:'Verified', notes:'Consistent segregation.'},
+  {id:'C-002', name:'Reyes Family', waste:['Resid'], pct:67, last:'2026-05-11', status:'Pending', notes:''},
+  {id:'C-003', name:'Santos Household', waste:['Bio'], pct:88, last:'2026-05-10', status:'Verified', notes:''},
+  {id:'C-004', name:'Gomez Residence', waste:['Spec'], pct:42, last:'2026-05-08', status:'Pending', notes:'Missing recyclables log.'},
+  {id:'C-005', name:'Mendoza Household', waste:['Bio','Recyc','Resid'], pct:76, last:'2026-05-09', status:'Verified', notes:''},
+  {id:'C-006', name:'Torres Fam.', waste:['Bio'], pct:35, last:'2026-05-06', status:'Rejected', notes:'Mixed waste detected.'}
+];
+let COMP_EDIT_ID = null;
+function compLevel(p){ return p>=80?'high':p>=50?'mid':'low'; }
+function filteredComp(){
+  const q=(document.getElementById('cf-search')?.value||'').toLowerCase();
+  const st=document.getElementById('cf-status')?.value||'';
+  const lv=document.getElementById('cf-comp')?.value||'';
+  return COMP.filter(c=>{
+    if(st && c.status!==st) return false;
+    if(lv && compLevel(c.pct)!==lv) return false;
+    if(q && !c.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+function renderComp(){
+  const body=document.getElementById('comp-body'); if(!body) return;
+  const list=filteredComp();
+  document.getElementById('ck-total').textContent = COMP.length;
+  document.getElementById('ck-pending').textContent = COMP.filter(c=>c.status==='Pending').length;
+  document.getElementById('ck-verified').textContent = COMP.filter(c=>c.status==='Verified').length;
+  const avg = COMP.length ? Math.round(COMP.reduce((s,c)=>s+c.pct,0)/COMP.length) : 0;
+  document.getElementById('ck-avg').textContent = avg+'%';
+  document.getElementById('ck-count').textContent = `· ${list.length} of ${COMP.length}`;
+  if(!list.length){ body.innerHTML='<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-4);">No households match your filters.</td></tr>'; return; }
+  body.innerHTML=list.map(c=>{
+    const lvl=compLevel(c.pct);
+    const fillCls=lvl==='high'?'':lvl==='mid'?'warn':'low';
+    const pctColor=lvl==='high'?'var(--g700)':lvl==='mid'?'#a16207':'#b91c1c';
+    const badge=c.status==='Verified'?'approved':c.status==='Rejected'?'rejected':'pending';
+    const dateStr=new Date(c.last).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const act = c.status==='Pending'
+      ? `<button class="a-btn green" onclick="setCompStatus('${c.id}','Verified')">Verify</button>
+         <button class="a-btn" onclick="setCompStatus('${c.id}','Rejected')" style="color:#b91c1c;">Reject</button>`
+      : `<button class="a-btn blue" onclick="openCompModal('${c.id}')">View</button>
+         <button class="a-btn" onclick="setCompStatus('${c.id}','Pending')">Reset</button>`;
+    return `<tr>
+      <td><div class="td-user"><div class="td-av">🏠</div>${c.name}</div></td>
+      <td>${wasteChips(c.waste,true)}</td>
+      <td><div class="comp-progress"><div class="prog-bar"><div class="prog-fill ${fillCls}" style="width:${c.pct}%"></div></div><span style="font-size:10px;font-weight:800;color:${pctColor};">${c.pct}%</span></div></td>
+      <td>${dateStr}</td><td><span class="badge ${badge}">${c.status}</span></td>
+      <td style="display:flex; gap:5px; flex-wrap:wrap;">${act}<button class="a-btn" onclick="deleteComp('${c.id}')" style="color:#b91c1c;">Delete</button></td>
+    </tr>`;
+  }).join('');
+}
+function setCompStatus(id,status){
+  const c=COMP.find(x=>x.id===id); if(!c) return;
+  c.status=status; c.last=new Date().toISOString().slice(0,10); renderComp();
+}
+function deleteComp(id){
+  const c=COMP.find(x=>x.id===id); if(!c) return;
+  if(!confirm(`Delete compliance record for ${c.name}?`)) return;
+  COMP=COMP.filter(x=>x.id!==id); renderComp();
+}
+function openCompModal(id){
+  COMP_EDIT_ID = id||null;
+  const c = id ? COMP.find(x=>x.id===id) : null;
+  document.getElementById('compModalTitle').textContent = c ? 'Edit Compliance Form' : 'Add Compliance Form';
+  document.getElementById('cm-name').value = c?.name || '';
+  document.getElementById('cm-pct').value = c?.pct ?? 80;
+  document.getElementById('cm-status').value = c?.status || 'Pending';
+  document.getElementById('cm-notes').value = c?.notes || '';
+  const wasteEl=document.getElementById('cm-waste');
+  wasteEl.innerHTML = WASTE_TYPES.map(w=>{
+    const on = c?.waste.includes(w.k);
+    return `<label style="display:inline-flex; align-items:center; gap:4px; padding:6px 10px; border:1px solid ${on?'#22c55e':'#e5e7eb'}; border-radius:8px; background:${on?'#dcfce7':'#fff'}; cursor:pointer; font-size:11px; font-weight:800;"><input type="checkbox" value="${w.k}" ${on?'checked':''} style="margin:0;"> ${w.ico} ${w.k}</label>`;
+  }).join('');
+  document.getElementById('compModalBg').style.display='flex';
+}
+function closeCompModal(){ document.getElementById('compModalBg').style.display='none'; COMP_EDIT_ID=null; }
+function saveComp(){
+  const name=document.getElementById('cm-name').value.trim();
+  if(!name){ alert('Household name is required.'); return; }
+  const waste=[...document.querySelectorAll('#cm-waste input:checked')].map(i=>i.value);
+  if(!waste.length){ alert('Pick at least one waste type.'); return; }
+  const pct=Math.max(0,Math.min(100,parseInt(document.getElementById('cm-pct').value)||0));
+  const data={name, waste, pct, status:document.getElementById('cm-status').value, notes:document.getElementById('cm-notes').value.trim(), last:new Date().toISOString().slice(0,10)};
+  if(COMP_EDIT_ID){ Object.assign(COMP.find(c=>c.id===COMP_EDIT_ID), data); }
+  else { COMP.push({id:'C-'+Date.now(), ...data}); }
+  closeCompModal(); renderComp();
+}
+function exportCompCSV(){
+  const rows=[['ID','Household','Waste','Compliance %','Status','Last Submit','Notes']];
+  filteredComp().forEach(c=>rows.push([c.id,c.name,c.waste.join('|'),c.pct,c.status,c.last,c.notes]));
+  const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='compliance.csv'; a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.addEventListener('DOMContentLoaded', renderComp);
+
+
 </script>
 </body>
 </html>
