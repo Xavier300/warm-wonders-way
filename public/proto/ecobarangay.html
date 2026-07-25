@@ -2874,6 +2874,7 @@ function syncSchedules(){
   renderWeek();
   populateCollectorSelect(document.getElementById('zm-coll')?.value||'');
   if(changed && typeof toast==='function') toast('Schedules synced with User Management');
+}
 let WEEK = [];
 let ZONE_EDIT_ID = null;
 
