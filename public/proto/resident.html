@@ -177,6 +177,40 @@
   .upc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .upc-tags .w{font-size:11px;padding:5px 9px;border-radius:999px;border:1px solid;font-weight:800}
 
+  /* Report screen */
+  .rep-form{padding:14px 16px 24px;display:flex;flex-direction:column;gap:10px;flex:1;overflow:auto;background:#f7faf8}
+  .rep-lbl{font-size:11px;font-weight:900;color:var(--text-2);letter-spacing:.08em;margin-top:6px;display:flex;align-items:center;gap:6px}
+  .rep-upload{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:22px 16px;border:2px dashed #3fa668;border-radius:16px;background:#f0faf3;text-align:center;cursor:pointer}
+  .rep-upload-ic{font-size:28px}
+  .rep-upload-t{font-weight:900;color:var(--text)}
+  .rep-upload-s{font-size:12px;color:var(--text-3);line-height:1.45}
+  .rep-upload-name{font-size:11px;color:var(--g700);font-weight:800;margin-top:4px}
+  .rep-loc-card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .rep-map{height:130px;background:
+    linear-gradient(#c7e6ce,#a9d4b6),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.35) 0 1px,transparent 1px 22px),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 1px,transparent 1px 22px);
+    background-blend-mode:normal,overlay,overlay;position:relative;display:flex;align-items:center;justify-content:center}
+  .rep-pin{font-size:26px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}
+  .rep-loc-body{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px}
+  .rep-loc-name{font-weight:800;font-size:14px;color:var(--text)}
+  .rep-loc-coords{font-size:11px;color:var(--text-3);margin-top:2px;font-family:ui-monospace,monospace}
+  .rep-edit{font-size:13px;font-weight:800;color:var(--g700);background:transparent;border:none;padding:6px 4px;cursor:pointer}
+  .sev-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .sev{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 8px;font-weight:800;font-size:13px;color:var(--text);display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+  .sev .dot{width:9px;height:9px;border-radius:50%}
+  .sev.on{border-width:2px}
+  .sev[data-sev="Low"] .dot{background:#eab308}
+  .sev[data-sev="Medium"] .dot{background:#f97316}
+  .sev[data-sev="High"] .dot{background:#ef4444}
+  .sev[data-sev="Low"].on{border-color:#eab308;background:#fefce8;color:#854d0e}
+  .sev[data-sev="Medium"].on{border-color:#f97316;background:#fff7ed;color:#c2410c}
+  .sev[data-sev="High"].on{border-color:#ef4444;background:#fef2f2;color:#991b1b}
+  .rep-desc{width:100%;min-height:100px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;font:inherit;color:var(--text);outline:none;resize:vertical}
+  .rep-desc:focus{border-color:#3fa668;box-shadow:0 0 0 3px rgba(63,166,104,.15)}
+  .rep-note{display:flex;gap:10px;align-items:flex-start;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 14px;color:#1e40af;font-size:12.5px;line-height:1.5}
+  .rep-note-ic{width:22px;height:22px;border-radius:6px;background:#3b82f6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0}
+
   /* Form controls */
   .form{padding:16px;display:flex;flex-direction:column;gap:12px;flex:1;overflow:auto}
   .field{display:flex;flex-direction:column;gap:6px}
@@ -328,40 +362,57 @@
 
   <!-- REPORT SCREEN -->
   <section class="screen" id="scr-report">
-    <div class="scr-head">
-      <button class="back" onclick="showHome()">← Back</button>
-      <div>
-        <h2>Report Illegal Dumping</h2>
-        <p id="rep-count-label">Help keep the barangay clean</p>
-      </div>
+    <div class="sched-top">
+      <button class="ic-btn" onclick="showHome()" aria-label="Back">←</button>
+      <h2>Report Illegal Dumping</h2>
+      <button class="ic-btn" style="background:#fff4ec;border-color:#fed7aa;color:#c2410c" aria-label="Alert">!</button>
     </div>
-    <div class="form">
-      <div class="field">
-        <label>Waste type</label>
-        <div class="chip-row" id="rep-waste-picker"></div>
+
+    <div class="rep-form">
+      <div class="rep-lbl">🖼️ PHOTO EVIDENCE</div>
+      <label class="rep-upload" for="rep-photo">
+        <div class="rep-upload-ic">📷</div>
+        <div class="rep-upload-t">Upload Photo Evidence</div>
+        <div class="rep-upload-s">Tap to take photo or choose from gallery.<br/>CCTV footage also accepted as evidence.</div>
+        <div class="rep-upload-name" id="rep-photo-name"></div>
+      </label>
+      <input id="rep-photo" type="file" accept="image/*" style="display:none" onchange="onPhotoChange(this)"/>
+
+      <div class="rep-lbl">📍 LOCATION (GPS TAGGED)</div>
+      <div class="rep-loc-card">
+        <div class="rep-map" aria-hidden="true"><div class="rep-pin">📍</div></div>
+        <div class="rep-loc-body">
+          <div class="rep-loc-info">
+            <div class="rep-loc-name" id="rep-loc-name">Rizal Street, Brgy. Calatagan</div>
+            <div class="rep-loc-coords">📌 <span id="rep-loc-coords">13.5789°N, 124.2419°E</span></div>
+          </div>
+          <button type="button" class="rep-edit" onclick="editLocation()">Edit</button>
+        </div>
       </div>
-      <div class="field">
-        <label>Severity</label>
-        <div class="chip-row" id="rep-sev-picker"></div>
+      <input id="rep-loc" type="hidden" value="Rizal Street, Brgy. Calatagan" />
+
+      <div class="rep-lbl">⚠️ SEVERITY LEVEL</div>
+      <div class="sev-row" id="rep-sev-picker"></div>
+
+      <div class="rep-lbl">📝 DESCRIPTION</div>
+      <textarea id="rep-desc" class="rep-desc" placeholder="Describe the incident… e.g. 'Large pile of mixed garbage near canal. Has been here for days.'"></textarea>
+
+      <div class="rep-lbl" style="margin-top:4px">🌿 WASTE TYPE</div>
+      <div class="chip-row" id="rep-waste-picker"></div>
+
+      <div class="rep-note">
+        <div class="rep-note-ic">ℹ️</div>
+        <div>Reports are accepted for <b>public areas only</b> — streets, open lots, waterways. Private property reports are not permitted.</div>
       </div>
-      <div class="field">
-        <label for="rep-loc">Location</label>
-        <input id="rep-loc" placeholder="e.g. Corner of Rizal St. & Zone 1" />
-      </div>
-      <div class="field">
-        <label for="rep-desc">Description</label>
-        <textarea id="rep-desc" placeholder="What did you see? When?"></textarea>
-      </div>
-      <div class="field">
-        <label for="rep-photo">Photo (optional)</label>
-        <input id="rep-photo" type="file" accept="image/*" />
-      </div>
+
       <button class="btn-primary" onclick="submitReport()">🚨 Submit Report</button>
 
       <div class="section" style="padding:8px 0 4px"><h3>My reports</h3></div>
       <div id="rep-list"></div>
+      <div id="rep-count-label" style="display:none"></div>
     </div>
   </section>
+
 
   <!-- REWARDS SCREEN -->
   <section class="screen" id="scr-rewards">
@@ -876,11 +927,23 @@
       ).join('');
     document.getElementById('rep-sev-picker').innerHTML =
       SEV_OPTS.map(s =>
-        `<button type="button" class="chip ${s===repSev?'on':''}" onclick="setRepSev('${s}')">${s}</button>`
+        `<button type="button" class="sev ${s===repSev?'on':''}" data-sev="${s}" onclick="setRepSev('${s}')"><span class="dot"></span>${s}</button>`
       ).join('');
   }
   function setRepWaste(w){ repWaste = w; renderReportPickers(); }
   function setRepSev(s){ repSev = s; renderReportPickers(); }
+  function onPhotoChange(inp){
+    const el = document.getElementById('rep-photo-name');
+    if(el) el.textContent = inp.files && inp.files[0] ? '✓ ' + inp.files[0].name : '';
+  }
+  function editLocation(){
+    const cur = document.getElementById('rep-loc').value || '';
+    const v = prompt('Enter location', cur);
+    if(v && v.trim()){
+      document.getElementById('rep-loc').value = v.trim();
+      document.getElementById('rep-loc-name').textContent = v.trim();
+    }
+  }
 
   function submitReport(){
     const loc = document.getElementById('rep-loc').value.trim();
@@ -897,9 +960,9 @@
     });
     saveReports(list);
     addHistory('report', `Report ${id} submitted`, +10);
-    document.getElementById('rep-loc').value = '';
     document.getElementById('rep-desc').value = '';
     document.getElementById('rep-photo').value = '';
+    const pn = document.getElementById('rep-photo-name'); if(pn) pn.textContent = '';
     renderMyReports();
     toast('Report submitted · +10 pts');
   }
