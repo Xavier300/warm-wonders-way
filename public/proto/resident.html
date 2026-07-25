@@ -993,9 +993,10 @@
       const name  = s.name || (email.split('@')[0] || 'Resident').replace(/[._-]+/g,' ')
                      .replace(/\b\w/g, c => c.toUpperCase());
       document.getElementById('uname').textContent  = name;
-      document.getElementById('uemail').textContent = email;
       activeZone = getResidentZone();
+      updateGreeting();
       updateNextCard();
+      renderRecent();
     } catch(_){
       window.location.replace('/proto/signin.html');
     }
