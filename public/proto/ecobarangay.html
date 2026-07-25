@@ -3257,6 +3257,97 @@ function exportCompCSV(){
 document.addEventListener('DOMContentLoaded', renderComp);
 
 
+// ================= LIVE SYNC WITH RESIDENT APP =================
+(function(){
+  const SEV_IN  = {Low:'Low', Medium:'Med', High:'High'};
+  const SEV_OUT = {Low:'Low', Med:'Medium', High:'High'};
+  const ST_IN   = {Pending:'Pending','Under Review':'Review',Approved:'Approved',Rejected:'Rejected'};
+  const ST_OUT  = {Pending:'Pending', Review:'Under Review', Approved:'Approved', Rejected:'Rejected'};
+  const WI = {Bio:'🌿', Recyc:'♻️', Resid:'🗑️', Spec:'☣️'};
+  const SEED_REPORTS = REPORTS.slice();
+  const SEED_COMP    = COMP.slice();
+  const loadJSON = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || JSON.stringify(d)); } catch(_) { return d; } };
+  function normReport(r){
+    return {
+      id: r.id, reporter: r.reporter || 'Resident',
+      location: r.location || '—', evidence: '📷 photo',
+      sev: SEV_IN[r.severity] || 'Med',
+      status: ST_IN[r.status] || 'Pending',
+      date: new Date(r.createdAt||Date.now()).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+      notes: `${WI[r.waste]||''} ${r.waste||''} — ${r.description||''}`.trim(),
+      _resident: true
+    };
+  }
+  function rebuildReports(){
+    REPORTS = [...loadJSON('eb_reports', []).map(normReport), ...SEED_REPORTS];
+    if (typeof renderReports==='function') renderReports();
+  }
+  function normForm(f){
+    return {
+      id: f.id, name: f.name || f.reporter || 'Household',
+      waste: f.waste || [], pct: (f.pct ?? 75),
+      last: f.date || new Date(f.createdAt||Date.now()).toISOString().slice(0,10),
+      status: f.status || 'Pending',
+      notes: f.remarks || f.notes || '', _resident: true
+    };
+  }
+  function rebuildComp(){
+    COMP = [...loadJSON('eb_forms', []).map(normForm), ...SEED_COMP];
+    if (typeof renderComp==='function') renderComp();
+  }
+  function pushAnnouncements(){
+    const pub = ANNOUNCEMENTS.filter(a=>a.status==='Published').map(a=>({
+      id:a.id, title:a.title, type:a.type, msg:a.msg, date:a.date, waste:a.waste||[]
+    }));
+    localStorage.setItem('eb_announcements', JSON.stringify(pub));
+  }
+  const _setReportStatus = window.setReportStatus;
+  window.setReportStatus = function(id, status){
+    const r = REPORTS.find(x=>x.id===id);
+    _setReportStatus(id, status);
+    if (r && r._resident){
+      const list = loadJSON('eb_reports', []);
+      const t = list.find(x=>x.id===id);
+      if (t){ t.status = ST_OUT[status]||status; localStorage.setItem('eb_reports', JSON.stringify(list)); }
+    }
+  };
+  const _delReport = window.deleteReport;
+  window.deleteReport = function(id){
+    const r = REPORTS.find(x=>x.id===id);
+    _delReport(id);
+    if (r && r._resident){
+      localStorage.setItem('eb_reports', JSON.stringify(loadJSON('eb_reports', []).filter(x=>x.id!==id)));
+    }
+  };
+  const _setCompStatus = window.setCompStatus;
+  window.setCompStatus = function(id, status){
+    const c = COMP.find(x=>x.id===id);
+    _setCompStatus(id, status);
+    if (c && c._resident){
+      const list = loadJSON('eb_forms', []);
+      const t = list.find(x=>x.id===id);
+      if (t){ t.status = status; localStorage.setItem('eb_forms', JSON.stringify(list)); }
+    }
+  };
+  const _delComp = window.deleteComp;
+  window.deleteComp = function(id){
+    const c = COMP.find(x=>x.id===id);
+    _delComp(id);
+    if (c && c._resident){
+      localStorage.setItem('eb_forms', JSON.stringify(loadJSON('eb_forms', []).filter(x=>x.id!==id)));
+    }
+  };
+  const _renderAnn = window.renderAnn;
+  window.renderAnn = function(){ if(_renderAnn) _renderAnn(); pushAnnouncements(); };
+  document.addEventListener('DOMContentLoaded', ()=>{
+    rebuildReports(); rebuildComp(); pushAnnouncements();
+  });
+  window.addEventListener('storage', (e)=>{
+    if (e.key==='eb_reports') rebuildReports();
+    if (e.key==='eb_forms')   rebuildComp();
+  });
+  setInterval(()=>{ rebuildReports(); rebuildComp(); }, 3000);
+})();
 </script>
 </body>
 </html>
