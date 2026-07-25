@@ -927,11 +927,23 @@
       ).join('');
     document.getElementById('rep-sev-picker').innerHTML =
       SEV_OPTS.map(s =>
-        `<button type="button" class="chip ${s===repSev?'on':''}" onclick="setRepSev('${s}')">${s}</button>`
+        `<button type="button" class="sev ${s===repSev?'on':''}" data-sev="${s}" onclick="setRepSev('${s}')"><span class="dot"></span>${s}</button>`
       ).join('');
   }
   function setRepWaste(w){ repWaste = w; renderReportPickers(); }
   function setRepSev(s){ repSev = s; renderReportPickers(); }
+  function onPhotoChange(inp){
+    const el = document.getElementById('rep-photo-name');
+    if(el) el.textContent = inp.files && inp.files[0] ? '✓ ' + inp.files[0].name : '';
+  }
+  function editLocation(){
+    const cur = document.getElementById('rep-loc').value || '';
+    const v = prompt('Enter location', cur);
+    if(v && v.trim()){
+      document.getElementById('rep-loc').value = v.trim();
+      document.getElementById('rep-loc-name').textContent = v.trim();
+    }
+  }
 
   function submitReport(){
     const loc = document.getElementById('rep-loc').value.trim();
