@@ -2060,6 +2060,43 @@ body {
             </div>
           </div>
 
+          <!-- ─── SYSTEM LOGS ─── -->
+          <div class="a-screen" id="a-logs">
+            <div class="a-kpi-grid" style="margin-bottom:14px;">
+              <div class="a-kpi"><div class="a-kpi-label">Total Events</div><div class="a-kpi-value" id="lk-total">0</div><div class="a-kpi-sub">All-time</div></div>
+              <div class="a-kpi"><div class="a-kpi-label">Today</div><div class="a-kpi-value" id="lk-today">0</div><div class="a-kpi-sub up">Live</div></div>
+              <div class="a-kpi"><div class="a-kpi-label">Warnings</div><div class="a-kpi-value" id="lk-warn" style="color:#f59e0b;">0</div><div class="a-kpi-sub">Needs review</div></div>
+              <div class="a-kpi"><div class="a-kpi-label">Errors</div><div class="a-kpi-value" id="lk-err" style="color:#ef4444;">0</div><div class="a-kpi-sub">Critical</div></div>
+            </div>
+
+            <div class="a-card" style="margin-bottom:14px;">
+              <div class="a-card-title">Filters
+                <span class="a-card-action" onclick="clearLogs()">Clear All</span>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <input id="lf-search" class="a-search" style="flex:1; min-width:220px;" placeholder="🔍 Search user, action, or IP…" oninput="renderLogs()">
+                <select id="lf-level" class="a-select" onchange="renderLogs()">
+                  <option value="">All Levels</option><option>Info</option><option>Warning</option><option>Error</option>
+                </select>
+                <select id="lf-cat" class="a-select" onchange="renderLogs()">
+                  <option value="">All Categories</option><option>Auth</option><option>User</option><option>Report</option><option>Schedule</option><option>Announcement</option><option>System</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="a-card">
+              <div class="a-card-title">Activity Log <span class="a-card-action" onclick="exportLogsCSV()">Export CSV</span></div>
+              <table class="a-table">
+                <thead><tr><th>Time</th><th>Level</th><th>Category</th><th>User</th><th>Action</th><th>IP</th><th></th></tr></thead>
+                <tbody id="logs-tbody"></tbody>
+              </table>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:12px; color:var(--muted);">
+                <span id="logs-count">—</span>
+                <div id="logs-pager" style="display:flex; gap:6px;"></div>
+              </div>
+            </div>
+          </div>
+
         </div><!-- /a-body -->
 
 
