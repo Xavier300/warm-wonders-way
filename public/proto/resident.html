@@ -941,6 +941,43 @@
     if(fact) fact.textContent = ECO_FACTS[ecoFactIdx];
   }
 
+  // ---------- LIVE SYNC WITH ADMIN ----------
+  function annPillStyle(t){
+    if(!t) return 'background:#d7f0dd;color:#166534';
+    if(t.startsWith('⚠️')) return 'background:#fef3c7;color:#854d0e';
+    if(t.startsWith('📌')) return 'background:#dbeafe;color:#1d4ed8';
+    return 'background:#d7f0dd;color:#166534';
+  }
+  function renderAdminAnnouncements(){
+    const el = document.getElementById('eco-ann-list'); if(!el) return;
+    let list = [];
+    try { list = JSON.parse(localStorage.getItem('eb_announcements')||'[]'); } catch(_){}
+    if(!list.length){
+      el.innerHTML = '<div style="background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;color:var(--text-3);font-size:12.5px">No announcements yet.</div>';
+      return;
+    }
+    const WI = {Bio:'🌿',Recyc:'♻️',Resid:'🗑️',Spec:'☣️'};
+    el.innerHTML = list.map(a=>{
+      const chips = (a.waste||[]).map(w=>`<span style="display:inline-block;background:#eef4f0;color:#166534;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:999px;margin-right:4px">${WI[w]||''} ${w}</span>`).join('');
+      return `<div style="background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)">
+        <span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;${annPillStyle(a.type)}">${a.type||'✅ Notice'}</span>
+        <div style="font-weight:800;font-size:14px;color:var(--text);margin-top:10px">${a.title||''}</div>
+        <div style="font-size:12.5px;color:var(--text-2);margin-top:6px">${a.msg||''}</div>
+        ${chips?`<div style="margin-top:8px">${chips}</div>`:''}
+        <div style="font-size:11px;color:var(--text-3);margin-top:8px">📅 ${a.date||''}</div>
+      </div>`;
+    }).join('');
+  }
+  const _origRenderEco = renderEco;
+  renderEco = function(){ _origRenderEco(); renderAdminAnnouncements(); };
+
+  window.addEventListener('storage', (e)=>{
+    if(e.key==='eb_reports' && typeof renderMyReports==='function') renderMyReports();
+    if(e.key==='eb_announcements') renderAdminAnnouncements();
+  });
+  // Same-tab fallback poll (admin & resident may share tab via iframe)
+  setInterval(()=>{ if(typeof renderMyReports==='function') renderMyReports(); }, 3000);
+
   function toast(msg){
     const t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('on');
