@@ -81,7 +81,7 @@
   /* Bottom nav */
   .tabbar{
     position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);
-    display:grid;grid-template-columns:repeat(5,1fr);padding:8px 6px;gap:2px;
+    display:grid;grid-template-columns:repeat(6,1fr);padding:8px 4px;gap:2px;
   }
   .tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:12px;color:var(--text-3);font-size:11px;font-weight:700}
   .tab.on{color:var(--g700);background:#eaf7ee}
@@ -398,12 +398,69 @@
     </div>
   </section>
 
+  <!-- Eco Awareness screen -->
+  <section class="screen" id="scr-eco">
+    <div class="scr-head">
+      <div style="flex:1">
+        <h2>Eco Awareness 🌱</h2>
+        <p>Learn how to segregate, reduce, and protect our barangay.</p>
+      </div>
+    </div>
+    <div style="padding:14px 16px 24px;display:flex;flex-direction:column;gap:14px;flex:1;overflow:auto">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="rw-item" style="background:#f0fdf4;border-color:#bbf7d0">
+          <div class="rw-ic">🌿</div>
+          <div class="rw-name">Biodegradable</div>
+          <div style="font-size:11px;color:var(--text-3);line-height:1.4;margin-top:2px">Food scraps, leaves, garden waste. Compost at home when possible.</div>
+        </div>
+        <div class="rw-item" style="background:#eff6ff;border-color:#bfdbfe">
+          <div class="rw-ic">♻️</div>
+          <div class="rw-name">Recyclable</div>
+          <div style="font-size:11px;color:var(--text-3);line-height:1.4;margin-top:2px">Clean plastic, paper, glass, metal. Rinse before disposal.</div>
+        </div>
+        <div class="rw-item" style="background:#fef3c7;border-color:#fde68a">
+          <div class="rw-ic">🗑️</div>
+          <div class="rw-name">Residual</div>
+          <div style="font-size:11px;color:var(--text-3);line-height:1.4;margin-top:2px">Diapers, sanitary items, wrappers. Wrap tightly before bin.</div>
+        </div>
+        <div class="rw-item" style="background:#fee2e2;border-color:#fecaca">
+          <div class="rw-ic">☣️</div>
+          <div class="rw-name">Special</div>
+          <div style="font-size:11px;color:var(--text-3);line-height:1.4;margin-top:2px">Batteries, e-waste, chemicals. Drop at designated points only.</div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px">
+        <div style="font-weight:900;font-size:14px;margin-bottom:10px">📌 Daily Eco Tips</div>
+        <ul id="eco-tips" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text-2);line-height:1.5"></ul>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#1e5233,#3fa668);color:#fff;border-radius:16px;padding:16px">
+        <div style="font-size:11px;font-weight:800;color:#c7f24a;letter-spacing:.08em">DID YOU KNOW?</div>
+        <div id="eco-fact" style="margin-top:6px;font-size:14px;font-weight:700;line-height:1.5"></div>
+        <button class="btn-ghost" style="margin-top:12px;background:rgba(255,255,255,.15);color:#fff" onclick="nextFact()">Next fact →</button>
+      </div>
+
+      <div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px">
+        <div style="font-weight:900;font-size:14px;margin-bottom:8px">🎯 Your Eco Impact</div>
+        <div class="stat-row" style="padding:0">
+          <div class="stat"><div class="stat-n" id="eco-reports">0</div><div class="stat-l">Reports</div></div>
+          <div class="stat"><div class="stat-n" id="eco-points">0</div><div class="stat-l">Points</div></div>
+          <div class="stat"><div class="stat-n" id="eco-days">0</div><div class="stat-l">Active days</div></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
   <!-- Tab bar -->
   <nav class="tabbar">
     <button class="tab on" id="tab-home" onclick="showHome()"><span class="ic">🏠</span>Home</button>
     <button class="tab" id="tab-sched" onclick="showSchedule()"><span class="ic">📅</span>Schedule</button>
     <button class="tab" id="tab-report" onclick="showReport()"><span class="ic">🚨</span>Report</button>
     <button class="tab" id="tab-rewards" onclick="showRewards()"><span class="ic">🎁</span>Rewards</button>
+    <button class="tab" id="tab-eco" onclick="showEco()"><span class="ic">🌱</span>Eco</button>
     <button class="tab" id="tab-profile" onclick="showProfile()"><span class="ic">👤</span>Profile</button>
   </nav>
 </div>
@@ -504,7 +561,7 @@
 
   function showScreen(id){
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id===id));
-    ['home','sched','report','rewards','profile'].forEach(k => {
+    ['home','sched','report','rewards','eco','profile'].forEach(k => {
       const el = document.getElementById('tab-'+k);
       if(el) el.classList.toggle('on', id==='scr-'+k);
     });
@@ -514,7 +571,44 @@
   function showSchedule(){ renderZonePicker(); renderDays(); showScreen('scr-sched'); }
   function showReport(){ renderReportPickers(); renderMyReports(); showScreen('scr-report'); }
   function showRewards(){ renderRewards(); showScreen('scr-rewards'); }
+  function showEco(){ renderEco(); showScreen('scr-eco'); }
   function showProfile(){ renderProfile(); showScreen('scr-profile'); }
+
+  // ---------- ECO AWARENESS ----------
+  const ECO_TIPS = [
+    'Rinse recyclables before disposal — clean items are more likely to be reprocessed.',
+    'Compost kitchen scraps to cut household waste by up to 30%.',
+    'Bring your own bag — a single reusable bag can replace 700+ plastic ones.',
+    'Break down cardboard boxes to save space in collection bins.',
+    'Never mix batteries with regular trash — bring them to a special-waste drop point.',
+    'Say no to single-use straws and cutlery when ordering takeout.',
+    'Repair before you replace — many appliances just need a small fix.',
+  ];
+  const ECO_FACTS = [
+    'A plastic bottle takes up to 450 years to decompose in a landfill.',
+    'Recycling one aluminum can saves enough energy to power a TV for 3 hours.',
+    'Filipino households generate an average of 0.4 kg of waste per person per day.',
+    'Composting can divert nearly half of your household waste from landfills.',
+    'Segregation at source is the single most effective waste management practice.',
+  ];
+  let ecoFactIdx = 0;
+  function renderEco(){
+    const tips = document.getElementById('eco-tips');
+    if(tips) tips.innerHTML = ECO_TIPS.map(t=>`<li>${t}</li>`).join('');
+    const fact = document.getElementById('eco-fact');
+    if(fact) fact.textContent = ECO_FACTS[ecoFactIdx];
+    const reports = (typeof MY_REPORTS !== 'undefined' ? MY_REPORTS.length : 0);
+    const points = (typeof userPoints !== 'undefined' ? userPoints : 0);
+    document.getElementById('eco-reports').textContent = reports;
+    document.getElementById('eco-points').textContent = points;
+    const days = new Set((typeof MY_REPORTS !== 'undefined' ? MY_REPORTS : []).map(r=>(r.when||'').slice(0,10))).size;
+    document.getElementById('eco-days').textContent = days;
+  }
+  function nextFact(){
+    ecoFactIdx = (ecoFactIdx+1) % ECO_FACTS.length;
+    const fact = document.getElementById('eco-fact');
+    if(fact) fact.textContent = ECO_FACTS[ecoFactIdx];
+  }
 
   function toast(msg){
     const t = document.getElementById('toast');
